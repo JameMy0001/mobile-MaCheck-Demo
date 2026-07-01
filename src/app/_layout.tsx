@@ -2,14 +2,28 @@ import { Stack } from 'expo-router';
 
 import { useEffect } from 'react';
 import { useAppStore } from '../store/useAppStore';
+import { requestNotificationPermissions, rescheduleAllCabinetMeds } from '../services/notificationService';
 
 export default function Layout() {
   const loadAllFromStorage = useAppStore((state) => state.loadAllFromStorage);
   const isLoaded = useAppStore((state) => state.isLoaded);
+  const cabinet = useAppStore((state) => state.cabinet);
 
   useEffect(() => {
     loadAllFromStorage();
   }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      const initNotifications = async () => {
+        const granted = await requestNotificationPermissions();
+        if (granted) {
+          await rescheduleAllCabinetMeds(cabinet).catch(err => console.error(err));
+        }
+      };
+      initNotifications();
+    }
+  }, [isLoaded]);
 
   if (!isLoaded) {
     return null; // Don't render screens until state is loaded

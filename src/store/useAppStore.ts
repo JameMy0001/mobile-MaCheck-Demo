@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { rescheduleAllCabinetMeds } from '../services/notificationService';
 
 export interface UserProfile {
   name: string;
@@ -45,6 +46,7 @@ export interface AppState {
   logs: ActivityLog[];
   activeChallenge: ActiveChallenge | null;
   doctorMode: boolean;
+  developerMode: boolean;
   fontSize: 'small' | 'normal' | 'medium' | 'large' | 'xlarge';
   soundMuted: boolean;
   caregiverPhone: string;
@@ -59,6 +61,7 @@ export interface AppState {
   clearLogs: () => Promise<void>;
   setActiveChallenge: (challenge: ActiveChallenge | null) => Promise<void>;
   setDoctorMode: (mode: boolean) => Promise<void>;
+  setDeveloperMode: (mode: boolean) => Promise<void>;
   setFontSize: (size: 'small' | 'normal' | 'medium' | 'large' | 'xlarge') => Promise<void>;
   setSoundMuted: (muted: boolean) => Promise<void>;
   setCaregiverPhone: (phone: string) => Promise<void>;
@@ -75,6 +78,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   logs: [],
   activeChallenge: null,
   doctorMode: false,
+  developerMode: false,
   fontSize: 'normal',
   soundMuted: false,
   caregiverPhone: '',
@@ -99,6 +103,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setCabinet: async (cabinet) => {
     set({ cabinet });
     await AsyncStorage.setItem('@cabinet_meds', JSON.stringify(cabinet));
+    await rescheduleAllCabinetMeds(cabinet).catch(err => console.error('Notifications reschedule error:', err));
   },
 
   setLogs: async (logs) => {
@@ -140,6 +145,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     await AsyncStorage.setItem('@doctor_mode', doctorMode ? 'true' : 'false');
   },
 
+  setDeveloperMode: async (developerMode) => {
+    set({ developerMode });
+    await AsyncStorage.setItem('@developer_mode', developerMode ? 'true' : 'false');
+  },
+
   setFontSize: async (fontSize) => {
     set({ fontSize });
     await AsyncStorage.setItem('@font_size', fontSize);
@@ -179,12 +189,15 @@ export const useAppStore = create<AppState>((set, get) => ({
       const storedBackendUrl = await AsyncStorage.getItem('@backend_url');
       const storedAllUsers = await AsyncStorage.getItem('@all_users');
 
+      const storedDevMode = await AsyncStorage.getItem('@developer_mode');
+
       set({
         profile: storedProfile ? JSON.parse(storedProfile) : null,
         cabinet: storedCabinet ? JSON.parse(storedCabinet) : [],
         logs: storedLogs ? JSON.parse(storedLogs) : [],
         activeChallenge: storedChallenge ? JSON.parse(storedChallenge) : null,
         doctorMode: storedDoctorMode === 'true',
+        developerMode: storedDevMode === 'true',
         fontSize: (storedFontSize as any) || 'normal',
         soundMuted: storedSoundMuted === 'true',
         caregiverPhone: storedCgPhone || '',

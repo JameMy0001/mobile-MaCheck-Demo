@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Platform, Modal, Alert, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Platform, Modal, Alert, Image, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -32,6 +32,7 @@ export default function HomeScreen() {
   const setActiveChallenge = useAppStore((state) => state.setActiveChallenge);
   const setProfile = useAppStore((state) => state.setProfile);
   const caregiverPhone = useAppStore((state) => state.caregiverPhone);
+  const developerMode = useAppStore((state) => state.developerMode);
 
   const cabinetCount = cabinet.length;
   const [speedUp, setSpeedUp] = useState(false);
@@ -206,15 +207,20 @@ export default function HomeScreen() {
 
 
   const makeEmergencyCall = () => {
-    const phone = caregiverPhone || profile?.phone || 'สายด่วน 1669';
-    handleSpeak(`กำลังจำลองการโทรด่วนไปที่เบอร์ ${phone} และสายด่วนสิบหกหกเก้าค่ะ`);
-    addActivityLog('คุณตากดปุ่มเรียกสายด่วนฉุกเฉิน');
-    setCustomAlert({
-      visible: true,
-      title: 'สายด่วนฉุกเฉิน',
-      message: `กำลังจำลองการโทรด่วนไปที่เบอร์ผู้ดูแล: ${phone}\nและศูนย์แพทย์สายด่วนฉุกเฉิน: 1669`,
-      type: 'call',
-      phone: phone
+    const rawPhone = caregiverPhone || profile?.phone || '1669';
+    const cleanPhone = rawPhone.replace(/\D/g, '') || '1669';
+    handleSpeak(`กำลังโทรติดต่อเบอร์ ${rawPhone} ค่ะ`);
+    addActivityLog(`คุณตากดปุ่มเรียกสายด่วนฉุกเฉิน: ${rawPhone}`);
+    
+    Linking.openURL(`tel:${cleanPhone}`).catch(err => {
+      console.error('Call failed:', err);
+      setCustomAlert({
+        visible: true,
+        title: 'ระบบสายด่วนฉุกเฉิน',
+        message: `ไม่สามารถเปิดโปรแกรมโทรออกอัตโนมัติได้ค่ะ (เบอร์ผู้ดูแล: ${rawPhone})\nโปรดใช้โทรศัพท์โทรติดต่อ 1669 โดยตรงนะคะ`,
+        type: 'call',
+        phone: rawPhone
+      });
     });
   };
 
@@ -434,16 +440,18 @@ export default function HomeScreen() {
           </View>
 
           {/* Alert Simulator Button (Orange/Amber) */}
-          <TouchableOpacity 
-            style={[
-              styles.neoBtn, 
-              { marginHorizontal: 16, marginTop: 12, backgroundColor: doctorMode ? '#ECEFF1' : '#FF6F00', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 3, borderColor: '#000', boxShadow: '3px 3px 0px #000' }
-            ]} 
-            onPress={openAlertSimulator}
-          >
-            <Feather name="bell" size={22} color={doctorMode ? '#000' : '#FFF'} style={{ marginRight: 8 }} />
-            <Text style={{ color: doctorMode ? '#000' : '#FFF', fontWeight: '900', fontSize: 16 }}>🔔 เปิดทดสอบระบบแจ้งเตือน (3 ระดับ)</Text>
-          </TouchableOpacity>
+          {developerMode && (
+            <TouchableOpacity 
+              style={[
+                styles.neoBtn, 
+                { marginHorizontal: 16, marginTop: 12, backgroundColor: doctorMode ? '#ECEFF1' : '#FF6F00', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderRadius: 14, borderWidth: 3, borderColor: '#000', boxShadow: '3px 3px 0px #000' }
+              ]} 
+              onPress={openAlertSimulator}
+            >
+              <Feather name="bell" size={22} color={doctorMode ? '#000' : '#FFF'} style={{ marginRight: 8 }} />
+              <Text style={{ color: doctorMode ? '#000' : '#FFF', fontWeight: '900', fontSize: 16 }}>🔔 เปิดทดสอบระบบแจ้งเตือน (3 ระดับ)</Text>
+            </TouchableOpacity>
+          )}
 
           {/* Caregiver Mirror Button (Blue) */}
           <View style={styles.mirrorContainer}>

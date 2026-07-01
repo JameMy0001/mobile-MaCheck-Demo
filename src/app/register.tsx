@@ -44,6 +44,7 @@ export default function RegisterScreen() {
   const storeCaregiverPhone = useAppStore((state) => state.caregiverPhone);
   const storeGeminiApiKey = useAppStore((state) => state.geminiApiKey);
   const storeBackendUrl = useAppStore((state) => state.backendUrl);
+  const storeDevMode = useAppStore((state) => state.developerMode);
   const refreshAllUsers = useAppStore((state) => state.refreshAllUsers);
 
   // Register fields
@@ -59,6 +60,7 @@ export default function RegisterScreen() {
   const [caregiverPhone, setCaregiverPhone] = useState('');
   const [geminiApiKey, setGeminiApiKey] = useState('');
   const { doctorMode, setDoctorMode } = useDoctorMode();
+  const [developerMode, setDeveloperMode] = useState(false);
   const [backendUrl, setBackendUrl] = useState('');
 
   // Login fields
@@ -125,6 +127,7 @@ export default function RegisterScreen() {
       if (storeCaregiverPhone) setCaregiverPhone(storeCaregiverPhone);
       if (storeGeminiApiKey) setGeminiApiKey(storeGeminiApiKey);
       setBackendUrl(storeBackendUrl || 'http://localhost:5001/api');
+      setDeveloperMode(storeDevMode);
 
       if (storeProfile) {
         setHasProfile(true);
@@ -317,6 +320,7 @@ export default function RegisterScreen() {
       await useAppStore.getState().setGeminiApiKey(geminiApiKey.trim());
       await useAppStore.getState().setBackendUrl(backendUrl.trim());
       await useAppStore.getState().setDoctorMode(doctorMode);
+      await useAppStore.getState().setDeveloperMode(developerMode);
 
       // ซิงค์โปรไฟล์ที่อัปเดตไปหลังบ้านด้วย
       await syncProfileWithBackend(updatedProfile);
@@ -658,6 +662,31 @@ export default function RegisterScreen() {
                 >
                   <Text style={[styles.doctorModeToggleBtnText, { fontSize: 14 + fontOffset, color: doctorMode ? '#FFF' : '#000' }]}>
                     {doctorMode ? 'เปิดอยู่' : 'ปิดอยู่'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* ⚙️ โหมดนักพัฒนา (Developer Mode / Simulator Panel) */}
+              <View style={[styles.doctorModeContainer, { marginTop: 12 }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
+                <View style={{ flex: 1, paddingRight: 8 }}>
+                  <Text style={[styles.doctorModeTitle, { fontSize: 17 + fontOffset }]}>⚙️ แผงทดสอบระบบ (Developer Mode)</Text>
+                  <Text style={[styles.doctorModeDesc, { fontSize: 12 + fontOffset }]}>
+                    เปิดใช้งานแผงสาธิตการแจ้งเตือน 3 ระดับบนหน้าหลักเพื่อใช้สำหรับตรวจประเมิน
+                  </Text>
+                </View>
+                <TouchableOpacity 
+                  style={[
+                    styles.doctorModeToggleBtn, 
+                    developerMode ? styles.doctorModeToggleActive : styles.doctorModeToggleInactive
+                  ]}
+                  onPress={() => {
+                    const nextVal = !developerMode;
+                    setDeveloperMode(nextVal);
+                    handleSpeak(nextVal ? 'เปิดแผงทดสอบระบบแล้วค่ะ' : 'ปิดแผงทดสอบระบบแล้วค่ะ');
+                  }}
+                >
+                  <Text style={[styles.doctorModeToggleBtnText, { fontSize: 14 + fontOffset, color: developerMode ? '#FFF' : '#000' }]}>
+                    {developerMode ? 'เปิดอยู่' : 'ปิดอยู่'}
                   </Text>
                 </TouchableOpacity>
               </View>
