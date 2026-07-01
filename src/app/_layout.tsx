@@ -22,7 +22,6 @@ export default function Layout() {
       <Stack.Screen name="scanner" options={{ title: 'สแกนเช็กยาตีกัน', headerStyle: { backgroundColor: '#FF5252' }, headerTintColor: '#fff' }} />
       <Stack.Screen name="cabinet" options={{ title: 'ตู้ยาของฉัน', headerStyle: { backgroundColor: '#4CAF50' }, headerTintColor: '#fff' }} />
       <Stack.Screen name="food-clash" options={{ title: 'เช็กของแสลง', headerStyle: { backgroundColor: '#FFEB3B' }, headerTintColor: '#000' }} />
-      <Stack.Screen name="chatbot" options={{ title: 'คุยกับหลานรัก AI', headerStyle: { backgroundColor: '#FF9800' }, headerTintColor: '#fff' }} />
       <Stack.Screen name="caregiver" options={{ title: 'หน้าจอลูกหลาน (Mirror)', headerStyle: { backgroundColor: '#9C27B0' }, headerTintColor: '#fff' }} />
     </Stack>
   );

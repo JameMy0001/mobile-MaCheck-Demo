@@ -18,7 +18,6 @@ const IconWaterDrop = require('../../assets/images/icons/icon_water_drop.png');
 const IconGlassWater = require('../../assets/images/icons/icon_glass_water.png');
 const IconBell = require('../../assets/images/icons/icon_bell.png');
 const IconSiren = require('../../assets/images/icons/icon_siren.png');
-const IconVoiceChat = require('../../assets/images/icons/icon_voice_chat.png');
 const IconNurseGirl = require('../../assets/images/icons/icon_nurse_girl.png');
 const IconKey = require('../../assets/images/icons/icon_key.png');
 
@@ -433,15 +432,6 @@ export default function HomeScreen() {
               </TouchableOpacity>
             </View>
           </View>
-
-          {/* Chatbot Button (Orange) */}
-          <TouchableOpacity 
-            style={[styles.neoBtn, styles.btnOrange, { marginHorizontal: 16 }, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]} 
-            onPress={() => navTo('/chatbot', 'คุยกับหลานรัก AI ค่ะ')}
-          >
-            <Image source={IconVoiceChat} style={{ width: 24, height: 24, resizeMode: 'contain', marginRight: 8 }} />
-            <Text style={[styles.btnOrangeText, doctorMode && { color: '#000' }]}>คุยกับหลานรัก AI (ด้วยเสียง)</Text>
-          </TouchableOpacity>
 
           {/* Alert Simulator Button (Orange/Amber) */}
           <TouchableOpacity 
