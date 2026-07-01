@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, Alert, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
@@ -661,6 +661,29 @@ export default function RegisterScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+
+              {/* 🩺 ปุ่มเปิดเว็บบอร์ดสำหรับแพทย์ (Doctor Dashboard Portal) */}
+              <TouchableOpacity 
+                style={[
+                  styles.registerBtn, 
+                  { 
+                    backgroundColor: '#0a7c85', 
+                    marginTop: 8, 
+                    marginBottom: 16,
+                    borderWidth: 0
+                  },
+                  doctorMode && { backgroundColor: '#37474F', borderColor: '#000' }
+                ]} 
+                onPress={() => {
+                  handleSpeak('กำลังเปิดหน้าแดชบอร์ดสำหรับแพทย์ค่ะ');
+                  Linking.openURL('http://localhost:5001/doctor');
+                }}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                  <FontAwesome5 name="hospital-user" size={20} color="#FFF" />
+                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>เปิดแดชบอร์ดแพทย์ (Doctor Portal)</Text>
+                </View>
+              </TouchableOpacity>
 
               <TouchableOpacity style={[styles.registerBtn, { backgroundColor: doctorMode ? '#000' : '#4CAF50' }]} onPress={handleSaveSettings}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>

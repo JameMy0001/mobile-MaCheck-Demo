@@ -22,36 +22,6 @@ const IconVoiceChat = require('../../assets/images/icons/icon_voice_chat.png');
 const IconNurseGirl = require('../../assets/images/icons/icon_nurse_girl.png');
 const IconKey = require('../../assets/images/icons/icon_key.png');
 
-// รายการคำถามโหมดขี้บ่นแบบ Neobrutalism
-const NAGGING_QUESTIONS = [
-  {
-    type: 'water',
-    text: 'คุณต๊าาาา! ลืมจิบน้ำแก้วโตๆ อีกแล้วใช่ไหมเนี่ย! หนูกล่องเสียงจะแห้งตามแล้ว กดดื่มน้ำเดี๋ยวนี้เลยนะคะ!',
-    speechText: 'คุณตาขา ลืมจิบน้ำหรือเปล่าคะ กดดื่มน้ำเดี๋ยวนี้เลยน้า',
-    buttons: [
-      { text: '🥛 ดื่มน้ำเรียบร้อยแล้วจ้า', reply: 'เก่งมากเลยค่ะคุณตา! จิบน้ำเยอะๆ ดีต่อไตและระบบความดันนะคะ', log: 'คุณตาดื่มน้ำแก้บ่น' },
-      { text: '❌ เดี๋ยวค่อยดื่มนะหลาน', reply: 'โธ่คุณตา อย่าลืมจิบน้ำน้า เดี๋ยวผิวแห้งและวิงเวียนศีรษะนะคะ', log: 'คุณตาเลื่อนจิบน้ำ' }
-    ]
-  },
-  {
-    type: 'move',
-    text: 'คุณตาขาาา นั่งแช่อยู่กับที่นานเกินไปแล้วนะ! ลุกขึ้นยืนเดินยืดเส้นยืดสาย 10 ก้าวเดี๋ยวนี้เลยค่ะ ร่างกายจะได้แข็งแรงนะ!',
-    speechText: 'คุณตานั่งนานเกินไปแล้วนะคะ ลุกเดินยืดเส้นยืดสายสักสิบก้าวเร๊ว',
-    buttons: [
-      { text: '🚶 ลุกขึ้นเดินยืดเส้นแล้วจ้า', reply: 'เยี่ยมที่สุดค่ะเดินเบาๆ กระตุ้นข้อเข่าและหัวใจแข็งแรงค่ะ', log: 'คุณตาลุกยืนเดินยืดเส้น' },
-      { text: '😴 ขอนอนพักผ่อนต่อก่อน', reply: 'ได้ค่ะพักผ่อนก่อน แต่อย่านั่งเฉยๆ นานเกินไปน้า เป็นห่วงค่ะ', log: 'คุณตาขอพักผ่อนต่อ' }
-    ]
-  },
-  {
-    type: 'mood',
-    text: 'จ๊ะเอ๋คุณตา! อยู่บ้านคนเดียวเหงาไหมเอ่ย? คิดถึงหลานๆ บ้างไหม? ยิ้มกว้างๆ ให้หลานดูให้ชื่นใจหน่อยเร๊ววว!',
-    speechText: 'จ๊ะเอ๋คุณตา อยู่บ้านเหงาไหมเอ่ย ยิ้มกว้างๆ ให้หลานชื่นใจหน่อยค่ะ',
-    buttons: [
-      { text: '😊 ยิ้มแย้ม สบายดีจ้า', reply: 'เย้! คุณตายิ้มแล้วหลานรักมีกำลังใจทำงานต่อเลยค่ะ รักคุณตานะคะ', log: 'คุณตาส่งยิ้มอารมณ์ดี' },
-      { text: '🥺 แอบเหงา คิดถึงลูกหลาน', reply: 'โอบกอดแน่นๆ นะคะคุณตา เดี๋ยวหลานโทรหาลูกหลานให้คุยแก้เหงานะคะ', log: 'คุณตาแอบเหงาคิดถึงบ้าน' }
-    ]
-  }
-];
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -67,11 +37,6 @@ export default function HomeScreen() {
   const cabinetCount = cabinet.length;
   const [speedUp, setSpeedUp] = useState(false);
 
-  // Nagging Mode states
-  const [naggingEnabled, setNaggingEnabled] = useState(false);
-  const [naggingModalVisible, setNaggingModalVisible] = useState(false);
-  const [currentNag, setCurrentNag] = useState<any>(null);
-  const naggingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sound control (shared hook)
   const { isSoundMuted, handleSpeak, toggleSound } = useSound();
@@ -161,7 +126,6 @@ export default function HomeScreen() {
     return () => {
       clearInterval(timer);
       clearInterval(nudgeInterval);
-      if (naggingTimerRef.current) clearInterval(naggingTimerRef.current);
     };
   }, [profile]);
 
@@ -197,30 +161,7 @@ export default function HomeScreen() {
     return () => clearInterval(challengeTimer);
   }, [activeChallenge, speedUp]);
 
-  // ระบบโหมดขี้บ่น (Nagging Mode Interval Check)
-  useEffect(() => {
-    if (naggingTimerRef.current) {
-      clearInterval(naggingTimerRef.current);
-      naggingTimerRef.current = null;
-    }
 
-    if (naggingEnabled) {
-      // ตั้งเวลาเด้งเตือนทุกๆ 20 วินาที เพื่อจำลองและสาธิตการทำงาน
-      naggingTimerRef.current = setInterval(() => {
-        if (!naggingModalVisible) {
-          const randomIndex = Math.floor(Math.random() * NAGGING_QUESTIONS.length);
-          const nag = NAGGING_QUESTIONS[randomIndex];
-          setCurrentNag(nag);
-          setNaggingModalVisible(true);
-          handleSpeak(nag.speechText);
-        }
-      }, 20000);
-    }
-
-    return () => {
-      if (naggingTimerRef.current) clearInterval(naggingTimerRef.current);
-    };
-  }, [naggingEnabled, naggingModalVisible]);
 
   const navTo = (path: any, speechText?: string) => {
     if (speechText) handleSpeak(speechText);
@@ -264,24 +205,6 @@ export default function HomeScreen() {
     await addActivityLog(`คุณตาสิ้นสุดภารกิจความปลอดภัยเว้นระยะยา: "${activeChallenge.medName}"`);
   };
 
-  // ตอบกลับข้อความโหมดขี้บ่น
-  const handleNagReply = async (btn: any) => {
-    setNaggingModalVisible(false);
-    handleSpeak(btn.reply);
-    await addActivityLog(`โหมดขี้บ่น: ${btn.log}`);
-  };
-
-  const toggleNaggingMode = () => {
-    const nextState = !naggingEnabled;
-    setNaggingEnabled(nextState);
-    if (nextState) {
-      handleSpeak('เปิดโหมดขี้บ่นแล้วค่ะ หลานสาวจะเด้งเตือนคุณตาเป็นระยะๆ นะคะ');
-      addActivityLog('เปิดใช้งานโหมดขี้บ่นหลานรัก AI');
-    } else {
-      handleSpeak('ปิดโหมดขี้บ่นแล้วค่ะ');
-      addActivityLog('ปิดใช้งานโหมดขี้บ่นหลานรัก AI');
-    }
-  };
 
   const makeEmergencyCall = () => {
     const phone = caregiverPhone || profile?.phone || 'สายด่วน 1669';
@@ -532,23 +455,6 @@ export default function HomeScreen() {
             <Text style={{ color: doctorMode ? '#000' : '#FFF', fontWeight: '900', fontSize: 16 }}>🔔 เปิดทดสอบระบบแจ้งเตือน (3 ระดับ)</Text>
           </TouchableOpacity>
 
-          {/* Nagging Mode Toggle Panel */}
-          <View style={styles.naggingToggleContainer}>
-            <TouchableOpacity 
-              style={[
-                styles.neoBtn, 
-                styles.btnNagging, 
-                naggingEnabled && styles.btnNaggingActive,
-                doctorMode && { backgroundColor: naggingEnabled ? '#37474F' : '#FFF', borderColor: '#000' }
-              ]}
-              onPress={toggleNaggingMode}
-            >
-              <Text style={[styles.btnNaggingText, doctorMode && { color: naggingEnabled ? '#FFF' : '#000' }]}>
-                {naggingEnabled ? 'เปิดโหมดหลานรักขี้บ่นอยู่ (เด้งบ่อยเตือนใจ)' : 'ปิดโหมดหลานรักขี้บ่น (กดเพื่อเปิดเตือน)'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-
           {/* Caregiver Mirror Button (Blue) */}
           <View style={styles.mirrorContainer}>
             <TouchableOpacity 
@@ -567,35 +473,6 @@ export default function HomeScreen() {
 
         </ScrollView>
 
-        {/* Nagging Question Popup Overlay */}
-        <Modal
-          animationType="fade"
-          transparent={true}
-          visible={naggingModalVisible}
-          onRequestClose={() => setNaggingModalVisible(false)}
-        >
-          <View style={styles.naggingModalBg}>
-            <View style={styles.naggingContentCard}>
-              <View style={styles.nagAvatarWrapper}>
-                <Image source={IconNurseGirl} style={{ width: 72, height: 72, resizeMode: 'contain' }} />
-              </View>
-              <Text style={styles.nagTitle}>หลานขี้บ่นเตือนคุณตาจ้า!</Text>
-              <Text style={styles.nagQuestionText}>{currentNag?.text}</Text>
-              
-              <View style={styles.nagButtonsCol}>
-                {currentNag?.buttons.map((btn: any, idx: number) => (
-                  <TouchableOpacity 
-                    key={idx} 
-                    style={[styles.nagReplyBtn, idx === 0 ? styles.nagBtnPrimary : styles.nagBtnSecondary]}
-                    onPress={() => handleNagReply(btn)}
-                  >
-                    <Text style={styles.nagReplyBtnText}>{btn.text}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-          </View>
-        </Modal>
 
         {/* Custom Alert & Emergency Calling Modal */}
         <CustomAlertModal
@@ -1051,29 +928,6 @@ const styles = StyleSheet.create({
     color: '#FFF',
   },
   
-  // Nagging toggle styling
-  naggingToggleContainer: {
-    paddingHorizontal: 16,
-    marginBottom: 16,
-    maxWidth: 500,
-    alignSelf: 'center',
-    width: '100%',
-  },
-  btnNagging: {
-    backgroundColor: '#ECEFF1',
-    height: 52,
-    borderRadius: 12,
-    boxShadow: '3px 3px 0px #000',
-  },
-  btnNaggingActive: {
-    backgroundColor: '#FF9800',
-    borderColor: '#000',
-  },
-  btnNaggingText: {
-    fontSize: 15,
-    fontWeight: '900',
-    color: '#000',
-  },
 
   mirrorContainer: {
     paddingHorizontal: 16,
@@ -1113,80 +967,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  // Nagging Popup styles
-  naggingModalBg: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  naggingContentCard: {
-    backgroundColor: '#FFF8E1',
-    borderWidth: 4,
-    borderColor: '#000',
-    borderRadius: 24,
-    boxShadow: '6px 6px 0px #000',
-    padding: 20,
-    width: '100%',
-    maxWidth: 400,
-    alignItems: 'center',
-    gap: 14,
-  },
-  nagAvatarWrapper: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: '#000',
-    backgroundColor: '#FFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: -40,
-  },
-  nagTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: '#E65100',
-  },
-  nagQuestionText: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#000',
-    textAlign: 'center',
-    lineHeight: 26,
-    backgroundColor: '#FFF',
-    borderWidth: 2,
-    borderColor: '#000',
-    padding: 12,
-    borderRadius: 12,
-    width: '100%',
-  },
-  nagButtonsCol: {
-    width: '100%',
-    gap: 10,
-    marginTop: 10,
-  },
-  nagReplyBtn: {
-    height: 52,
-    borderRadius: 12,
-    borderWidth: 3,
-    borderColor: '#000',
-    justifyContent: 'center',
-    alignItems: 'center',
-    boxShadow: '3px 3px 0px #000',
-  },
-  nagBtnPrimary: {
-    backgroundColor: '#4CAF50',
-  },
-  nagBtnSecondary: {
-    backgroundColor: '#B0BEC5',
-  },
-  nagReplyBtnText: {
-    fontSize: 17,
-    fontWeight: '900',
-    color: '#FFF',
-  },
   
   // Custom Alert & Call popup styles
   alertModalBg: {
