@@ -12,6 +12,14 @@ import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
 
+const DEMO_IMAGES: Record<string, any> = {
+  case1: require('../../assets/images/demo/pill_ibuprofen_1782351438429.png'),
+  case2: require('../../assets/images/demo/pill_amlodipine_1782351383168.png'),
+  case3: require('../../assets/images/demo/pill_ibuprofen_1782351438429.png'),
+  case4: require('../../assets/images/demo/pill_ibuprofen_1782351438429.png'),
+  unknown: null,
+};
+
 export default function ScannerScreen() {
   const router = useRouter();
   const [permission, requestPermission] = useCameraPermissions();
@@ -19,6 +27,7 @@ export default function ScannerScreen() {
   const [result, setResult] = useState<any>(null);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const cameraRef = useRef<any>(null);
+  const [activeCase, setActiveCase] = useState<'case1' | 'case2' | 'case3' | 'case4' | 'unknown'>('case1');
 
   // States for medication selection modal
   const [selectModalVisible, setSelectModalVisible] = useState(false);
@@ -73,43 +82,70 @@ export default function ScannerScreen() {
   }
 
   const takePicture = async () => {
-    if (cameraRef.current && !isScanning) {
+    if (!isScanning) {
       setIsScanning(true);
       try {
-        const photo = await cameraRef.current.takePictureAsync({ quality: 0.5 });
-        setPhotoUri(photo.uri);
-        handleSpeak('ถ่ายภาพเสร็จแล้วค่ะ กำลังตรวจจับชื่อยาด้วยระบบเอไอออฟไลน์นะคะ');
+        if (cameraRef.current) {
+          try {
+            await cameraRef.current.takePictureAsync({ quality: 0.1 });
+          } catch (e) {
+            console.log('Shutter audio mock bypass');
+          }
+        }
         
-        // จำลองการแสกนหาชื่อยาอัตโนมัติ (ตรวจจับได้ยาแก้ปวด Ibuprofen)
+        handleSpeak('ถ่ายภาพเสร็จแล้วค่ะ กำลังวิเคราะห์รูปภาพยาด้วยระบบเอไอออฟไลน์นะคะ');
+        
         setTimeout(async () => {
-          const detectedMed = 'Ibuprofen';
-          handleSpeak('ตรวจพบยาแก้ปวด ไอบูโพรเฟน บนฉลากซองยาค่ะ กำลังตรวจวิเคราะห์ความปลอดภัยค่ะ');
+          let caseResult: any = {};
           
-          const diseases = profile ? profile.diseases : [];
-          const allergies = profile ? profile.allergies : [];
-          
-          const safetyResult = await checkInteraction(detectedMed, cabinet, diseases, allergies);
+          if (activeCase === 'case1') {
+            caseResult = {
+              name: 'Ibuprofen (ยาไอบูโพรเฟน)',
+              severity: 'red',
+              descTh: '❌ ตรวจพบอันตรายร้ายแรง (Contraindication)!\n\nยาที่สแกน: Ibuprofen (ยาแก้ปวดอักเสบ)\nยาในตู้ของคุณตา: Warfarin (ยาต้านการแข็งตัวของเลือด)\n\nผลการวิเคราะห์: ยาทั้ง 2 ชนิดนี้ตีกันห้ามกินร่วมกันเด็ดขาด! การรับประทานร่วมกันจะเพิ่มความเสี่ยงต่อภาวะเลือดออกในกระเพาะอาหารอย่างรุนแรงและมีเลือดออกภายในจนเป็นอันตรายถึงชีวิตค่ะ!',
+              speechTh: 'ตรวจพบอันตรายร้ายแรงค่ะ ยาไอบูโพรเฟนตีกับยาวาร์ฟารินในตู้ยาของคุณตา ห้ามกินร่วมกันเด็ดขาดนะคะ'
+            };
+          } else if (activeCase === 'case2') {
+            caseResult = {
+              name: 'Amlodipine (ยาแอมโลดิพีน)',
+              severity: 'green',
+              descTh: '✅ ปลอดภัย ทานร่วมกันได้!\n\nยาที่สแกน: Amlodipine (ยาลดความดันโลหิต)\nยาในตู้ของคุณตา: Simvastatin (ยาลดไขมันในเลือด)\n\nผลการวิเคราะห์: ยาทั้ง 2 ชนิดนี้สามารถรับประทานร่วมกันได้อย่างปลอดภัยตามขนาดและเวลาที่แพทย์สั่งค่ะคุณตา',
+              speechTh: 'ยาแอมโลดิพีนสามารถทานร่วมกับยาซิมวาสตาตินในตู้ยาได้อย่างปลอดภัยค่ะคุณตา'
+            };
+          } else if (activeCase === 'case3') {
+            caseResult = {
+              name: 'Ibuprofen (ยาไอบูโพรเฟน)',
+              severity: 'yellow',
+              descTh: '⚠️ ควรระวังและเว้นระยะห่าง!\n\nยาที่สแกน: Ibuprofen (ยาแก้ปวดอักเสบ)\nยาในตู้ของคุณตา: Metformin (ยาเบาหวาน)\n\nผลการวิเคราะห์: ควรระวัง! ยา 2 ชนิดนี้ควรทานห่างกันอย่างน้อย 2 ชั่วโมง และควรจิบน้ำสะอาดบ่อย ๆ ระหว่างวัน เพื่อป้องกันความดันโลหิตและถนอมการทำงานของไตค่ะ',
+              speechTh: 'ควรระวังค่ะ ยาไอบูโพรเฟนควรทานห่างจากยาเบาหวานอย่างน้อยสองชั่วโมงพร้อมจิบน้ำบ่อยๆ นะคะคุณตา'
+            };
+          } else if (activeCase === 'case4') {
+            caseResult = {
+              name: 'Ibuprofen (ยาไอบูโพรเฟน)',
+              severity: 'red',
+              descTh: '❌ ตรวจพบข้อห้ามใช้กับโรคประจำตัวคุณตา!\n\nยาที่สแกน: Ibuprofen (ยาแก้ปวดอักเสบ)\nโรคประจำตัวของคุณตา: โรคไต (Chronic Kidney Disease)\n\nผลการวิเคราะห์: ห้ามรับประทานยานี้เด็ดขาด! เนื่องจากคุณตามีประวัติโรคไตวายเรื้อรัง ยาไอบูโพรเฟนซึ่งเป็นยาแก้ปวดอักเสบกลุ่ม NSAIDs จะทำให้เลือดไปเลี้ยงไตลดลงอย่างมาก ส่งผลให้ไตวายเฉียบพลันได้ค่ะ!',
+              speechTh: 'ตรวจพบข้อห้ามใช้ทางการแพทย์ค่ะ คุณตามีโรคประจำตัวเป็นโรคไต ห้ามทานยาไอบูโพรเฟนโดยเด็ดขาดนะคะ'
+            };
+          } else {
+            caseResult = {
+              name: 'ไม่พบข้อมูลยาในระบบ',
+              severity: 'unknown',
+              error: 'ไม่มีในฐานข้อมูลของระบบ',
+              descTh: '🔍 ไม่พบข้อมูลซองยา!\n\nผลการวิเคราะห์: รูปภาพซองยาที่สแกนอยู่นี้ ไม่มีในฐานข้อมูลของระบบตู้นะคะ\n\nคำแนะนำ: กรุณาติดต่อลูกหลานหรือแพทย์ผู้รักษาเพื่อเพิ่มข้อมูลยาตัวใหม่นี้ลงตู้ยาผ่านหน้าหลักค่ะ',
+              speechTh: 'ขออภัยค่ะ ไม่มีข้อมูลซองยานี้ในฐานข้อมูลของระบบค่ะ'
+            };
+          }
           
           setResult({
-            photo: photo.uri,
-            name: detectedMed,
-            ...safetyResult
+            photo: DEMO_IMAGES[activeCase],
+            ...caseResult
           });
           
-          await addActivityLog(`คุณตาสแกนตรวจจับยาอัตโนมัติ: "${detectedMed}" (ผลลัพธ์: ${safetyResult?.severity})`);
-          handleSpeak(safetyResult?.speechTh || 'ตรวจสอบความปลอดภัยเรียบร้อยแล้วค่ะ');
+          await addActivityLog(`คุณตาสแกนทดสอบกรณีจัดฉาก: ${activeCase} (${caseResult.name}) - ผลลัพธ์: ${caseResult.severity}`);
           setIsScanning(false);
-        }, 1200);
-        
+        }, 1500);
       } catch (e: any) {
         console.error(e);
-        handleSpeak('ถ่ายภาพไม่สำเร็จค่ะ รบกวนถ่ายใหม่อีกครั้งนะคะ');
-        setCustomAlert({
-          visible: true,
-          title: 'ข้อผิดพลาด',
-          message: 'ไม่สามารถถ่ายรูปได้ค่ะ รบกวนคุณตาเปิดสิทธิ์การเข้าถึงกล้องถ่ายภาพในการตั้งค่ามือถือนะคะ',
-          type: 'error'
-        });
         setIsScanning(false);
       }
     }
@@ -535,13 +571,19 @@ export default function ScannerScreen() {
               />
             )}
             <Text style={[styles.resultHeader, { color: borderThemeColor, marginBottom: 0 }]}>
-              {isError ? 'เกิดข้อผิดพลาด' : result.severity === 'red' ? 'ตรวจพบอันตราย!' : result.severity === 'yellow' ? 'ควรระวัง!' : 'ปลอดภัย ทานได้'}
+              {result.severity === 'unknown' ? 'ไม่มีในฐานข้อมูล' : result.severity === 'red' ? 'ตรวจพบอันตราย!' : result.severity === 'yellow' ? 'ควรระวัง!' : 'ปลอดภัย ทานได้'}
             </Text>
           </View>
           
           <View style={[styles.resultCard, { borderColor: borderThemeColor }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
-            {result.photo && <Image source={{ uri: result.photo }} style={styles.previewImg} />}
-            <Text style={styles.medNameText}>{isError ? 'ไม่สามารถวิเคราะห์ได้' : result.name}</Text>
+            {result.photo ? (
+              <Image source={typeof result.photo === 'number' ? result.photo : { uri: result.photo }} style={styles.previewImg} />
+            ) : (
+              <View style={[styles.previewImg, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#ECEFF1', borderWidth: 3, borderColor: '#000' }]}>
+                <Feather name="help-circle" size={80} color="#78909C" />
+              </View>
+            )}
+            <Text style={styles.medNameText}>{result.name}</Text>
             
             {!isError && (
               <TouchableOpacity 
@@ -590,6 +632,58 @@ export default function ScannerScreen() {
     <SafeAreaView style={styles.safeAreaDark}>
       <CameraView style={styles.camera} ref={cameraRef} facing="back">
         <View style={styles.overlay}>
+          {/* Staged Presentation Case Selector */}
+          <View style={styles.demoSelectorContainer}>
+            <Text style={styles.demoSelectorTitle}>🎭 เลือกเคสจัดฉาก (คลิกก่อนกดถ่ายภาพ):</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.demoSelectorScroll}>
+              <TouchableOpacity 
+                style={[styles.demoSelectBtn, activeCase === 'case1' && styles.demoSelectBtnActive]} 
+                onPress={() => {
+                  setActiveCase('case1');
+                  handleSpeak('เลือกเคสที่หนึ่ง ยาตีกัน ห้ามกินร่วมกันเด็ดขาดค่ะ');
+                }}
+              >
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case1' && styles.demoSelectBtnTextActive]}>1. ยาตีกัน (แดง)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.demoSelectBtn, activeCase === 'case2' && styles.demoSelectBtnActive]} 
+                onPress={() => {
+                  setActiveCase('case2');
+                  handleSpeak('เลือกเคสที่สอง ยาทานร่วมกันได้อย่างปลอดภัยค่ะ');
+                }}
+              >
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case2' && styles.demoSelectBtnTextActive]}>2. ทานร่วมกันได้ (เขียว)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.demoSelectBtn, activeCase === 'case3' && styles.demoSelectBtnActive]} 
+                onPress={() => {
+                  setActiveCase('case3');
+                  handleSpeak('เลือกเคสที่สาม ยาควรทานห่างกันสองชั่วโมงค่ะ');
+                }}
+              >
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case3' && styles.demoSelectBtnTextActive]}>3. ทานห่างกัน (เหลือง)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.demoSelectBtn, activeCase === 'case4' && styles.demoSelectBtnActive]} 
+                onPress={() => {
+                  setActiveCase('case4');
+                  handleSpeak('เลือกเคสที่สี่ ยาห้ามกินกับโรคไตค่ะ');
+                }}
+              >
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case4' && styles.demoSelectBtnTextActive]}>4. ยาต้องห้ามกับโรคไต (แดง)</Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.demoSelectBtn, activeCase === 'unknown' && styles.demoSelectBtnActive]} 
+                onPress={() => {
+                  setActiveCase('unknown');
+                  handleSpeak('เลือกเคสที่ห้า ยานอกฐานข้อมูลระบบค่ะ');
+                }}
+              >
+                <Text style={[styles.demoSelectBtnText, activeCase === 'unknown' && styles.demoSelectBtnTextActive]}>5. ยานอกฐานข้อมูล (เทา)</Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+
           <View style={styles.frame}>
             <View style={styles.frameCornerTL} />
             <View style={styles.frameCornerTR} />
@@ -1055,5 +1149,51 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '800',
     color: '#000',
+  },
+  
+  // Staged Presentation Selector Styles
+  demoSelectorContainer: {
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0,0,0,0.85)',
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderBottomWidth: 3,
+    borderColor: '#FFEB3B',
+    zIndex: 100,
+  },
+  demoSelectorTitle: {
+    color: '#FFEB3B',
+    fontSize: 15,
+    fontWeight: '900',
+    marginBottom: 8,
+    paddingHorizontal: 8,
+  },
+  demoSelectorScroll: {
+    paddingHorizontal: 4,
+    gap: 8,
+  },
+  demoSelectBtn: {
+    backgroundColor: '#ECEFF1',
+    borderWidth: 2,
+    borderColor: '#000',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginRight: 6,
+  },
+  demoSelectBtnActive: {
+    backgroundColor: '#FFEB3B',
+    borderColor: '#000',
+  },
+  demoSelectBtnText: {
+    color: '#000',
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  demoSelectBtnTextActive: {
+    fontWeight: '900',
   },
 });
