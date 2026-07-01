@@ -42,7 +42,6 @@ export default function RegisterScreen() {
   const storeProfile = useAppStore((state) => state.profile);
   const allUsers = useAppStore((state) => state.allUsers);
   const storeCaregiverPhone = useAppStore((state) => state.caregiverPhone);
-  const storeGeminiApiKey = useAppStore((state) => state.geminiApiKey);
   const storeBackendUrl = useAppStore((state) => state.backendUrl);
   const storeDevMode = useAppStore((state) => state.developerMode);
   const refreshAllUsers = useAppStore((state) => state.refreshAllUsers);
@@ -58,7 +57,6 @@ export default function RegisterScreen() {
   
   // Settings fields
   const [caregiverPhone, setCaregiverPhone] = useState('');
-  const [geminiApiKey, setGeminiApiKey] = useState('');
   const { doctorMode, setDoctorMode } = useDoctorMode();
   const [developerMode, setDeveloperMode] = useState(false);
   const [backendUrl, setBackendUrl] = useState('');
@@ -125,7 +123,6 @@ export default function RegisterScreen() {
     try {
       await refreshAllUsers();
       if (storeCaregiverPhone) setCaregiverPhone(storeCaregiverPhone);
-      if (storeGeminiApiKey) setGeminiApiKey(storeGeminiApiKey);
       setBackendUrl(storeBackendUrl || 'http://localhost:5001/api');
       setDeveloperMode(storeDevMode);
 
@@ -317,7 +314,6 @@ export default function RegisterScreen() {
       // เซฟทั้งหมดลง Zustand store
       await useAppStore.getState().setProfile(updatedProfile);
       await useAppStore.getState().setCaregiverPhone(caregiverPhone.trim());
-      await useAppStore.getState().setGeminiApiKey(geminiApiKey.trim());
       await useAppStore.getState().setBackendUrl(backendUrl.trim());
       await useAppStore.getState().setDoctorMode(doctorMode);
       await useAppStore.getState().setDeveloperMode(developerMode);
@@ -517,18 +513,6 @@ export default function RegisterScreen() {
                 keyboardType="phone-pad"
                 value={caregiverPhone}
                 onChangeText={setCaregiverPhone}
-              />
-
-              <View style={styles.labelRow}>
-                <Feather name="key" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🔑 Gemini API Key (สำหรับหลานรัก AI)</Text>
-              </View>
-              <TextInput
-                style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="AI-..."
-                secureTextEntry={true}
-                value={geminiApiKey}
-                onChangeText={setGeminiApiKey}
               />
 
               <View style={styles.labelRow}>
