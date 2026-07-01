@@ -55,7 +55,7 @@
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
                title = "Start Packager and Backend"
-               scriptText = "if lsof -i :8081 -t &gt;/dev/null; then&#10;  echo &quot;Metro is already running&quot;&#10;else&#10;  osascript -e &quot;tell application \&quot;Terminal\&quot; to do script \&quot;cd &apos;$PROJECT_DIR/..&apos; &amp;&amp; npx expo start --port 8081\&quot;&quot;&#10;fi&#10;&#10;if lsof -i :5001 -t &gt;/dev/null; then&#10;  echo &quot;Backend is already running&quot;&#10;else&#10;  osascript -e &quot;tell application \&quot;Terminal\&quot; to do script \&quot;cd &apos;$PROJECT_DIR/../../backend-MaCheck&apos; &amp;&amp; node server.js\&quot;&quot;&#10;fi&#10;">
+               scriptText = "if lsof -i :8081 -t &gt;/dev/null; then&#10;  echo &quot;Metro is already running&quot;&#10;else&#10;  osascript -e &quot;tell application \&quot;Terminal\&quot; to do script \&quot;cd /Users/mac/Desktop/mobile-MaCheck &amp;&amp; npx expo start --port 8081\&quot;&quot;&#10;fi&#10;&#10;if lsof -i :5001 -t &gt;/dev/null; then&#10;  echo &quot;Backend is already running&quot;&#10;else&#10;  osascript -e &quot;tell application \&quot;Terminal\&quot; to do script \&quot;cd /Users/mac/Desktop/backend-MaCheck &amp;&amp; node server.js\&quot;&quot;&#10;fi&#10;">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"
