@@ -13,10 +13,10 @@ import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
 
 const DEMO_IMAGES: Record<string, any> = {
-  case1: require('../../assets/images/demo/pill_ibuprofen_1782351438429.png'),
-  case2: require('../../assets/images/demo/pill_amlodipine_1782351383168.png'),
-  case3: require('../../assets/images/demo/pill_ibuprofen_1782351438429.png'),
-  case4: require('../../assets/images/demo/pill_ibuprofen_1782351438429.png'),
+  case1: require('../../assets/images/demo/sachet_ibuprofen_label.jpg'),
+  case2: require('../../assets/images/demo/sachet_amlodipine_label.jpg'),
+  case3: require('../../assets/images/demo/sachet_ibuprofen_label.jpg'),
+  case4: require('../../assets/images/demo/sachet_ibuprofen_label.jpg'),
   unknown: null,
 };
 
