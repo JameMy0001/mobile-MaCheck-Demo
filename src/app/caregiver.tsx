@@ -10,6 +10,7 @@ import { useDoctorMode } from '@/hooks/use-doctor-mode';
 import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
+import { SeniorColors } from '@/constants/senior-theme';
 
 export default function CaregiverScreen() {
   const router = useRouter();
@@ -222,10 +223,10 @@ export default function CaregiverScreen() {
         
         {/* Top Info Header */}
         <View style={[styles.syncHeader, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
-          <Feather name="cloud-lightning" size={28} color={doctorMode ? '#000' : '#FFEB3B'} />
+          <Feather name="cloud-lightning" size={28} color={doctorMode ? '#000' : SeniorColors.primary} />
           <Text style={[styles.syncTitle, doctorMode && { color: '#000' }]}>
             สถานะ: <Text style={[styles.syncStatus, doctorMode && { color: '#000' }]}>
-              {isRemoteConnected ? `ซิงค์คลาวด์เบอร์ ${remoteProfile.phone} 🟢` : 'กำลังติดตามการซิงค์ออฟไลน์'}
+              {isRemoteConnected ? `ซิงค์คลาวด์เบอร์ ${remoteProfile.phone}` : 'กำลังติดตามการซิงค์ออฟไลน์'}
             </Text>
           </Text>
         </View>
@@ -233,7 +234,7 @@ export default function CaregiverScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           
           {/* Cloud room sync Connection Card */}
-          <View style={[styles.card, { backgroundColor: '#ECEFF1' }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
+          <View style={[styles.card, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
             <View style={styles.cardHeader}>
               <Feather name="cloud" size={24} color="#000" />
               <Text style={styles.cardTitle}>เชื่อมต่อติดตามระยะไกล (Cloud Sync)</Text>
@@ -245,30 +246,14 @@ export default function CaregiverScreen() {
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                   <TextInput
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#FFF',
-                      borderWidth: 2,
-                      borderColor: '#000',
-                      borderRadius: 8,
-                      padding: 10,
-                      fontWeight: '800',
-                      fontSize: 16 + fontOffset,
-                    }}
+                    style={[styles.remoteInput, { fontSize: 16 + fontOffset }]}
                     placeholder="กรอกเบอร์โทรคุณตา เช่น 0812345678"
                     keyboardType="phone-pad"
                     value={targetPhone}
                     onChangeText={setTargetPhone}
                   />
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: '#4CAF50',
-                      borderWidth: 2,
-                      borderColor: '#000',
-                      borderRadius: 8,
-                      paddingVertical: 12,
-                      paddingHorizontal: 16,
-                    }}
+                    style={styles.connectBtn}
                     onPress={connectRemote}
                     disabled={isLoadingRemote}
                   >
@@ -281,18 +266,11 @@ export default function CaregiverScreen() {
             ) : (
               <View style={{ gap: 10 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 16 + fontOffset, fontWeight: '800', color: '#2E7D32' }}>
-                    🟢 ซิงค์กับเครื่องคุณตา &quot;{remoteProfile.name}&quot; สำเร็จ
+                  <Text style={{ fontSize: 16 + fontOffset, fontWeight: '800', color: doctorMode ? '#000' : SeniorColors.success }}>
+                    ซิงค์กับเครื่องคุณตา &quot;{remoteProfile.name}&quot; สำเร็จ
                   </Text>
                   <TouchableOpacity
-                    style={{
-                      backgroundColor: '#E53935',
-                      borderWidth: 2,
-                      borderColor: '#000',
-                      borderRadius: 8,
-                      paddingVertical: 6,
-                      paddingHorizontal: 12,
-                    }}
+                    style={styles.disconnectBtn}
                     onPress={disconnectRemote}
                   >
                     <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 13 + fontOffset }}>
@@ -305,7 +283,7 @@ export default function CaregiverScreen() {
           </View>
 
           {/* Patient Card */}
-          <View style={[styles.card, styles.purpleCard, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
+          <View style={[styles.card, styles.profileCard, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
             <View style={styles.cardHeader}>
               <FontAwesome5 name="user-alt" size={24} color="#000" />
               <Text style={styles.cardTitle}>ข้อมูลคุณตา/คุณยาย</Text>
@@ -457,8 +435,8 @@ export default function CaregiverScreen() {
 
           {/* 🔔 แผงเตือนสะกิดคุณตาระยะไกล */}
           {isRemoteConnected && (
-            <View style={[styles.card, { backgroundColor: '#FFF9C4', borderColor: '#FBC02D' }]}>
-              <View style={[styles.cardHeader, { borderColor: '#FBC02D' }]}>
+            <View style={[styles.card, styles.nudgeCard, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
+              <View style={[styles.cardHeader, { borderColor: doctorMode ? '#000' : SeniorColors.warning }]}>
                 <FontAwesome5 name="bell" size={24} color="#000" />
                 <Text style={styles.cardTitle}>แผงสะกิดระยะไกล (Cloud Nudge)</Text>
               </View>
@@ -468,32 +446,14 @@ export default function CaregiverScreen() {
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   <TouchableOpacity
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#FFEB3B',
-                      borderWidth: 2,
-                      borderColor: '#000',
-                      borderRadius: 10,
-                      padding: 10,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    style={styles.nudgeBtn}
                     onPress={() => triggerRemoteNudge('med', 'เตือนเวลาทานยา')}
                   >
                     <FontAwesome5 name="pills" size={18} color="#000" style={{ marginBottom: 4 }} />
                     <Text style={{ fontWeight: '900', fontSize: 13 + fontOffset }}>สะกิดกินยา</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    style={{
-                      flex: 1,
-                      backgroundColor: '#80DEEA',
-                      borderWidth: 2,
-                      borderColor: '#000',
-                      borderRadius: 10,
-                      padding: 10,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                    }}
+                    style={[styles.nudgeBtn, styles.nudgeWaterBtn]}
                     onPress={() => triggerRemoteNudge('water', 'สะกิดจิบน้ำ')}
                   >
                     <FontAwesome5 name="tint" size={18} color="#000" style={{ marginBottom: 4 }} />
@@ -508,29 +468,13 @@ export default function CaregiverScreen() {
                   </Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     <TextInput
-                      style={{
-                        flex: 1,
-                        backgroundColor: '#FFF',
-                        borderWidth: 2,
-                        borderColor: '#000',
-                        borderRadius: 8,
-                        padding: 8,
-                        fontWeight: '700',
-                        fontSize: 14 + fontOffset
-                      }}
+                      style={[styles.remoteInput, { fontSize: 14 + fontOffset }]}
                       placeholder="เช่น วันนี้หลานเป็นห่วง อย่าลืมกินยานะครับ..."
                       value={messageInput}
                       onChangeText={setMessageInput}
                     />
                     <TouchableOpacity
-                      style={{
-                        backgroundColor: '#2196F3',
-                        borderWidth: 2,
-                        borderColor: '#000',
-                        borderRadius: 8,
-                        paddingHorizontal: 16,
-                        justifyContent: 'center',
-                      }}
+                      style={styles.sendBtn}
                       onPress={() => triggerRemoteNudge('message', 'ส่งข้อความเตือนใจ', messageInput)}
                     >
                       <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 14 + fontOffset }}>ส่ง</Text>
@@ -545,16 +489,7 @@ export default function CaregiverScreen() {
                   </Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     <TextInput
-                      style={{
-                        flex: 1,
-                        backgroundColor: '#FFF',
-                        borderWidth: 2,
-                        borderColor: '#000',
-                        borderRadius: 8,
-                        padding: 8,
-                        fontWeight: '700',
-                        fontSize: 14 + fontOffset
-                      }}
+                      style={[styles.remoteInput, { fontSize: 14 + fontOffset }]}
                       placeholder="ป้อนชื่อยาแล้วกดตกลงเพื่อบันทึกแทน"
                       onSubmitEditing={(e) => {
                         remoteAddMed(e.nativeEvent.text);
@@ -657,28 +592,28 @@ export default function CaregiverScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#9C27B0',
+    backgroundColor: SeniorColors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#F3E5F5',
+    backgroundColor: SeniorColors.background,
   },
   syncHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#9C27B0',
+    backgroundColor: SeniorColors.surface,
     padding: 16,
-    borderBottomWidth: 4,
-    borderColor: '#000',
+    borderBottomWidth: 1,
+    borderColor: SeniorColors.border,
     gap: 12,
   },
   syncTitle: {
     fontSize: 18,
     fontWeight: '800',
-    color: '#FFF',
+    color: SeniorColors.text,
   },
   syncStatus: {
-    color: '#FFEB3B',
+    color: SeniorColors.primary,
     fontWeight: '900',
   },
   scrollContent: {
@@ -687,29 +622,34 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
   card: {
-    backgroundColor: '#FFF',
-    borderWidth: 3,
-    borderColor: '#000',
-    borderRadius: 16,
-    boxShadow: '4px 4px 0px #000',
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    borderRadius: 20,
+    boxShadow: '0px 8px 22px rgba(31, 122, 92, 0.10)',
     padding: 16,
     gap: 12,
   },
-  purpleCard: {
-    backgroundColor: '#E1BEE7',
+  profileCard: {
+    backgroundColor: SeniorColors.primarySoft,
+    borderColor: SeniorColors.primary,
+  },
+  nudgeCard: {
+    backgroundColor: SeniorColors.warningSoft,
+    borderColor: SeniorColors.warning,
   },
   cardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    borderBottomWidth: 2,
-    borderColor: '#000',
+    borderBottomWidth: 1,
+    borderColor: SeniorColors.border,
     paddingBottom: 8,
   },
   cardTitle: {
     fontSize: 20,
     fontWeight: '900',
-    color: '#000',
+    color: SeniorColors.text,
   },
   profileDetails: {
     gap: 8,
@@ -723,10 +663,10 @@ const styles = StyleSheet.create({
   profileText: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#111',
+    color: SeniorColors.text,
   },
   syncCode: {
-    color: '#D32F2F',
+    color: SeniorColors.danger,
     fontWeight: '900',
     fontSize: 18,
   },
@@ -737,66 +677,117 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   badge: {
-    backgroundColor: '#FFF',
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 8,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    borderRadius: 12,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
   },
   badgeText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#000',
+    color: SeniorColors.text,
   },
   noDataText: {
     fontSize: 16,
-    color: '#666',
+    color: SeniorColors.textSecondary,
     fontWeight: '700',
     textAlign: 'center',
     paddingVertical: 12,
+  },
+  remoteInput: {
+    flex: 1,
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.borderStrong,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontWeight: '700',
+    color: SeniorColors.text,
+    minHeight: 56,
+  },
+  connectBtn: {
+    backgroundColor: SeniorColors.primary,
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minHeight: 56,
+    justifyContent: 'center',
+  },
+  disconnectBtn: {
+    backgroundColor: SeniorColors.danger,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    minHeight: 48,
+    justifyContent: 'center',
+  },
+  nudgeBtn: {
+    flex: 1,
+    backgroundColor: SeniorColors.warningSoft,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.warning,
+    borderRadius: 14,
+    padding: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 92,
+  },
+  nudgeWaterBtn: {
+    backgroundColor: SeniorColors.infoSoft,
+    borderColor: SeniorColors.info,
+  },
+  sendBtn: {
+    backgroundColor: SeniorColors.primary,
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+    minHeight: 56,
   },
   medList: {
     gap: 8,
   },
   medItem: {
-    backgroundColor: '#E8F5E9',
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 8,
-    padding: 10,
+    backgroundColor: SeniorColors.successSoft,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    borderRadius: 12,
+    padding: 12,
+    minHeight: 56,
   },
   medItemText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#000',
+    color: SeniorColors.text,
   },
   logList: {
     gap: 12,
   },
   logItem: {
     borderBottomWidth: 1,
-    borderColor: '#E0E0E0',
-    paddingBottom: 8,
+    borderColor: SeniorColors.border,
+    paddingBottom: 10,
   },
   logTime: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#757575',
+    color: SeniorColors.textSecondary,
   },
   logText: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#000',
+    color: SeniorColors.text,
     marginTop: 2,
   },
   clearBtn: {
-    backgroundColor: '#F44336',
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 8,
-    paddingVertical: 4,
+    backgroundColor: SeniorColors.danger,
+    borderWidth: 0,
+    borderRadius: 10,
+    paddingVertical: 8,
     paddingHorizontal: 12,
+    minHeight: 40,
   },
   clearBtnText: {
     fontSize: 14,
@@ -900,18 +891,18 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFEB3B',
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
-    paddingVertical: 10,
+    backgroundColor: SeniorColors.primarySoft,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.primary,
+    borderRadius: 12,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     marginTop: 14,
-    boxShadow: '2.5px 2.5px 0px #000',
+    minHeight: 56,
   },
   switchUserBtnText: {
     fontSize: 15,
     fontWeight: '900',
-    color: '#000',
+    color: SeniorColors.primaryDark,
   },
 });

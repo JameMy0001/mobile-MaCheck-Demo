@@ -11,6 +11,8 @@ import { useSound } from '@/hooks/use-sound';
 import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
+import { SafetyStatusCard, SeniorButton } from '../components/senior-ui';
+import { SafetySeverity, SeniorColors } from '@/constants/senior-theme';
 
 const DEMO_IMAGES: Record<string, any> = {
   case1: require('../../assets/images/demo/sachet_ibuprofen_label.jpg'),
@@ -102,8 +104,8 @@ export default function ScannerScreen() {
             caseResult = {
               name: 'Ibuprofen (ยาแก้ปวดอักเสบข้อ/กล้ามเนื้อ)',
               severity: 'red',
-              descTh: '❌ ตรวจพบอันตรายร้ายแรง (Contraindication)!\n\nยาที่สแกน: Ibuprofen (ยาแก้ปวดอักเสบข้อ/กล้ามเนื้อ)\nยาในตู้ของคุณตา: Warfarin (ยาต้านการแข็งตัวของเลือด/ยาละลายลิ่มเลือด)\n\nผลการวิเคราะห์: ยาทั้ง 2 ชนิดนี้ตีกันห้ามกินร่วมกันเด็ดขาด! การรับประทานร่วมกันจะเพิ่มความเสี่ยงต่อภาวะเลือดออกในกระเพาะอาหารอย่างรุนแรงและมีเลือดออกภายในจนเป็นอันตรายถึงชีวิตค่ะ!',
-              speechTh: 'ตรวจพบอันตรายร้ายแรงค่ะ ยาแก้ปวดไอบูโพรเฟนตีกับยาละลายลิ่มเลือดวาร์ฟารินในตู้ยาของคุณตา ห้ามกินร่วมกันเด็ดขาดนะคะ'
+              descTh: 'ตรวจพบคู่ยาที่ระบบจัดเป็นกลุ่มห้ามทานร่วมกันค่ะ\n\nคำแนะนำ: ห้ามกินร่วมกันเด็ดขาด หยุดก่อน และให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ',
+              speechTh: 'ห้ามกินยานี้ร่วมกับยาในตู้ค่ะ หยุดก่อนและให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ'
             };
           } else if (activeCase === 'case2') {
             caseResult = {
@@ -123,8 +125,8 @@ export default function ScannerScreen() {
             caseResult = {
               name: 'Ibuprofen (ยาแก้ปวดอักเสบข้อ/กล้ามเนื้อ)',
               severity: 'red',
-              descTh: '❌ ตรวจพบข้อห้ามใช้กับโรคประจำตัวคุณตา!\n\nยาที่สแกน: Ibuprofen (ยาแก้ปวดอักเสบข้อ/กล้ามเนื้อ)\nโรคประจำตัวของคุณตา: โรคไต (Chronic Kidney Disease)\n\nผลการวิเคราะห์: ห้ามรับประทานยานี้เด็ดขาด! เนื่องจากคุณตามีประวัติโรคไตวายเรื้อรัง ยาแก้ปวดกลุ่ม NSAIDs เช่น ไอบูโพรเฟน จะทำให้เลือดไปเลี้ยงไตลดลงอย่างมาก ส่งผลให้ไตวายเฉียบพลันได้ค่ะ!',
-              speechTh: 'ตรวจพบข้อห้ามใช้ทางการแพทย์ค่ะ คุณตามีโรคประจำตัวเป็นโรคไต ห้ามทานยาแก้ปวดไอบูโพรเฟนโดยเด็ดขาดนะคะ'
+              descTh: 'ตรวจพบข้อห้ามใช้กับข้อมูลสุขภาพที่บันทึกไว้ค่ะ\n\nคำแนะนำ: ห้ามรับประทานยานี้เอง หยุดก่อน และให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ',
+              speechTh: 'ห้ามรับประทานยานี้เองค่ะ หยุดก่อนและให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ'
             };
           } else {
             caseResult = {
@@ -282,6 +284,56 @@ export default function ScannerScreen() {
     setResult(null);
     setPhotoUri(null);
     handleSpeak('พร้อมสแกนยาซองต่อไปแล้วค่ะคุณตา');
+  };
+
+  const getResultTone = (severity: string): {
+    severity: SafetySeverity;
+    title: string;
+    description: string;
+    action: string;
+  } => {
+    if (severity === 'red') {
+      return {
+        severity: 'red',
+        title: 'ห้ามกิน',
+        description: 'ระบบจัดรายการนี้เป็นกลุ่มห้ามใช้หรือห้ามทานร่วมกัน',
+        action: 'หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัย',
+      };
+    }
+    if (severity === 'yellow') {
+      return {
+        severity: 'yellow',
+        title: 'ต้องเว้นระยะ',
+        description: 'กินได้เฉพาะเมื่อเว้นระยะและทำตามคำแนะนำอย่างระมัดระวัง',
+        action: 'เริ่มภารกิจเว้นระยะยา หรือถามลูกหลานก่อนกิน',
+      };
+    }
+    if (severity === 'green') {
+      return {
+        severity: 'green',
+        title: 'ปลอดภัย',
+        description: 'ไม่พบปฏิกิริยาสำคัญกับข้อมูลในตู้ยาขณะนี้',
+        action: 'กินตามขนาดและเวลาที่แพทย์สั่งตามปกติ',
+      };
+    }
+    return {
+      severity: 'unknown',
+      title: 'ไม่พบข้อมูล',
+      description: 'ระบบยังไม่มีข้อมูลยานี้ในฐานข้อมูลเครื่อง',
+      action: 'ให้ลูกหลานหรือแพทย์ช่วยตรวจสอบก่อนกินยา',
+    };
+  };
+
+  const cleanResultDescription = (text?: string) => {
+    if (!text) return 'ไม่มีรายละเอียดเพิ่มเติม';
+    return text.replace(/[❌✅⚠️🔍]/g, '').replace(/\n{3,}/g, '\n\n').trim();
+  };
+
+  const getResultReason = (severity: string, text?: string) => {
+    if (severity === 'red') {
+      return 'ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามใช้หรือห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ';
+    }
+    return cleanResultDescription(text);
   };
 
   const renderModals = () => {
@@ -550,75 +602,70 @@ export default function ScannerScreen() {
   // Result Screen
   if (result) {
     const isError = !!result.error;
-    const isUnknown = result.severity === 'unknown';
-    const bgColor = doctorMode 
-      ? '#FFF' 
-      : (isError ? '#FFCDD2' : result.severity === 'red' ? '#FFCDD2' : result.severity === 'yellow' ? '#FFF9C4' : '#C8E6C9');
-    const borderThemeColor = doctorMode 
-      ? '#000' 
-      : (result.severity === 'red' ? '#D32F2F' : result.severity === 'yellow' ? '#F57F17' : '#2E7D32');
-    const textColor = '#000';
+    const tone = getResultTone(isError ? 'unknown' : result.severity);
 
     return (
-      <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }, doctorMode && { backgroundColor: '#37474F' }]}>
+      <SafeAreaView style={[styles.safeArea, styles.resultSafeArea, doctorMode && { backgroundColor: '#37474F' }]}>
         <ScrollView contentContainerStyle={styles.resultScrollContent}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginBottom: 12 }}>
-            {!isError && (
-              <FontAwesome5 
-                name={result.severity === 'red' ? 'exclamation-triangle' : result.severity === 'yellow' ? 'exclamation-circle' : 'check-circle'} 
-                size={26} 
-                color={borderThemeColor} 
-              />
-            )}
-            <Text style={[styles.resultHeader, { color: borderThemeColor, marginBottom: 0 }]}>
-              {result.severity === 'unknown' ? 'ไม่มีในฐานข้อมูล' : result.severity === 'red' ? 'ตรวจพบอันตราย!' : result.severity === 'yellow' ? 'ควรระวัง!' : 'ปลอดภัย ทานได้'}
-            </Text>
-          </View>
-          
-          <View style={[styles.resultCard, { borderColor: borderThemeColor }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
+          <View style={[styles.scanPreviewCard, doctorMode && { borderColor: '#000' }]}>
             {result.photo ? (
               <Image source={typeof result.photo === 'number' ? result.photo : { uri: result.photo }} style={styles.previewImg} />
             ) : (
-              <View style={[styles.previewImg, { justifyContent: 'center', alignItems: 'center', backgroundColor: '#ECEFF1', borderWidth: 3, borderColor: '#000' }]}>
+              <View style={[styles.previewImg, styles.emptyPreview]}>
                 <Feather name="help-circle" size={80} color="#78909C" />
               </View>
             )}
-            <Text style={styles.medNameText}>{result.name}</Text>
-            
+            <Text selectable style={[styles.medNameText, { fontSize: 22 + fontOffset }, doctorMode && { color: '#000' }]}>{result.name}</Text>
             {!isError && (
-              <TouchableOpacity 
-                style={[styles.changeMedNameBtn, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]}
+              <SeniorButton
+                label="เปลี่ยนชื่อยา"
+                icon={{ name: 'edit' }}
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
+                variant="ghost"
                 onPress={() => {
                   handleSpeak('เลือกหรือพิมพ์ชื่อยาที่ถูกต้องได้เลยค่ะ');
                   setSearchText('');
                   setFilteredMeds([]);
                   setSelectModalVisible(true);
                 }}
-              >
-                <Feather name="edit" size={15} color="#000" style={{ marginRight: 6 }} />
-                <Text style={styles.changeMedNameBtnText}>ไม่ใช่ยาตัวนี้? กดสลับ/เปลี่ยนชื่อยา</Text>
-              </TouchableOpacity>
-            )}
-            
-            <View style={styles.descContainer}>
-              <Text style={styles.descText}>{isError ? result.error : result.descTh}</Text>
-            </View>
-
-            {/* If Yellow, present Spacing Challenge option */}
-            {result.severity === 'yellow' && (
-              <TouchableOpacity style={[styles.challengeBtn, doctorMode && { backgroundColor: '#37474F', borderColor: '#000' }]} onPress={startMedSpacingChallenge}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                  <Image source={require('../../assets/images/icons/icon_water_drop.png')} style={{ width: 22, height: 22, resizeMode: 'contain' }} />
-                  <Text style={styles.challengeBtnText}>เริ่มภารกิจเว้นระยะยาและจิบน้ำ</Text>
-                </View>
-              </TouchableOpacity>
+              />
             )}
           </View>
 
-          <TouchableOpacity style={[styles.resetBtn, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]} onPress={resetScanner}>
-            <Feather name="refresh-cw" size={24} color="#000" />
-            <Text style={styles.resetBtnText}>สแกนอีกครั้ง</Text>
-          </TouchableOpacity>
+          <SafetyStatusCard
+            severity={tone.severity}
+            title={tone.title}
+            description={tone.description}
+            doctorMode={doctorMode}
+            fontOffset={fontOffset}
+            sections={[
+              { label: 'ยาที่สแกน', value: result.name },
+              { label: 'เหตุผล', value: getResultReason(tone.severity, isError ? result.error : result.descTh) },
+              { label: 'สิ่งที่ควรทำ', value: tone.action },
+            ]}
+            action={
+              result.severity === 'yellow' ? (
+                <SeniorButton
+                  label="เริ่มภารกิจเว้นระยะยา"
+                  icon={{ name: 'clock' }}
+                  doctorMode={doctorMode}
+                  fontOffset={fontOffset}
+                  onPress={startMedSpacingChallenge}
+                />
+              ) : null
+            }
+          />
+
+          <SeniorButton
+            label="สแกนอีกครั้ง"
+            icon={{ name: 'refresh-cw' }}
+            doctorMode={doctorMode}
+            fontOffset={fontOffset}
+            variant="secondary"
+            onPress={resetScanner}
+            style={styles.resetSeniorButton}
+          />
         </ScrollView>
 
         {renderModals()}
@@ -718,11 +765,14 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
+  resultSafeArea: {
+    backgroundColor: SeniorColors.background,
+  },
   resultScrollContent: {
     padding: 16,
     paddingBottom: 40,
     alignItems: 'center',
-    justifyContent: 'center',
+    gap: 16,
   },
   safeAreaDark: {
     flex: 1,
@@ -732,25 +782,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#FFF8E1',
+    backgroundColor: SeniorColors.background,
     padding: 20,
   },
   errorText: {
     fontSize: 20,
     fontWeight: '700',
-    color: '#D32F2F',
+    color: SeniorColors.danger,
     marginBottom: 20,
   },
   actionBtn: {
-    backgroundColor: '#FFEB3B',
-    borderWidth: 3,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.primary,
+    borderWidth: 0,
     padding: 16,
     borderRadius: 12,
+    minHeight: 56,
+    justifyContent: 'center',
   },
   actionBtnText: {
     fontSize: 20,
     fontWeight: '800',
+    color: '#FFF',
   },
   camera: {
     flex: 1,
@@ -790,9 +842,9 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: '#FFEB3B',
+    backgroundColor: '#FFFFFF',
     borderWidth: 4,
-    borderColor: '#FFF',
+    borderColor: SeniorColors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -805,6 +857,18 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 20,
     textAlign: 'center',
+  },
+  scanPreviewCard: {
+    width: '100%',
+    maxWidth: 440,
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    borderRadius: 20,
+    padding: 16,
+    alignItems: 'center',
+    gap: 12,
+    boxShadow: '0px 8px 22px rgba(31, 122, 92, 0.10)',
   },
   resultCard: {
     backgroundColor: '#FFF',
@@ -820,17 +884,22 @@ const styles = StyleSheet.create({
   previewImg: {
     width: 200,
     height: 200,
-    borderRadius: 12,
-    borderWidth: 3,
-    borderColor: '#000',
-    marginBottom: 16,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    marginBottom: 4,
+  },
+  emptyPreview: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ECEFF1',
   },
   medNameText: {
     fontSize: 26,
     fontWeight: '900',
-    color: '#000',
-    marginBottom: 12,
+    color: SeniorColors.text,
     textAlign: 'center',
+    lineHeight: 30,
   },
   descContainer: {
     backgroundColor: '#FAFAFA',
@@ -881,6 +950,10 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     color: '#000',
   },
+  resetSeniorButton: {
+    width: '100%',
+    maxWidth: 440,
+  },
 
   // Modal styling
   modalBg: {
@@ -889,11 +962,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: SeniorColors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    borderTopWidth: 5,
-    borderColor: '#000',
+    borderTopWidth: 1.5,
+    borderColor: SeniorColors.border,
     padding: 20,
     height: '70%',
   },
@@ -906,17 +979,17 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 22,
     fontWeight: '900',
-    color: '#000',
+    color: SeniorColors.text,
   },
   modalSearchInput: {
-    backgroundColor: '#FFFDE7',
-    borderWidth: 3,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.borderStrong,
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 18,
     fontWeight: '700',
-    height: 54,
+    minHeight: 56,
     marginBottom: 16,
   },
   suggestionScroll: {
@@ -925,16 +998,16 @@ const styles = StyleSheet.create({
   suggestionItem: {
     padding: 14,
     borderBottomWidth: 1,
-    backgroundColor: '#F9FBE7',
+    backgroundColor: SeniorColors.surface,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#000',
+    borderColor: SeniorColors.border,
     marginBottom: 8,
   },
   suggestionText: {
     fontSize: 17,
     fontWeight: '800',
-    color: '#000',
+    color: SeniorColors.text,
   },
   noMedContainer: {
     alignItems: 'center',
@@ -944,16 +1017,15 @@ const styles = StyleSheet.create({
   noMedText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#D32F2F',
+    color: SeniorColors.danger,
   },
   addNewMedBtn: {
-    backgroundColor: '#FF5252',
-    borderWidth: 3,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.danger,
+    borderWidth: 0,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 20,
-    boxShadow: '3px 3px 0px #000',
+    minHeight: 56,
   },
   addNewMedBtnText: {
     color: '#FFF',
@@ -966,7 +1038,7 @@ const styles = StyleSheet.create({
   helpText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#555',
+    color: SeniorColors.textSecondary,
     marginBottom: 10,
   },
   demoMedBtn: {
@@ -976,16 +1048,16 @@ const styles = StyleSheet.create({
   demoMedText: {
     fontSize: 17,
     fontWeight: '700',
-    color: '#0288D1',
+    color: SeniorColors.info,
   },
 
   // Form styles
   newMedModalContent: {
-    backgroundColor: '#FFF',
+    backgroundColor: SeniorColors.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    borderTopWidth: 5,
-    borderColor: '#000',
+    borderTopWidth: 1.5,
+    borderColor: SeniorColors.border,
     padding: 20,
     paddingBottom: 40,
   },
@@ -999,18 +1071,19 @@ const styles = StyleSheet.create({
   formLabel: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#000',
+    color: SeniorColors.text,
     marginBottom: 6,
   },
   formInput: {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 2,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.borderStrong,
     borderRadius: 10,
     paddingHorizontal: 12,
     fontSize: 16,
     fontWeight: '700',
-    height: 46,
+    minHeight: 52,
+    color: SeniorColors.text,
   },
   checkboxContainer: {
     flexDirection: 'row',
@@ -1018,21 +1091,21 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   checkbox: {
-    backgroundColor: '#FFF',
-    borderWidth: 2,
-    borderColor: '#CCC',
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 10,
   },
   checkboxSelected: {
-    backgroundColor: '#000',
-    borderColor: '#000',
+    backgroundColor: SeniorColors.primary,
+    borderColor: SeniorColors.primary,
   },
   checkboxText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#000',
+    color: SeniorColors.text,
   },
   checkboxTextSelected: {
     color: '#FFF',
@@ -1043,27 +1116,26 @@ const styles = StyleSheet.create({
   },
   radioButton: {
     flex: 1,
-    borderWidth: 2,
-    borderColor: '#CCC',
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
     borderRadius: 10,
     paddingVertical: 8,
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    backgroundColor: SeniorColors.surface,
   },
   radioText: {
     fontSize: 13,
     fontWeight: '800',
-    color: '#000',
+    color: SeniorColors.text,
   },
   saveBtn: {
-    backgroundColor: '#4CAF50',
-    borderWidth: 3,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.primary,
+    borderWidth: 0,
     borderRadius: 12,
     height: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '3px 3px 0px #000',
+    boxShadow: '0px 8px 18px rgba(31, 122, 92, 0.18)',
     marginTop: 16,
   },
   saveBtnText: {
@@ -1157,15 +1229,15 @@ const styles = StyleSheet.create({
     top: 20,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.85)',
+    backgroundColor: 'rgba(20, 50, 42, 0.92)',
     paddingVertical: 12,
     paddingHorizontal: 8,
     borderBottomWidth: 3,
-    borderColor: '#FFEB3B',
+    borderColor: SeniorColors.primary,
     zIndex: 100,
   },
   demoSelectorTitle: {
-    color: '#FFEB3B',
+    color: '#FFFFFF',
     fontSize: 15,
     fontWeight: '900',
     marginBottom: 8,
@@ -1176,17 +1248,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   demoSelectBtn: {
-    backgroundColor: '#ECEFF1',
-    borderWidth: 2,
-    borderColor: '#000',
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 12,
     marginRight: 6,
   },
   demoSelectBtnActive: {
-    backgroundColor: '#FFEB3B',
-    borderColor: '#000',
+    backgroundColor: SeniorColors.primarySoft,
+    borderColor: SeniorColors.primary,
   },
   demoSelectBtnText: {
     color: '#000',

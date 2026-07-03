@@ -1,23 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Platform, Modal, Alert, Image, Linking } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, SafeAreaView, Modal, Alert, Image, Linking } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Feather, FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Speech from 'expo-speech';
 import { addActivityLog, getRemoteProfile, clearRemoteNudge } from '../api';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
+import { InfoBanner, PrimaryActionTile, SeniorButton, SeniorHeader } from '../components/senior-ui';
+import { SeniorColors } from '@/constants/senior-theme';
 import { useSound } from '@/hooks/use-sound';
 import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
 import { useCustomAlert } from '@/hooks/use-custom-alert';
 
-const IconSettings = require('../../assets/images/icons/icon_settings.png');
-const IconPill = require('../../assets/images/icons/icon_pill.png');
 const IconWaterDrop = require('../../assets/images/icons/icon_water_drop.png');
 const IconGlassWater = require('../../assets/images/icons/icon_glass_water.png');
-const IconBell = require('../../assets/images/icons/icon_bell.png');
-const IconSiren = require('../../assets/images/icons/icon_siren.png');
 const IconNurseGirl = require('../../assets/images/icons/icon_nurse_girl.png');
 const IconKey = require('../../assets/images/icons/icon_key.png');
 
@@ -301,58 +299,68 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.safeArea, doctorMode && { backgroundColor: '#37474F' }]}>
       <View style={[styles.container, doctorMode && { backgroundColor: '#E0E0E0' }]}>
         
-        {/* Yellow Header */}
-        <View style={[styles.yellowHeader, doctorMode && { backgroundColor: '#E0E0E0', borderColor: '#000' }]}>
-          <View style={styles.headerLeft}>
-            <TouchableOpacity style={[styles.iconBtn, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]} onPress={() => navTo('/register', 'แก้ไขประวัติของคุณตาค่ะ')}>
-              <Feather name="settings" size={24} color="#000" />
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.iconBtn, { marginLeft: 8 }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]} onPress={toggleSoundWithGreeting}>
-              <Feather name={isSoundMuted ? "volume-x" : "volume-2"} size={24} color="#000" />
-            </TouchableOpacity>
-            <Text style={[styles.headerTime, { fontSize: 24 + fontOffset }, doctorMode && { color: '#000' }]}>{currentTime}</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <TouchableOpacity style={[styles.textBtn, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]} onPress={() => navTo('/cabinet', 'เปิดตู้ยาค่ะ')}>
-              <Text style={[styles.headerBtnText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>ตู้ยา ({cabinetCount})</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.iconBtn, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]} onPress={() => navTo('/cabinet', 'เปิดตู้ยาค่ะ')}>
-              <MaterialCommunityIcons name="cupboard" size={26} color="#000" />
-            </TouchableOpacity>
-          </View>
-        </View>
+        <SeniorHeader
+          title="MaCheck"
+          subtitle={`พร้อมดูแลความปลอดภัยยา วันนี้ ${currentTime || '--:--'}`}
+          doctorMode={doctorMode}
+          fontOffset={fontOffset}
+          right={
+            <>
+              <SeniorButton
+                label={isSoundMuted ? 'ปิดเสียง' : 'เปิดเสียง'}
+                icon={{ name: isSoundMuted ? 'volume-x' : 'volume-2' }}
+                onPress={toggleSoundWithGreeting}
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
+                variant="ghost"
+                style={styles.headerPillButton}
+              />
+              <SeniorButton
+                label="ตั้งค่า"
+                icon={{ name: 'settings' }}
+                onPress={() => navTo('/register', 'แก้ไขประวัติของคุณตาค่ะ')}
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
+                variant="secondary"
+                style={styles.headerPillButton}
+              />
+            </>
+          }
+        />
 
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          
-          {/* Status Banner */}
-          <View style={[styles.statusBanner, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
-            <View style={styles.avatarContainer}>
-              <FontAwesome5 name="user-circle" size={54} color="#000" />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.statusText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>
-                สวัสดีครับคุณตา <Text style={styles.boldText}>{profile?.name || 'กำลังโหลด...'}</Text>
-              </Text>
-              <Text style={[styles.subtitleText, { fontSize: 14 + fontOffset }, doctorMode && { color: '#555' }]}>
-                ตู้ยา MaCheck พร้อมดูแลความปลอดภัยออฟไลน์ 100% แล้วน้า
-              </Text>
-            </View>
-            <TouchableOpacity style={[styles.logoutBtn, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]} onPress={handleLogout}>
-              <Feather name="log-out" size={22} color={doctorMode ? '#000' : '#B71C1C'} />
-              <Text style={[styles.logoutBtnText, { fontSize: 13 + fontOffset }, doctorMode && { color: '#000' }]}>ออก</Text>
-            </TouchableOpacity>
-          </View>
+          <View style={styles.homeContent}>
+            <InfoBanner
+              title={`สวัสดีค่ะคุณตา ${profile?.name || ''}`}
+              description={`ตู้ยามียา ${cabinetCount} รายการ ระบบพร้อมเช็กความปลอดภัยแบบออฟไลน์`}
+              icon={{ family: 'fontAwesome5', name: 'user-circle' }}
+              doctorMode={doctorMode}
+              fontOffset={fontOffset}
+              severity="green"
+            >
+              <SeniorButton
+                label="ออกจากระบบ"
+                icon={{ name: 'log-out' }}
+                onPress={handleLogout}
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
+                variant="ghost"
+                style={styles.logoutSeniorButton}
+              />
+            </InfoBanner>
 
           {/* Spacing & Water Challenge Widget (Dynamic Panel) */}
           {activeChallenge && (
-            <View style={styles.challengeContainer}>
+            <View style={[styles.challengeContainer, doctorMode && styles.doctorCard]}>
               <View style={styles.challengeHeader}>
-                <Image source={IconWaterDrop} style={{ width: 24, height: 24, resizeMode: 'contain', marginRight: 6 }} />
-                <Text style={styles.challengeTitle}>ชาเลนจ์เว้นระยะยา & จิบน้ำลดกังวล</Text>
+                <View style={styles.challengeIconBadge}>
+                  <Image source={IconWaterDrop} style={{ width: 26, height: 26, resizeMode: 'contain' }} />
+                </View>
+                <Text style={[styles.challengeTitle, { fontSize: 19 + fontOffset }, doctorMode && { color: '#000' }]}>เว้นระยะยาและจิบน้ำ</Text>
               </View>
               
-              <Text style={styles.challengeDesc}>
-                กำลังเว้นระยะห่างยาแก้ปวด **{activeChallenge.medName}** เพื่อป้องกันแผลในกระเพาะอาหารและถนอมไต
+              <Text style={[styles.challengeDesc, { fontSize: 15 + fontOffset }, doctorMode && { color: '#333' }]}>
+                กำลังเว้นระยะยา {activeChallenge.medName} เพื่อถนอมกระเพาะและไตค่ะ
               </Text>
 
               {/* Progress bar */}
@@ -362,12 +370,12 @@ export default function HomeScreen() {
 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                 <Feather name="clock" size={16} color="#000" />
-                <Text style={styles.timeLeftText}>เวลาที่เหลือ: {formatDuration(activeChallenge.timeLeft)}</Text>
+                <Text style={[styles.timeLeftText, { fontSize: 22 + fontOffset }, doctorMode && { color: '#000' }]}>เหลือ {formatDuration(activeChallenge.timeLeft)}</Text>
               </View>
 
               {/* Water Cups */}
               <View style={styles.waterBox}>
-                <Text style={styles.waterTitle}>บันทึกจิบน้ำสะสม ({activeChallenge.waterCups || 0} / 4 แก้ว):</Text>
+                <Text style={[styles.waterTitle, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>บันทึกจิบน้ำ ({activeChallenge.waterCups || 0} / 4 แก้ว)</Text>
                 <View style={styles.dropsRow}>
                   {[1, 2, 3, 4].map(idx => (
                     <Image 
@@ -380,24 +388,24 @@ export default function HomeScreen() {
 
                 {activeChallenge.timeLeft > 0 ? (
                   <View style={styles.challengeControls}>
-                    <TouchableOpacity style={styles.recordWaterBtn} onPress={recordWater}>
+                    <TouchableOpacity style={[styles.recordWaterBtn, doctorMode && { backgroundColor: '#111' }]} onPress={recordWater}>
                       <Image source={IconGlassWater} style={{ width: 18, height: 18, marginRight: 6, resizeMode: 'contain' }} />
-                      <Text style={styles.recordWaterBtnText}>บันทึกจิบน้ำ 1 แก้ว</Text>
+                      <Text style={[styles.recordWaterBtnText, { fontSize: 16 + fontOffset }]}>จิบน้ำ 1 แก้ว</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       style={[styles.speedBtn, speedUp && styles.speedBtnActive]} 
                       onPress={() => setSpeedUp(!speedUp)}
                     >
                       <Feather name="clock" size={16} color="#000" style={{ marginRight: 4 }} />
-                      <Text style={styles.speedBtnText}>{speedUp ? 'เร่งความเร็วอยู่ (x600)' : 'จำลองเร่งเวลา'}</Text>
+                      <Text style={[styles.speedBtnText, { fontSize: 13 + fontOffset }]}>{speedUp ? 'เร่งเวลาอยู่' : 'จำลองเวลา'}</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View style={{ marginTop: 10 }}>
-                    <Text style={styles.successText}>ครบเวลาแล้ว! ทานยาชุดถัดไปหรือทำกิจกรรมต่อได้อย่างปลอดภัยค่ะ</Text>
-                    <TouchableOpacity style={styles.finishChallengeBtn} onPress={finishChallenge}>
+                    <Text style={[styles.successText, { fontSize: 15 + fontOffset }]}>ครบเวลาแล้วค่ะ ทานยาชุดถัดไปได้อย่างปลอดภัย</Text>
+                    <TouchableOpacity style={[styles.finishChallengeBtn, doctorMode && { backgroundColor: '#111' }]} onPress={finishChallenge}>
                       <Feather name="check-circle" size={18} color="#FFF" style={{ marginRight: 6 }} />
-                      <Text style={styles.finishChallengeBtnText}>จบภารกิจความปลอดภัย</Text>
+                      <Text style={[styles.finishChallengeBtnText, { fontSize: 17 + fontOffset }]}>จบภารกิจ</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -405,37 +413,64 @@ export default function HomeScreen() {
             </View>
           )}
 
-          {/* Main Menu Grid */}
           <View style={styles.menuContainer}>
-            {/* Camera Scan (Red) */}
-            <TouchableOpacity 
-              style={[styles.neoBtn, styles.btnRed, doctorMode && { backgroundColor: '#37474F', borderColor: '#000' }]} 
+            <PrimaryActionTile
+              title="สแกนเช็กยาตีกัน"
+              description="ถ่ายซองยาหรือเลือกชื่อยา ระบบจะบอกทันทีว่าห้ามกิน ต้องเว้นระยะ หรือปลอดภัย"
+              actionLabel="เริ่มสแกนยา"
+              icon={{ name: 'camera' }}
+              severity="red"
+              doctorMode={doctorMode}
+              fontOffset={fontOffset}
               onPress={() => navTo('/scanner', 'เปิดกล้องสแกนซองยาค่ะ')}
-            >
-              <View style={styles.whiteIconCard}>
-                <Feather name="camera" size={36} color="#000" />
-              </View>
-              <Text style={styles.btnRedText}>สแกนเช็ก{'\n'}ยาตีกัน</Text>
-            </TouchableOpacity>
+            />
 
             <View style={styles.row}>
-              {/* Food Clashes (Yellow) */}
-              <TouchableOpacity 
-                style={[styles.neoBtn, styles.btnYellow, { flex: 1 }, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]} 
+              <PrimaryActionTile
+                title="ของแสลง"
+                description="เช็กอาหารที่ควรเลี่ยง"
+                icon={{ family: 'fontAwesome5', name: 'apple-alt' }}
+                severity="yellow"
+                compact
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
                 onPress={() => navTo('/food-clash', 'เช็กของแสลงค่ะ')}
-              >
-                <FontAwesome5 name="apple-alt" size={28} color="#000" style={styles.yellowBtnIcon} />
-                <Text style={[styles.btnYellowText, doctorMode && { color: '#000' }]}>เช็กของแสลง{'\n'}/อาหาร</Text>
-              </TouchableOpacity>
+              />
 
-              {/* Emergency (Purple) */}
-              <TouchableOpacity 
-                style={[styles.neoBtn, styles.btnPurple, { flex: 1 }, doctorMode && { backgroundColor: '#37474F', borderColor: '#000' }]} 
+              <PrimaryActionTile
+                title="โทรฉุกเฉิน"
+                description="โทรหาลูกหลานหรือ 1669"
+                icon={{ name: 'phone-call' }}
+                severity="red"
+                compact
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
                 onPress={makeEmergencyCall}
-              >
-                <Feather name="phone-call" size={32} color="#FFF" style={styles.purpleBtnIcon} />
-                <Text style={styles.btnPurpleText}>โทรหาลูกหลาน{'\n'}/สายด่วน</Text>
-              </TouchableOpacity>
+              />
+            </View>
+
+            <View style={styles.row}>
+              <PrimaryActionTile
+                title={`ตู้ยา (${cabinetCount})`}
+                description="ดูรายการยาและตารางยาตีกัน"
+                icon={{ family: 'fontAwesome5', name: 'pills' }}
+                severity="green"
+                compact
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
+                onPress={() => navTo('/cabinet', 'เปิดตู้ยาค่ะ')}
+              />
+
+              <PrimaryActionTile
+                title="ลูกหลาน"
+                description="เปิดหน้าจอติดตาม"
+                image={IconNurseGirl}
+                severity="info"
+                compact
+                doctorMode={doctorMode}
+                fontOffset={fontOffset}
+                onPress={() => navTo('/caregiver', 'เปิดระบบติดตามประวัติสำหรับลูกหลานค่ะ')}
+              />
             </View>
           </View>
 
@@ -453,20 +488,13 @@ export default function HomeScreen() {
             </TouchableOpacity>
           )}
 
-          {/* Caregiver Mirror Button (Blue) */}
           <View style={styles.mirrorContainer}>
-            <TouchableOpacity 
-              style={[styles.neoBtn, styles.btnBlue, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]}
-              onPress={() => navTo('/caregiver', 'เปิดระบบติดตามประวัติสำหรับลูกหลานค่ะ')}
-            >
-              <Image source={IconNurseGirl} style={{ width: 22, height: 22, resizeMode: 'contain', marginRight: 6 }} />
-              <Text style={[styles.btnBlueText, doctorMode && { color: '#000' }]}>เปิดหน้าจอลูกหลาน (Mirror)</Text>
-            </TouchableOpacity>
             <View style={[styles.syncBadge, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
               <Text style={[styles.syncText, doctorMode && { color: '#000' }]}>
-                <Image source={IconKey} style={{ width: 16, height: 16, resizeMode: 'contain', marginRight: 4 }} /> รหัสติดตามคุณตา (คลาวด์): <Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{profile?.syncCode || '------'}</Text>
+                <Image source={IconKey} style={{ width: 16, height: 16, resizeMode: 'contain', marginRight: 4 }} /> รหัสติดตาม: <Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{profile?.syncCode || '------'}</Text>
               </Text>
             </View>
+          </View>
           </View>
 
         </ScrollView>
@@ -615,14 +643,30 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FBC02D',
+    backgroundColor: SeniorColors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFF8E1',
+    backgroundColor: SeniorColors.background,
   },
   scrollContent: {
+    padding: 16,
     paddingBottom: 40,
+    gap: 16,
+  },
+  homeContent: {
+    width: '100%',
+    maxWidth: 560,
+    alignSelf: 'center',
+    gap: 16,
+  },
+  headerPillButton: {
+    minHeight: 48,
+    paddingHorizontal: 12,
+  },
+  logoutSeniorButton: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
   },
   yellowHeader: {
     flexDirection: 'row',
@@ -702,61 +746,74 @@ const styles = StyleSheet.create({
   
   // Spacing Challenge Container
   challengeContainer: {
-    backgroundColor: '#E0F7FA',
-    borderWidth: 4,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
     borderRadius: 20,
-    boxShadow: '4px 4px 0px #000',
-    margin: 16,
+    boxShadow: '0px 8px 22px rgba(31, 122, 92, 0.10)',
     padding: 16,
     gap: 10,
+  },
+  doctorCard: {
+    backgroundColor: '#FFF',
+    borderColor: '#000',
   },
   challengeHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
+  challengeIconBadge: {
+    width: 52,
+    height: 52,
+    borderRadius: 14,
+    backgroundColor: SeniorColors.infoSoft,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.info,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   challengeTitle: {
     fontSize: 19,
     fontWeight: '900',
-    color: '#006064',
+    color: SeniorColors.info,
   },
   challengeDesc: {
     fontSize: 15,
     fontWeight: '700',
-    color: '#004D40',
-    lineHeight: 22,
+    color: SeniorColors.textSecondary,
+    lineHeight: 24,
   },
   progressBarWrapper: {
-    backgroundColor: '#B2EBF2',
-    borderWidth: 2.5,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.infoSoft,
+    borderWidth: 1,
+    borderColor: SeniorColors.border,
     borderRadius: 10,
     height: 18,
     overflow: 'hidden',
     marginTop: 4,
   },
   progressBar: {
-    backgroundColor: '#00B8D4',
+    backgroundColor: SeniorColors.info,
     height: '100%',
   },
   timeLeftText: {
     fontSize: 24,
     fontWeight: '900',
-    color: '#006064',
+    color: SeniorColors.info,
     textAlign: 'center',
     marginVertical: 4,
   },
   waterBox: {
     borderTopWidth: 1.5,
     borderStyle: 'dashed',
-    borderColor: '#006064',
+    borderColor: SeniorColors.borderStrong,
     paddingTop: 10,
   },
   waterTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#006064',
+    color: SeniorColors.text,
   },
   dropsRow: {
     flexDirection: 'row',
@@ -777,14 +834,14 @@ const styles = StyleSheet.create({
   },
   recordWaterBtn: {
     flex: 1.5,
-    backgroundColor: '#00838F',
-    borderWidth: 2.5,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.primary,
+    borderWidth: 0,
     borderRadius: 12,
-    height: 48,
+    minHeight: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '2px 2px 0px #000',
+    flexDirection: 'row',
+    boxShadow: '0px 6px 14px rgba(31, 122, 92, 0.18)',
   },
   recordWaterBtnText: {
     color: '#FFF',
@@ -794,43 +851,42 @@ const styles = StyleSheet.create({
   speedBtn: {
     flex: 1,
     backgroundColor: '#FFF',
-    borderWidth: 2.5,
-    borderColor: '#000',
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
     borderRadius: 12,
-    height: 48,
+    minHeight: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '2px 2px 0px #000',
+    flexDirection: 'row',
   },
   speedBtnActive: {
-    backgroundColor: '#FFEB3B',
+    backgroundColor: SeniorColors.warningSoft,
   },
   speedBtnText: {
     fontSize: 14,
     fontWeight: '800',
-    color: '#000',
+    color: SeniorColors.text,
   },
   successText: {
     fontSize: 15,
     fontWeight: '800',
-    color: '#2E7D32',
-    backgroundColor: '#E8F5E9',
+    color: SeniorColors.success,
+    backgroundColor: SeniorColors.successSoft,
     padding: 10,
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderColor: '#2E7D32',
+    borderColor: SeniorColors.success,
     lineHeight: 20,
     marginBottom: 10,
   },
   finishChallengeBtn: {
-    backgroundColor: '#4CAF50',
-    borderWidth: 2.5,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.success,
+    borderWidth: 0,
     borderRadius: 12,
-    height: 50,
+    minHeight: 56,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '3px 3px 0px #000',
+    flexDirection: 'row',
   },
   finishChallengeBtnText: {
     color: '#FFF',
@@ -839,10 +895,7 @@ const styles = StyleSheet.create({
   },
 
   menuContainer: {
-    padding: 16,
     gap: 16,
-    maxWidth: 500,
-    alignSelf: 'center',
     width: '100%',
   },
   row: {

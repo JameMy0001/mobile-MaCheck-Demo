@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
+import { SeniorColors } from '@/constants/senior-theme';
 
 interface MedCardProps {
   med: any;
@@ -27,9 +28,9 @@ export function MedCard({
           />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={[styles.medName, { fontSize: 20 + fontOffset }, doctorMode && { color: '#000' }]}>{med.name}</Text>
+          <Text selectable style={[styles.medName, { fontSize: 21 + fontOffset }, doctorMode && { color: '#000' }]}>{med.name}</Text>
           {info?.formalName && (
-            <Text style={[styles.formalName, { fontSize: 14 + fontOffset }, doctorMode && { color: '#555' }]}>{info.formalName}</Text>
+            <Text selectable style={[styles.formalName, { fontSize: 15 + fontOffset }, doctorMode && { color: '#555' }]}>{info.formalName}</Text>
           )}
         </View>
         <TouchableOpacity 
@@ -46,7 +47,7 @@ export function MedCard({
           {info.dosage && (
             <View style={styles.detailRow}>
               <FontAwesome5 name="info-circle" size={16} color={doctorMode ? '#000' : '#0288D1'} />
-              <Text style={[styles.detailsText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
+              <Text selectable style={[styles.detailsText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
                 ขนาด/ลักษณะ: {info.dosage} {info.shape ? `| ${info.shape}` : ''}
               </Text>
             </View>
@@ -55,7 +56,7 @@ export function MedCard({
             <View style={[styles.notesBox, doctorMode && styles.grayNotesBox]}>
               <View style={styles.detailRow}>
                 <FontAwesome5 name="stethoscope" size={16} color={doctorMode ? '#000' : '#2E7D32'} />
-                <Text style={[styles.notesText, { fontSize: 15 + fontOffset }, doctorMode && { color: '#000' }]}>คำสั่งแพทย์: {info.notes}</Text>
+                <Text selectable style={[styles.notesText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>คำสั่งแพทย์: {info.notes}</Text>
               </View>
             </View>
           )}
@@ -63,7 +64,7 @@ export function MedCard({
             <View style={[styles.storageBox, doctorMode && styles.grayStorageBox]}>
               <View style={styles.detailRow}>
                 <FontAwesome5 name="box" size={16} color={doctorMode ? '#000' : '#F57F17'} />
-                <Text style={[styles.storageText, { fontSize: 14 + fontOffset }, doctorMode && { color: '#000' }]}>วิธีเก็บรักษา: {info.storageTh}</Text>
+                <Text selectable style={[styles.storageText, { fontSize: 15 + fontOffset }, doctorMode && { color: '#000' }]}>วิธีเก็บรักษา: {info.storageTh}</Text>
               </View>
             </View>
           )}
@@ -72,7 +73,7 @@ export function MedCard({
         <View style={[styles.medDetails, doctorMode && { borderColor: '#000' }]}>
           <View style={styles.detailRow}>
             <Feather name="info" size={16} color={doctorMode ? '#000' : '#757575'} />
-            <Text style={[styles.detailsText, doctorMode && { color: '#000' }]}>ไม่พบข้อมูลคำแนะนำเพิ่มเติมเกี่ยวกับยานี้ในระบบเครื่องค่ะ</Text>
+            <Text selectable style={[styles.detailsText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>ไม่พบข้อมูลคำแนะนำเพิ่มเติมเกี่ยวกับยานี้ในระบบเครื่องค่ะ</Text>
           </View>
         </View>
       )}
@@ -82,13 +83,13 @@ export function MedCard({
 
 const styles = StyleSheet.create({
   medCard: {
-    backgroundColor: '#FFF',
-    borderWidth: 4,
-    borderColor: '#000',
-    borderRadius: 20,
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 16,
-    boxShadow: '3px 3px 0px #000',
+    boxShadow: '0px 8px 22px rgba(31, 122, 92, 0.10)',
   },
   grayMedCard: {
     backgroundColor: '#FFF',
@@ -100,12 +101,12 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   medIconWrapper: {
-    width: 48,
-    height: 48,
+    width: 58,
+    height: 58,
     borderRadius: 14,
-    backgroundColor: '#FFF8E1',
-    borderWidth: 2,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.primarySoft,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.primary,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -115,23 +116,23 @@ const styles = StyleSheet.create({
   },
   medName: {
     fontWeight: '900',
-    color: '#000',
+    color: SeniorColors.text,
+    lineHeight: 30,
   },
   formalName: {
-    color: '#E65100',
-    fontWeight: '600',
+    color: SeniorColors.textSecondary,
+    fontWeight: '700',
     marginTop: 2,
+    lineHeight: 22,
   },
   deleteBtn: {
-    backgroundColor: '#D32F2F',
-    width: 40,
-    height: 40,
+    backgroundColor: SeniorColors.danger,
+    width: 56,
+    height: 56,
     borderRadius: 10,
-    borderWidth: 2,
-    borderColor: '#000',
+    borderWidth: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '2px 2px 0px #000',
   },
   grayDeleteBtn: {
     backgroundColor: '#000',
@@ -139,8 +140,8 @@ const styles = StyleSheet.create({
   },
   medDetails: {
     marginTop: 12,
-    borderTopWidth: 2,
-    borderColor: '#000',
+    borderTopWidth: 1,
+    borderColor: SeniorColors.border,
     paddingTop: 12,
     gap: 8,
   },
@@ -150,18 +151,17 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   detailsText: {
-    fontWeight: '600',
-    color: '#333',
+    fontWeight: '700',
+    color: SeniorColors.text,
     flex: 1,
+    lineHeight: 25,
   },
   notesBox: {
-    backgroundColor: '#E8F5E9',
-    borderLeftWidth: 6,
-    borderLeftColor: '#2E7D32',
+    backgroundColor: SeniorColors.successSoft,
+    borderLeftWidth: 5,
+    borderLeftColor: SeniorColors.success,
     padding: 10,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#000',
+    borderRadius: 12,
     marginTop: 4,
   },
   grayNotesBox: {
@@ -171,18 +171,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   notesText: {
-    fontWeight: '900',
-    color: '#1B5E20',
+    fontWeight: '800',
+    color: SeniorColors.success,
     flex: 1,
+    lineHeight: 24,
   },
   storageBox: {
-    backgroundColor: '#FFFDE7',
-    borderLeftWidth: 6,
-    borderLeftColor: '#F57F17',
+    backgroundColor: SeniorColors.warningSoft,
+    borderLeftWidth: 5,
+    borderLeftColor: SeniorColors.warning,
     padding: 10,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#000',
+    borderRadius: 12,
     marginTop: 4,
   },
   grayStorageBox: {
@@ -193,7 +192,10 @@ const styles = StyleSheet.create({
   },
   storageText: {
     fontWeight: '700',
-    color: '#E65100',
+    color: SeniorColors.warning,
     flex: 1,
+    lineHeight: 23,
   },
 });
+
+export const MedicationCard = MedCard;

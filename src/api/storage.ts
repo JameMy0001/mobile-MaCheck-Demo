@@ -5,6 +5,19 @@ import { syncActivityLogsWithBackend } from './sync';
 const CUSTOM_MEDS_KEY = '@custom_meds_db';
 const ACTIVITY_LOGS_KEY = '@activity_logs';
 
+const redMedicationBlock = {
+  descTh: 'ห้ามใช้หรือห้ามทานร่วมกันเด็ดขาดค่ะ\n\nคำแนะนำ: หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัยค่ะ',
+  speechTh: 'รายการนี้อยู่ในกลุ่มห้ามใช้หรือห้ามทานร่วมกันค่ะ หยุดก่อนและให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ'
+};
+
+const sanitizeRedMedication = <T extends { severity?: string; descTh?: string; speechTh?: string }>(med: T): T => {
+  if (med.severity !== 'red') return med;
+  return {
+    ...med,
+    ...redMedicationBlock
+  };
+};
+
 export interface ActivityLog {
   id: string;
   timestamp: string;
@@ -54,7 +67,7 @@ export const saveCustomMed = async (med: {
 };
 
 export const getAllMeds = async (): Promise<any[]> => {
-  const custom = await getCustomMeds();
+  const custom = (await getCustomMeds()).map(sanitizeRedMedication);
   
   const builtIn = localAIFallbackDB.map(item => ({
     id: item.keywords[0],
@@ -66,7 +79,7 @@ export const getAllMeds = async (): Promise<any[]> => {
     speechTh: item.speechTh,
     clashWith: item.conditions?.meds || [],
     conditions: item.conditions || {}
-  }));
+  })).map(sanitizeRedMedication);
 
   return [...builtIn, ...custom];
 };

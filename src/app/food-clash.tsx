@@ -8,6 +8,8 @@ import { useAppStore } from '../store/useAppStore';
 import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
 import { useSound } from '@/hooks/use-sound';
+import { SafetyStatusCard, SeniorButton } from '@/components/senior-ui';
+import { SafetySeverity, SeniorColors } from '@/constants/senior-theme';
 
 export default function FoodClashScreen() {
   const [inputText, setInputText] = useState('');
@@ -84,29 +86,28 @@ export default function FoodClashScreen() {
 
       if (clashDiseases.length > 0 || clashMeds.length > 0) {
         // มีการขัดกันจริง!
-        const diseaseNames = clashDiseases.map((d: string) => getDiseaseThName(d)).join(', ');
-        const medNames = clashMeds.map((m: any) => m.name).join(', ');
-
-        let details = foundFood.descTh;
-        let speakText = foundFood.speechTh;
-
         let listInfo = [];
         if (clashDiseases.length > 0) {
-          listInfo.push(`ตีกับโรคประจำตัวของคุณตา: ${diseaseNames}`);
+          listInfo.push(`เกี่ยวข้องกับโรคประจำตัวที่บันทึกไว้`);
         }
         if (clashMeds.length > 0) {
-          listInfo.push(`ตีกับยาในตู้ของคุณตา: ${medNames}`);
+          listInfo.push(`เกี่ยวข้องกับยาในตู้ของคุณตา`);
         }
 
-        const clashDesc = `🚨 **คำเตือน! พบความเสี่ยง:**\n${listInfo.join('\n')}\n\n**ผลกระทบ:** ${details}`;
+        const isRed = foundFood.severity === 'red';
+        const clashDesc = isRed
+          ? `คำเตือน! ระบบจัดรายการนี้เป็นกลุ่มห้ามทานร่วมกัน\n${listInfo.join('\n')}\n\nคำแนะนำ: หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัยค่ะ`
+          : `คำเตือน! พบข้อควรระวัง:\n${listInfo.join('\n')}\n\nคำแนะนำ: ${foundFood.descTh}`;
 
         const clashRes = {
           severity: foundFood.severity,
           descTh: clashDesc,
-          speechTh: speakText
+          speechTh: isRed
+            ? 'รายการนี้อยู่ในกลุ่มห้ามทานร่วมกันค่ะ หยุดก่อนและให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ'
+            : foundFood.speechTh
         };
         setResult(clashRes);
-        handleSpeak(speakText);
+        handleSpeak(clashRes.speechTh);
         await addActivityLog(`เช็กของแสลง: "${inputText}" (พบจุดขัดกันความเสี่ยงสูงระดับ: ${foundFood.severity})`);
 
       } else {
@@ -138,31 +139,76 @@ export default function FoodClashScreen() {
     }
   };
 
+  const getFoodTone = (severity: string): {
+    severity: SafetySeverity;
+    title: string;
+    description: string;
+    action: string;
+  } => {
+    if (severity === 'red') {
+      return {
+        severity: 'red',
+        title: 'ควรเลี่ยง',
+        description: 'ระบบจัดรายการนี้เป็นกลุ่มห้ามทานร่วมกัน',
+        action: 'หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัย',
+      };
+    }
+    if (severity === 'yellow') {
+      return {
+        severity: 'yellow',
+        title: 'ทานอย่างระวัง',
+        description: 'มีข้อควรระวังบางอย่าง ควรทานน้อยและสังเกตอาการ',
+        action: 'ทานแต่น้อย เว้นระยะจากยา และดื่มน้ำตามเหมาะสม',
+      };
+    }
+    return {
+      severity: 'green',
+      title: 'ทานได้',
+      description: 'ไม่พบความเสี่ยงสำคัญกับข้อมูลในตู้ยาขณะนี้',
+      action: 'ทานได้ตามปกติ แต่ยังควรยึดคำแนะนำแพทย์เป็นหลัก',
+    };
+  };
+
+  const cleanFoodDescription = (text?: string) => {
+    if (!text) return 'ไม่มีรายละเอียดเพิ่มเติม';
+    return text.replace(/[🚨🟢]/g, '').replace(/\*\*/g, '').replace(/\n{3,}/g, '\n\n').trim();
+  };
+
+  const getFoodReason = (severity: string, text?: string) => {
+    if (severity === 'red') {
+      return 'ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ';
+    }
+    return cleanFoodDescription(text);
+  };
+
   return (
     <SafeAreaView style={[styles.safeArea, doctorMode && { backgroundColor: '#37474F' }]}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={[styles.container, doctorMode && { backgroundColor: '#E0E0E0' }]}>
-        <View style={[styles.header, doctorMode && { backgroundColor: '#E0E0E0', borderColor: '#000' }]}>
+        <View style={[styles.header, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
           <FontAwesome5 name="lemon" size={32} color="#000" />
-          <Text style={[styles.headerTitle, doctorMode && { color: '#000' }]}>เช็กของแสลง</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.headerTitle, { fontSize: 26 + fontOffset }, doctorMode && { color: '#000' }]}>เช็กของแสลง</Text>
+            <Text style={[styles.headerSubtitle, { fontSize: 15 + fontOffset }, doctorMode && { color: '#333' }]}>ดูว่าอาหารหรือสมุนไพรขัดกับยาในตู้ไหม</Text>
+          </View>
         </View>
 
         <View style={styles.inputContainer}>
           <TextInput
-            style={[styles.input, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}
+            style={[styles.input, { fontSize: 18 + fontOffset }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}
             placeholder="พิมพ์ชื่ออาหารหรือผลไม้... (เช่น ส้มโอ, ของเค็ม)"
             value={inputText}
             onChangeText={setInputText}
             onSubmitEditing={checkFood}
           />
-          <TouchableOpacity style={[styles.searchBtn, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]} onPress={checkFood}>
-            <Feather name="search" size={24} color="#000" />
+          <TouchableOpacity style={[styles.searchBtn, doctorMode && { backgroundColor: '#111', borderColor: '#000' }]} onPress={checkFood}>
+            <Feather name="search" size={24} color="#FFF" />
           </TouchableOpacity>
         </View>
 
         <ScrollView contentContainerStyle={styles.content}>
           {!result ? (
             <View style={styles.emptyState}>
-              <Text style={[styles.emptyText, doctorMode && { color: '#000' }]}>
+              <Text selectable style={[styles.emptyText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>
                 พิมพ์ชื่ออาหาร ผลไม้ หรือสมุนไพร{"\n"}หลานจะเช็กให้อย่างรวดเร็วออฟไลน์ว่าขัดกับยาในตู้หรือโรคประจำตัวของคุณตาไหมค่ะ!
               </Text>
 
@@ -170,7 +216,7 @@ export default function FoodClashScreen() {
               <View style={[styles.demoBox, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <FontAwesome5 name="lightbulb" size={18} color={doctorMode ? '#000' : '#FBC02D'} />
-                  <Text style={styles.demoTitle}>คำชี้แนะค้นหาที่พบบ่อย:</Text>
+                  <Text style={[styles.demoTitle, { fontSize: 16 + fontOffset }]}>คำค้นหาที่พบบ่อย</Text>
                 </View>
                 {[
                   'ส้มโอ',
@@ -191,42 +237,35 @@ export default function FoodClashScreen() {
                   >
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Feather name="arrow-right" size={16} color="#000" />
-                      <Text style={styles.demoItemText}>{item}</Text>
+                      <Text style={[styles.demoItemText, { fontSize: 16 + fontOffset }]}>{item}</Text>
                     </View>
                   </TouchableOpacity>
                 ))}
               </View>
             </View>
           ) : (
-            <View style={[
-              styles.resultCard, 
-              { 
-                backgroundColor: doctorMode 
-                  ? '#FFF' 
-                  : (result.severity === 'red' ? '#FFCDD2' : result.severity === 'yellow' ? '#FFF9C4' : '#C8E6C9'),
-                borderColor: doctorMode 
-                  ? '#000' 
-                  : (result.severity === 'red' ? '#D32F2F' : result.severity === 'yellow' ? '#F57F17' : '#2E7D32')
-              }
-            ]}>
-              <View style={styles.resultHeader}>
-                <FontAwesome5 
-                  name={result.severity === 'red' ? 'exclamation-triangle' : result.severity === 'yellow' ? 'exclamation-circle' : 'check-circle'} 
-                  size={48} 
-                  color={doctorMode ? '#000' : (result.severity === 'red' ? '#D32F2F' : result.severity === 'yellow' ? '#F57F17' : '#2E7D32')} 
+            <SafetyStatusCard
+              severity={getFoodTone(result.severity).severity}
+              title={getFoodTone(result.severity).title}
+              description={getFoodTone(result.severity).description}
+              doctorMode={doctorMode}
+              fontOffset={fontOffset}
+              sections={[
+                { label: 'อาหารที่เช็ก', value: inputText || 'รายการที่เลือก' },
+                { label: 'เหตุผล', value: getFoodReason(result.severity, result.descTh) },
+                { label: 'สิ่งที่ควรทำ', value: getFoodTone(result.severity).action },
+              ]}
+              action={
+                <SeniorButton
+                  label="เช็กอาหารอย่างอื่นต่อ"
+                  icon={{ name: 'refresh-cw' }}
+                  onPress={() => setResult(null)}
+                  doctorMode={doctorMode}
+                  fontOffset={fontOffset}
+                  variant="secondary"
                 />
-              </View>
-              <Text style={[
-                styles.resultText, 
-                { color: '#000' }
-              ]}>
-                {result.descTh}
-              </Text>
-              
-              <TouchableOpacity style={[styles.backBtn, doctorMode && { backgroundColor: '#37474F', borderColor: '#000' }]} onPress={() => setResult(null)}>
-                <Text style={styles.backBtnText}>↩️ เช็กอาหารอย่างอื่นต่อ</Text>
-              </TouchableOpacity>
-            </View>
+              }
+            />
           )}
         </ScrollView>
       </KeyboardAvoidingView>
@@ -237,20 +276,20 @@ export default function FoodClashScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFEB3B',
+    backgroundColor: SeniorColors.background,
   },
   container: {
     flex: 1,
-    backgroundColor: '#FFFDE7',
+    backgroundColor: SeniorColors.background,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    backgroundColor: '#FFEB3B',
+    backgroundColor: SeniorColors.surface,
     padding: 20,
-    borderBottomWidth: 4,
-    borderColor: '#000',
+    borderBottomWidth: 1,
+    borderColor: SeniorColors.border,
   },
   headerIcon: {
     fontSize: 32,
@@ -258,7 +297,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 28,
     fontWeight: '900',
-    color: '#000',
+    color: SeniorColors.text,
+  },
+  headerSubtitle: {
+    fontWeight: '700',
+    color: SeniorColors.textSecondary,
+    marginTop: 2,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -267,21 +311,19 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: '#FFF',
-    borderWidth: 3,
-    borderColor: '#000',
-    boxShadow: '3px 3px 0px #000',
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.borderStrong,
     borderRadius: 12,
     paddingHorizontal: 16,
     fontSize: 18,
     fontWeight: '700',
-    height: 56,
+    minHeight: 56,
+    color: SeniorColors.text,
   },
   searchBtn: {
-    backgroundColor: '#FF5252',
-    borderWidth: 3,
-    borderColor: '#000',
-    boxShadow: '3px 3px 0px #000',
+    backgroundColor: SeniorColors.primary,
+    borderWidth: 0,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -290,47 +332,50 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    gap: 16,
   },
   emptyState: {
     padding: 20,
-    backgroundColor: '#FFF',
-    borderWidth: 3,
-    borderColor: '#000',
-    borderRadius: 16,
-    boxShadow: '4px 4px 0px #000',
+    backgroundColor: SeniorColors.surface,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    borderRadius: 20,
+    boxShadow: '0px 8px 22px rgba(31, 122, 92, 0.10)',
   },
   emptyText: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#E65100',
+    color: SeniorColors.textSecondary,
     textAlign: 'center',
     lineHeight: 28,
     marginBottom: 16,
   },
   demoBox: {
     borderTopWidth: 2,
-    borderColor: '#F5F5F5',
+    borderColor: SeniorColors.border,
     paddingTop: 16,
     gap: 8,
   },
   demoTitle: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#333',
+    color: SeniorColors.text,
     marginBottom: 4,
   },
   demoItemBtn: {
     paddingVertical: 10,
     paddingHorizontal: 14,
-    borderWidth: 2,
-    borderColor: '#000',
-    borderRadius: 10,
-    backgroundColor: '#FFFDE7',
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
+    borderRadius: 12,
+    backgroundColor: SeniorColors.surfaceWarm,
+    minHeight: 52,
+    justifyContent: 'center',
   },
   demoItemText: {
     fontSize: 16,
     fontWeight: '800',
-    color: '#000',
+    color: SeniorColors.text,
   },
   resultCard: {
     borderWidth: 4,

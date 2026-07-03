@@ -1,6 +1,27 @@
 import { localDrugInteractions } from '../assets/db/interactions';
 import { getAllMeds } from './storage';
 
+const redBlockMessage = (drugName: string, context?: string) => {
+  const contextLine = context ? `\n${context}` : '';
+  return {
+    descTh: `ห้ามใช้หรือห้ามทานร่วมกันเด็ดขาดค่ะ${contextLine}\n\nคำแนะนำ: หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัยค่ะ`,
+    speechTh: `ห้ามทาน ${drugName} ค่ะ หยุดก่อนและให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ`
+  };
+};
+
+const redactRedResult = (
+  severity: string,
+  drugName: string,
+  descTh: string,
+  speechTh: string,
+  context?: string
+) => {
+  if (severity !== 'red') {
+    return { descTh, speechTh };
+  }
+  return redBlockMessage(drugName, context);
+};
+
 export const checkInteraction = async (
   newDrugName: string, 
   currentCabinet: any[], 
@@ -33,10 +54,11 @@ export const checkInteraction = async (
 
   if (matchedAllergy) {
     if (matchedAllergy.severity === 'severe') {
+      const red = redBlockMessage(newDrugName, `ตรวจพบประวัติแพ้ยารุนแรงของผู้ใช้`);
       return {
         severity: 'red',
-        descTh: `🚨 ตรวจพบประวัติแพ้ยาอย่างรุนแรง (Severe)!\nคุณตามีประวัติแพ้ยา "${newDrugName}" อย่างรุนแรง ห้ามทานยานี้เด็ดขาดค่ะ!`,
-        speechTh: `ห้ามรับประทานยานี้เด็ดขาดเนื่องจากตรวจพบประวัติแพ้ยารุนแรงค่ะ`
+        descTh: red.descTh,
+        speechTh: red.speechTh
       };
     } else {
       return {
@@ -78,10 +100,17 @@ export const checkInteraction = async (
         );
 
         if (matchesCabinet) {
+          const resultText = redactRedResult(
+            pair.severity,
+            newDrugName,
+            `พบความเสี่ยงตีกับยาในตู้: "${cabinetMed.name}"\n\n${pair.descTh}`,
+            pair.speechTh,
+            `พบคู่ยาที่ระบบจัดเป็นกลุ่มห้ามทานร่วมกัน`
+          );
           return {
             severity: pair.severity,
-            descTh: `พบความเสี่ยงตีกับยาในตู้: "${cabinetMed.name}"\n\n${pair.descTh}`,
-            speechTh: pair.speechTh
+            descTh: resultText.descTh,
+            speechTh: resultText.speechTh
           };
         }
       }
@@ -95,10 +124,17 @@ export const checkInteraction = async (
 
       if (matchesClash) {
         const severity = drugInfo.severity || 'red';
+        const resultText = redactRedResult(
+          severity,
+          newDrugName,
+          `ยา "${newDrugName}" อาจตีกับยา "${cabinetMed.name}" ในตู้ยาของคุณตา\n\nคำแนะนำ: ${drugInfo.descTh || 'ควรปรึกษาแพทย์'}`,
+          `คุณตาคะ ยาตัวนี้อาจจะตีกับ ${cabinetMed.name} ที่กินอยู่นะคะ ต้องระวังค่ะ`,
+          `พบคู่ยาที่ระบบจัดเป็นกลุ่มห้ามทานร่วมกัน`
+        );
         return {
           severity: severity,
-          descTh: `ยา "${newDrugName}" อาจตีกับยา "${cabinetMed.name}" ในตู้ยาของคุณตา\n\nคำแนะนำ: ${drugInfo.descTh || 'ควรปรึกษาแพทย์'}`,
-          speechTh: `คุณตาคะ ยาตัวนี้อาจจะตีกับ ${cabinetMed.name} ที่กินอยู่นะคะ ต้องระวังค่ะ`
+          descTh: resultText.descTh,
+          speechTh: resultText.speechTh
         };
       }
     }
@@ -112,10 +148,18 @@ export const checkInteraction = async (
         query.includes(kw.toLowerCase()) || kw.toLowerCase().includes(query)
       );
       if (matchesClash) {
+        const severity = cabMedInfo.severity || 'red';
+        const resultText = redactRedResult(
+          severity,
+          newDrugName,
+          `ยาใหม่ "${newDrugName}" ตีกับยา "${cabinetMed.name}" ในตู้ยาของคุณตา\n\nคำแนะนำ: ${cabMedInfo.descTh}`,
+          `อันตรายค่ะคุณตา ยานี้ตีกับยา ${cabinetMed.name} ในตู้นะคะ`,
+          `พบคู่ยาที่ระบบจัดเป็นกลุ่มห้ามทานร่วมกัน`
+        );
         return {
-          severity: cabMedInfo.severity || 'red',
-          descTh: `ยาใหม่ "${newDrugName}" ตีกับยา "${cabinetMed.name}" ในตู้ยาของคุณตา\n\nคำแนะนำ: ${cabMedInfo.descTh}`,
-          speechTh: `อันตรายค่ะคุณตา ยานี้ตีกับยา ${cabinetMed.name} ในตู้นะคะ`
+          severity,
+          descTh: resultText.descTh,
+          speechTh: resultText.speechTh
         };
       }
     }
@@ -125,30 +169,30 @@ export const checkInteraction = async (
   if (drugInfo.conditions?.diseases) {
     for (const conditionDisease of drugInfo.conditions.diseases) {
       if (diseases.includes(conditionDisease)) {
-        const diseaseThNames: { [key: string]: string } = {
-          hypertension: 'โรคความดันโลหิตสูง',
-          diabetes: 'โรคเบาหวาน',
-          heart: 'โรคหัวใจ',
-          lipid: 'โรคไขมันในเลือดสูง',
-          kidney: 'โรคไต',
-          stomach: 'โรคกระเพาะอาหาร/แผลในกระเพาะ',
-          liver: 'โรคตับ'
-        };
-
+        const red = redBlockMessage(newDrugName, `พบข้อห้ามใช้กับโรคประจำตัวของผู้ใช้`);
         return {
           severity: 'red',
-          descTh: `ห้ามใช้ในผู้ป่วยโรค: ${diseaseThNames[conditionDisease] || conditionDisease}!\n\n${drugInfo.descTh}`,
-          speechTh: drugInfo.speechTh || `ยานี้ขัดกับโรค ${diseaseThNames[conditionDisease]} ของคุณตานะคะ`
+          descTh: red.descTh,
+          speechTh: red.speechTh
         };
       }
     }
   }
 
   // 3. หากปลอดภัย
+  const finalSeverity = drugInfo.severity || 'green';
+  const finalText = redactRedResult(
+    finalSeverity,
+    newDrugName,
+    drugInfo.descTh || 'ปลอดภัย ทานได้ ไม่มีประวัติขัดกับโรคหรือยาในตู้ยาปัจจุบันค่ะ',
+    drugInfo.speechTh || `ปลอดภัยค่ะคุณตา ทานร่วมกันได้ไม่มีอะไรตีกันนะคะ`,
+    `ระบบจัดรายการนี้เป็นกลุ่มห้ามใช้โดยไม่ควรทดลองเอง`
+  );
+
   return {
-    severity: drugInfo.severity || 'green',
-    descTh: drugInfo.descTh || 'ปลอดภัย ทานได้ ไม่มีประวัติขัดกับโรคหรือยาในตู้ยาปัจจุบันค่ะ',
-    speechTh: drugInfo.speechTh || `ปลอดภัยค่ะคุณตา ทานร่วมกันได้ไม่มีอะไรตีกันนะคะ`
+    severity: finalSeverity,
+    descTh: finalText.descTh,
+    speechTh: finalText.speechTh
   };
 };
 

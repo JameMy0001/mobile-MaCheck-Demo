@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Image } from 'react-native';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { CustomAlertState } from '../hooks/use-custom-alert';
+import { SeniorColors } from '@/constants/senior-theme';
 
 const IconGlassWater = require('../../assets/images/icons/icon_glass_water.png');
 const IconSiren = require('../../assets/images/icons/icon_siren.png');
@@ -21,6 +22,17 @@ export function CustomAlertModal({
   doctorMode,
   fontOffset
 }: CustomAlertModalProps) {
+  const alertTone =
+    alert.type === 'error' || alert.type === 'call'
+      ? SeniorColors.danger
+      : alert.type === 'warning' || alert.type === 'confirm'
+        ? SeniorColors.warning
+        : alert.type === 'success'
+          ? SeniorColors.success
+          : alert.type === 'water'
+            ? SeniorColors.info
+            : SeniorColors.primary;
+
   return (
     <Modal
       animationType="fade"
@@ -45,7 +57,7 @@ export function CustomAlertModal({
           </View>
         ) : alert.type === 'confirm' ? (
           <View style={[styles.alertCard, doctorMode && styles.grayCard]}>
-            <View style={[styles.alertHeaderBadge, { backgroundColor: doctorMode ? '#555' : '#FF8F00' }]}>
+            <View style={[styles.alertHeaderBadge, { backgroundColor: doctorMode ? '#555' : SeniorColors.warning }]}>
               <FontAwesome5 name="exclamation-circle" size={32} color="#FFF" />
             </View>
             <Text style={[styles.alertTitle, { fontSize: 22 + fontOffset }]}>{alert.title}</Text>
@@ -97,7 +109,7 @@ export function CustomAlertModal({
           <View style={[styles.alertCard, doctorMode && styles.grayCard]}>
             <View style={[
               styles.alertHeaderBadge, 
-              { backgroundColor: doctorMode ? '#555' : alert.type === 'error' ? '#FF5252' : alert.type === 'warning' ? '#FFA726' : alert.type === 'success' ? '#4CAF50' : '#2196F3' }
+              { backgroundColor: doctorMode ? '#555' : alertTone }
             ]}>
               <FontAwesome5 
                 name={alert.type === 'error' ? 'times-circle' : alert.type === 'warning' ? 'exclamation-triangle' : alert.type === 'success' ? 'check-circle' : 'info-circle'} 
@@ -110,7 +122,7 @@ export function CustomAlertModal({
             <TouchableOpacity 
               style={[
                 styles.alertBtn, 
-                { backgroundColor: doctorMode ? '#555' : alert.type === 'error' ? '#FF5252' : alert.type === 'warning' ? '#FFA726' : alert.type === 'success' ? '#4CAF50' : '#2196F3' }
+                { backgroundColor: doctorMode ? '#555' : alertTone }
               ]} 
               onPress={onClose}
             >
@@ -133,51 +145,51 @@ const styles = StyleSheet.create({
   },
   alertCard: {
     width: '90%',
-    backgroundColor: '#FFF',
+    backgroundColor: SeniorColors.surface,
     borderRadius: 24,
-    borderWidth: 4,
-    borderColor: '#000',
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
     padding: 24,
     alignItems: 'center',
-    boxShadow: '4px 4px 0px #000',
+    boxShadow: '0px 10px 28px rgba(20, 50, 42, 0.18)',
   },
   grayCard: {
-    backgroundColor: '#E0E0E0',
+    backgroundColor: '#FFFFFF',
+    borderColor: '#000',
   },
   waterAlertCard: {
-    borderColor: '#0288D1',
+    borderColor: SeniorColors.info,
   },
   waterWrapper: {
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#E1F5FE',
-    borderWidth: 3,
-    borderColor: '#0288D1',
+    backgroundColor: SeniorColors.infoSoft,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.info,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   waterAlertTitle: {
     fontWeight: '900',
-    color: '#0288D1',
+    color: SeniorColors.info,
     textAlign: 'center',
     marginBottom: 10,
   },
   waterAlertMessage: {
     textAlign: 'center',
-    color: '#555',
+    color: SeniorColors.textSecondary,
     marginBottom: 20,
     lineHeight: 24,
   },
   waterOkBtn: {
-    backgroundColor: '#0288D1',
+    backgroundColor: SeniorColors.info,
     paddingVertical: 14,
     paddingHorizontal: 28,
     borderRadius: 14,
-    borderWidth: 3,
-    borderColor: '#000',
-    boxShadow: '3px 3px 0px #000',
+    borderWidth: 0,
+    minHeight: 56,
   },
   waterOkBtnText: {
     color: '#FFF',
@@ -187,21 +199,20 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
-    borderWidth: 3,
-    borderColor: '#000',
+    borderWidth: 0,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   alertTitle: {
     fontWeight: '900',
-    color: '#000',
+    color: SeniorColors.text,
     textAlign: 'center',
     marginBottom: 12,
   },
   alertMessage: {
     textAlign: 'center',
-    color: '#333',
+    color: SeniorColors.textSecondary,
     marginBottom: 24,
     lineHeight: 22,
   },
@@ -214,49 +225,49 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     borderRadius: 14,
-    borderWidth: 3,
-    borderColor: '#000',
+    borderWidth: 1.5,
+    borderColor: SeniorColors.border,
     alignItems: 'center',
-    boxShadow: '3px 3px 0px #000',
+    minHeight: 56,
   },
   btnCancel: {
-    backgroundColor: '#FFCDD2',
+    backgroundColor: SeniorColors.surfaceMuted,
   },
   btnCancelText: {
     fontWeight: '900',
-    color: '#B71C1C',
+    color: SeniorColors.text,
   },
   btnConfirm: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: SeniorColors.primary,
   },
   btnConfirmText: {
     fontWeight: '900',
     color: '#FFF',
   },
   emergencyCallCard: {
-    borderColor: '#D32F2F',
+    borderColor: SeniorColors.danger,
   },
   sirenWrapper: {
     width: 90,
     height: 90,
     borderRadius: 45,
-    backgroundColor: '#FFEBEE',
-    borderWidth: 3,
-    borderColor: '#D32F2F',
+    backgroundColor: SeniorColors.dangerSoft,
+    borderWidth: 1.5,
+    borderColor: SeniorColors.danger,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 16,
   },
   emergencyCallTitle: {
     fontWeight: '900',
-    color: '#D32F2F',
+    color: SeniorColors.danger,
     textAlign: 'center',
     marginBottom: 16,
   },
   dialNumbers: {
-    backgroundColor: '#F5F5F5',
-    borderWidth: 2,
-    borderColor: '#000',
+    backgroundColor: SeniorColors.surfaceMuted,
+    borderWidth: 1,
+    borderColor: SeniorColors.border,
     borderRadius: 14,
     padding: 16,
     width: '100%',
@@ -264,26 +275,25 @@ const styles = StyleSheet.create({
   },
   dialLabel: {
     fontWeight: '600',
-    color: '#333',
+    color: SeniorColors.text,
     marginBottom: 8,
   },
   dialValue: {
     fontWeight: '900',
-    color: '#B71C1C',
+    color: SeniorColors.danger,
   },
   dialWarning: {
-    color: '#D32F2F',
+    color: SeniorColors.danger,
     fontWeight: '700',
     textAlign: 'center',
     marginBottom: 24,
   },
   hangUpBtn: {
-    backgroundColor: '#D32F2F',
+    backgroundColor: SeniorColors.danger,
     paddingVertical: 16,
     borderRadius: 14,
-    borderWidth: 3,
-    borderColor: '#000',
-    boxShadow: '3px 3px 0px #000',
+    borderWidth: 0,
+    minHeight: 56,
     width: '100%',
     flexDirection: 'row',
     justifyContent: 'center',
@@ -297,9 +307,8 @@ const styles = StyleSheet.create({
   alertBtn: {
     paddingVertical: 14,
     borderRadius: 14,
-    borderWidth: 3,
-    borderColor: '#000',
-    boxShadow: '3px 3px 0px #000',
+    borderWidth: 0,
+    minHeight: 56,
     width: '100%',
     alignItems: 'center',
   },
