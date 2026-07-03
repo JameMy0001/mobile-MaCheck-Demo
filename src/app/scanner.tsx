@@ -141,7 +141,7 @@ export default function ScannerScreen() {
             ...caseResult
           });
           
-          await addActivityLog(`คุณตาสแกนทดสอบกรณีจัดฉาก: ${activeCase} (${caseResult.name}) - ผลลัพธ์: ${caseResult.severity}`);
+          await addActivityLog(`คุณตาสแกนทดสอบกรณีตัวอย่าง: ${activeCase} (${caseResult.name}) - ผลลัพธ์: ${caseResult.severity}`);
           setIsScanning(false);
         }, 1500);
       } catch (e: any) {
@@ -634,7 +634,7 @@ export default function ScannerScreen() {
         <View style={styles.overlay}>
           {/* Staged Presentation Case Selector */}
           <View style={styles.demoSelectorContainer}>
-            <Text style={styles.demoSelectorTitle}>🎭 เลือกเคสจัดฉาก (คลิกก่อนกดถ่ายภาพ):</Text>
+            <Text style={styles.demoSelectorTitle}>🎭 เลือกกรณีตัวอย่าง (คลิกก่อนกดถ่ายภาพ):</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.demoSelectorScroll}>
               <TouchableOpacity 
                 style={[styles.demoSelectBtn, activeCase === 'case1' && styles.demoSelectBtnActive]} 
