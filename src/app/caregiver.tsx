@@ -282,7 +282,7 @@ export default function CaregiverScreen() {
               <View style={{ gap: 10 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: 16 + fontOffset, fontWeight: '800', color: '#2E7D32' }}>
-                    🟢 ซิงค์กับเครื่องคุณตา "{remoteProfile.name}" สำเร็จ
+                    🟢 ซิงค์กับเครื่องคุณตา &quot;{remoteProfile.name}&quot; สำเร็จ
                   </Text>
                   <TouchableOpacity
                     style={{
