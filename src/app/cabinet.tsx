@@ -37,21 +37,50 @@ export default function CabinetScreen() {
   const translateMedName = (n: string) => {
     if (language === 'th') return n;
     let translated = n;
+    // CPM (Yellow)
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก\/แก้แพ้คัน\/ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    // Cetirizine (White)
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีขาว \(แก้แพ้คัน \/ ลดน้ำมูก \/ ชนิดไม่ง่วงนอน\)/g, 'White Allergy Pill (Cetirizine / Non-drowsy)');
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีขาว \(แก้แพ้คัน\/ลดน้ำมูก\/ชนิดไม่ง่วงนอน\)/g, 'White Allergy Pill (Cetirizine / Non-drowsy)');
+    // Ibuprofen
     translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน \(แก้ปวดกล้ามเนื้อ\/กระดูกอักเสบชนิดรุนแรง\)/g, 'Ibuprofen (NSAIDs Pain Reliever)');
+    translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน/g, 'Ibuprofen');
+    // Warfarin
     translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \(Warfarin\)/g, 'Blood Thinner (Warfarin)');
     translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \/ ยาต้านลิ่มเลือดอุดตันในเส้นเลือด/g, 'Blood Thinner (Warfarin / Aspirin)');
     translated = translated.replace(/ยาต้านการแข็งตัวของเลือด/g, 'Blood Thinner');
+    // Simvastatin
     translated = translated.replace(/ยาลดไขมัน \(Simvastatin\)/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดไขมันในเส้นเลือด ซิมวาสแตติน/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดไขมันในเส้นเลือด/g, 'Cholesterol Lowering');
+    // Amlodipine
     translated = translated.replace(/ยาลดความดัน \(Amlodipine\)/g, 'Hypertension Med (Amlodipine)');
+    translated = translated.replace(/ยาลดความดันโลหิตสูง \(ยาความดันปกติประจำวัน\)/g, 'Hypertension Med (Amlodipine / Daily)');
+    translated = translated.replace(/ยาลดความดันโลหิตสูง/g, 'Hypertension Med');
+    // Lisinopril
     translated = translated.replace(/ยาลดความดัน \(Lisinopril\)/g, 'Hypertension Med (Lisinopril)');
+    // Metformin
     translated = translated.replace(/ยาโรคเบาหวาน \(Metformin\)/g, 'Diabetes Med (Metformin)');
     translated = translated.replace(/ยาโรคเบาหวาน เมทฟอร์มิน \(ยาลดระดับน้ำตาลในเลือด\)/g, 'Diabetes Med (Metformin)');
-    translated = translated.replace(/ยาพาราเซตามอล \(แก้ปวด \/ ลดไข้\)/g, 'Paracetamol (Acetaminophen)');
+    translated = translated.replace(/ยาโรคเบาหวาน/g, 'Diabetes Med');
+    // Paracetamol
+    translated = translated.replace(/ยาพาราเซตามอล \(แก้ปวด \/ ลดไข้\)/g, 'Paracetamol (Pain/Fever)');
     translated = translated.replace(/ยาพาราเซตามอล/g, 'Paracetamol');
-    translated = translated.replace(/ยาแก้ปวดพอนสแตน \(แก้ปวดฟัน \/ ปวดประจำเดือน \/ ปวดข้อกระดูก\)/g, 'Ponstan (Mefenamic Acid)');
-    translated = translated.replace(/ยาแก้ปวดข้อ/g, 'Pain Reliever');
+    // Ponstan
+    translated = translated.replace(/ยาแก้ปวดพอนสแตน \(แก้ปวดฟัน \/ ปวดประจำเดือน \/ ปวดข้อกระดูก\)/g, 'Ponstan (Mefenamic Acid / Pain Reliever)');
+    translated = translated.replace(/ยาแก้ปวดพอนสแตน \(แก้ปวดฟัน\/ปวดประจำเดือน\/ปวดข้อกระดูก\)/g, 'Ponstan (Mefenamic Acid / Pain Reliever)');
+    // Digoxin
     translated = translated.replace(/ยาโรคหัวใจ \(Digoxin\)/g, 'Heart Disease Med (Digoxin)');
+    // Amoxicillin
+    translated = translated.replace(/ยาฆ่าเชื้อแก้อักเสบ อะม็อกซีซิลลิน/g, 'Antibiotic (Amoxicillin)');
+    // Roxithromycin (Strong antibiotics)
+    translated = translated.replace(/ยาฆ่าเชื้อแก้อักเสบตัวแรง \(สำหรับคออักเสบ\/ทางเดินหายใจติดเชื้อ\)/g, 'Strong Antibiotic (Roxithromycin)');
+    // Antacid
+    translated = translated.replace(/ยาลดกรดเคลือบกระเพาะอาหาร \(ชนิดน้ำขาว\/ชนิดเม็ดเคี้ยว\)/g, 'Antacid (Liquid / Chewable)');
+    // Omeprazole
+    translated = translated.replace(/ยาลดกรดก่อนอาหาร โอเมพราโซล/g, 'Pre-meal Antacid (Omeprazole)');
+    // Gemfibrozil
     translated = translated.replace(/ยาลดไขมันในเส้นเลือด เจมไฟโบรซิล/g, 'Cholesterol Med (Gemfibrozil)');
     return translated;
   };
@@ -459,7 +488,7 @@ export default function CabinetScreen() {
                           </Text>
                         </View>
                         {medicines.map((colMed) => {
-                          const shortName = colMed.name.split(' ')[0].slice(0, 8);
+                          const shortName = translateMedName(colMed.name).split(' ')[0].slice(0, 8);
                           return (
                             <View key={`col_${colMed.id}`} style={[styles.matrixHeaderCell, { width: 85, borderRightWidth: 2, borderColor: '#000', justifyContent: 'center', alignItems: 'center', padding: 6 }]}>
                               <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 12, textAlign: 'center' }} numberOfLines={1}>{shortName}</Text>
@@ -470,7 +499,7 @@ export default function CabinetScreen() {
 
                       {/* Data Rows */}
                       {medicines.map((rowMed) => {
-                        const rowShortName = rowMed.name.split(' ')[0].slice(0, 10);
+                        const rowShortName = translateMedName(rowMed.name).split(' ')[0].slice(0, 10);
                         return (
                           <View key={`row_${rowMed.id}`} style={{ flexDirection: 'row', borderBottomWidth: 2, borderColor: '#000' }}>
                             {/* Row Header */}

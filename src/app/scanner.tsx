@@ -271,8 +271,10 @@ export default function ScannerScreen() {
       handleSpeak('เริ่มชาเลนจ์จิบน้ำและเว้นระยะยาแก้ปวด 2 ชั่วโมงให้คุณตาแล้วค่ะ');
       setCustomAlert({
         visible: true,
-        title: 'ภารกิจเริ่มต้นแล้ว!',
-        message: 'เริ่มภารกิจจำลองความปลอดภัยแล้วค่ะ คุณตาสามารถดูแถบเวลานับถอยหลังและกดบันทึกจิบน้ำสะสมได้ที่หน้าจอหลักนะคะ!',
+        title: language === 'th' ? 'ภารกิจเริ่มต้นแล้ว!' : 'Challenge Started!',
+        message: language === 'th' 
+          ? 'เริ่มภารกิจจำลองความปลอดภัยแล้วค่ะ คุณตาสามารถดูแถบเวลานับถอยหลังและกดบันทึกจิบน้ำสะสมได้ที่หน้าจอหลักนะคะ!' 
+          : 'Safety challenge has started. You can view the countdown timer and log water intake on the home screen!',
         type: 'success',
         onDismiss: () => {
           router.replace('/');
@@ -342,19 +344,51 @@ export default function ScannerScreen() {
     translated = translated.replace(/ยาแก้ปวดกลุ่ม NSAIDs ตัวนี้ห้ามทานนะคะ! เพราะจะทำให้ความดันขึ้น ไตพัง และกัดกระเพาะอย่างรุนแรง แถมยังตีกับยาละลายลิ่มเลือดด้วยค่ะ/g, 'Do not take this NSAID pain reliever! It increases blood pressure, harms kidneys, irritates the stomach, and clashes with blood thinners.');
     translated = translated.replace(/ตรวจพบประวัติแพ้ยารุนแรงของผู้ใช้/g, 'Detected severe user drug allergy history');
     
-    // Replace names
+    // CPM (Yellow)
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก\/แก้แพ้คัน\/ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    // Cetirizine (White)
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีขาว \(แก้แพ้คัน \/ ลดน้ำมูก \/ ชนิดไม่ง่วงนอน\)/g, 'White Allergy Pill (Cetirizine / Non-drowsy)');
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีขาว \(แก้แพ้คัน\/ลดน้ำมูก\/ชนิดไม่ง่วงนอน\)/g, 'White Allergy Pill (Cetirizine / Non-drowsy)');
+    // Ibuprofen
     translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน \(แก้ปวดกล้ามเนื้อ\/กระดูกอักเสบชนิดรุนแรง\)/g, 'Ibuprofen (NSAIDs Pain Reliever)');
+    translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน/g, 'Ibuprofen');
+    // Warfarin
     translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \(Warfarin\)/g, 'Blood Thinner (Warfarin)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \/ ยาต้านลิ่มเลือดอุดตันในเส้นเลือด/g, 'Blood Thinner (Warfarin / Aspirin)');
     translated = translated.replace(/ยาต้านการแข็งตัวของเลือด/g, 'Blood Thinner');
+    // Simvastatin
     translated = translated.replace(/ยาลดไขมัน \(Simvastatin\)/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดไขมันในเส้นเลือด ซิมวาสแตติน/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดไขมันในเส้นเลือด/g, 'Cholesterol Lowering');
+    // Amlodipine
     translated = translated.replace(/ยาลดความดัน \(Amlodipine\)/g, 'Hypertension Med (Amlodipine)');
+    translated = translated.replace(/ยาลดความดันโลหิตสูง \(ยาความดันปกติประจำวัน\)/g, 'Hypertension Med (Amlodipine / Daily)');
+    translated = translated.replace(/ยาลดความดันโลหิตสูง/g, 'Hypertension Med');
+    // Lisinopril
     translated = translated.replace(/ยาลดความดัน \(Lisinopril\)/g, 'Hypertension Med (Lisinopril)');
+    // Metformin
     translated = translated.replace(/ยาโรคเบาหวาน \(Metformin\)/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ยาโรคเบาหวาน เมทฟอร์มิน \(ยาลดระดับน้ำตาลในเลือด\)/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ยาโรคเบาหวาน/g, 'Diabetes Med');
+    // Paracetamol
+    translated = translated.replace(/ยาพาราเซตามอล \(แก้ปวด \/ ลดไข้\)/g, 'Paracetamol (Pain/Fever)');
     translated = translated.replace(/ยาพาราเซตามอล/g, 'Paracetamol');
-    translated = translated.replace(/ยาแก้ปวดข้อ/g, 'Pain Reliever');
+    // Ponstan
+    translated = translated.replace(/ยาแก้ปวดพอนสแตน \(แก้ปวดฟัน \/ ปวดประจำเดือน \/ ปวดข้อกระดูก\)/g, 'Ponstan (Mefenamic Acid / Pain Reliever)');
+    translated = translated.replace(/ยาแก้ปวดพอนสแตน \(แก้ปวดฟัน\/ปวดประจำเดือน\/ปวดข้อกระดูก\)/g, 'Ponstan (Mefenamic Acid / Pain Reliever)');
+    // Digoxin
     translated = translated.replace(/ยาโรคหัวใจ \(Digoxin\)/g, 'Heart Disease Med (Digoxin)');
-    
+    // Amoxicillin
+    translated = translated.replace(/ยาฆ่าเชื้อแก้อักเสบ อะม็อกซีซิลลิน/g, 'Antibiotic (Amoxicillin)');
+    // Roxithromycin (Strong antibiotics)
+    translated = translated.replace(/ยาฆ่าเชื้อแก้อักเสบตัวแรง \(สำหรับคออักเสบ\/ทางเดินหายใจติดเชื้อ\)/g, 'Strong Antibiotic (Roxithromycin)');
+    // Antacid
+    translated = translated.replace(/ยาลดกรดเคลือบกระเพาะอาหาร \(ชนิดน้ำขาว\/ชนิดเม็ดเคี้ยว\)/g, 'Antacid (Liquid / Chewable)');
+    // Omeprazole
+    translated = translated.replace(/ยาลดกรดก่อนอาหาร โอเมพราโซล/g, 'Pre-meal Antacid (Omeprazole)');
+    // Gemfibrozil
+    translated = translated.replace(/ยาลดไขมันในเส้นเลือด เจมไฟโบรซิล/g, 'Cholesterol Med (Gemfibrozil)');
     return translated;
   };
 

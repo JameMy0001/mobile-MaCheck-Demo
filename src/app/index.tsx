@@ -178,11 +178,16 @@ export default function HomeScreen() {
     };
     await setActiveChallenge(updated);
 
-    const speeches = [
+    const speeches = language === 'th' ? [
       'คุณตาจิบน้ำแก้วแรกแล้ว สดชื่นกระปรี้กระเปร่าขึ้นทันทีเลยค่ะ',
       'แก้วที่สองเรียบร้อย ช่วยเจือจางยาและถนอมระบบกระเพาะอาหารนะคะคุณตา',
       'ยอดเยี่ยมค่ะแก้วที่สามแล้ว ช่วยลดความตึงเครียดของหลอดเลือดหัวใจได้ดีมากค่ะ',
       'สุดยอดเลยค่ะคุณตาดื่มครบสี่แก้วแล้ว ร่างกายคุณตาได้รับน้ำอุ่นใจอย่างสมบูรณ์แล้วค่ะ'
+    ] : [
+      'You have taken your first sip! Feeling refreshed and energized.',
+      'Second glass done. This helps dilute medications and protect your stomach.',
+      'Excellent! Third glass. This helps reduce vascular strain and support heart health.',
+      'Superb! You have completed all 4 glasses. Your body is now fully hydrated.'
     ];
     handleSpeak(speeches[newCups - 1]);
     await addActivityLog(`คุณตากดบันทึกจิบน้ำสะสม แก้วที่: ${newCups}`);
@@ -190,8 +195,10 @@ export default function HomeScreen() {
     // แสดงป๊อปอัปแจ้งเตือนสวยงามตามคำสั่งคุณตา
     setCustomAlert({
       visible: true,
-      title: `บันทึกกินน้ำสำเร็จ!`,
-      message: `กินน้ำครั้งที่ ${newCups} / 4 เรียบร้อยแล้วค่ะคุณตา!\n\n${speeches[newCups - 1]}`,
+      title: language === 'th' ? 'บันทึกกินน้ำสำเร็จ!' : 'Water Intake Logged!',
+      message: language === 'th'
+        ? `กินน้ำครั้งที่ ${newCups} / 4 เรียบร้อยแล้วค่ะคุณตา!\n\n${speeches[newCups - 1]}`
+        : `Water intake ${newCups} / 4 logged successfully!\n\n${speeches[newCups - 1]}`,
       type: 'water',
       waterCup: newCups
     });
@@ -201,7 +208,9 @@ export default function HomeScreen() {
   const finishChallenge = async () => {
     if (!activeChallenge) return;
     await setActiveChallenge(null);
-    handleSpeak('สิ้นสุดภารกิจความปลอดภัยเรียบร้อย ขอให้สุขภาพร่างกายแข็งแรงนะคะคุณตา');
+    handleSpeak(language === 'th' 
+      ? 'สิ้นสุดภารกิจความปลอดภัยเรียบร้อย ขอให้สุขภาพร่างกายแข็งแรงนะคะคุณตา' 
+      : 'Safety challenge completed successfully! Stay healthy, Grandpa.');
     await addActivityLog(`คุณตาสิ้นสุดภารกิจความปลอดภัยเว้นระยะยา: "${activeChallenge.medName}"`);
   };
 
