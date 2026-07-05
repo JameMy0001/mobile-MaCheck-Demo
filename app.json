@@ -18,7 +18,11 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.jamereal.mobileMaCheckDemo"
     },
     "web": {
       "output": "static",
@@ -35,18 +39,17 @@
             "imageWidth": 76
           }
         }
-      ],
-      [
-        "@react-native-voice/voice",
-        {
-          "microphonePermission": "ขออนุญาตเข้าถึงไมโครโฟนเพื่อคุยกับหลานรัก AI ค่ะ",
-          "speechRecognitionPermission": "ขออนุญาตใช้ระบบแปลงเสียงเป็นข้อความเพื่อคุยกับหลานรัก AI ค่ะ"
-        }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "e4e13498-eb56-46d2-8bfd-3bda94fa1e7d"
+      }
     }
   }
 }
