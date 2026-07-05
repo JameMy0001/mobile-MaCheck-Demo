@@ -53,6 +53,7 @@ export interface AppState {
   geminiApiKey: string;
   backendUrl: string;
   isLoaded: boolean;
+  language: 'th' | 'en';
 
   setProfile: (profile: UserProfile | null) => Promise<void>;
   setCabinet: (cabinet: CabinetMed[]) => Promise<void>;
@@ -67,6 +68,7 @@ export interface AppState {
   setCaregiverPhone: (phone: string) => Promise<void>;
   setGeminiApiKey: (key: string) => Promise<void>;
   setBackendUrl: (url: string) => Promise<void>;
+  setLanguage: (lang: 'th' | 'en') => Promise<void>;
   loadAllFromStorage: () => Promise<void>;
   refreshAllUsers: () => Promise<void>;
 }
@@ -85,6 +87,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   geminiApiKey: '',
   backendUrl: 'http://localhost:3000',
   isLoaded: false,
+  language: 'th',
 
   setProfile: async (profile) => {
     set({ profile });
@@ -175,6 +178,11 @@ export const useAppStore = create<AppState>((set, get) => ({
     await AsyncStorage.setItem('@backend_url', backendUrl);
   },
 
+  setLanguage: async (language) => {
+    set({ language });
+    await AsyncStorage.setItem('@app_language', language);
+  },
+
   loadAllFromStorage: async () => {
     try {
       const storedProfile = await AsyncStorage.getItem('@user_profile');
@@ -188,6 +196,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       const storedGeminiKey = await AsyncStorage.getItem('@gemini_api_key');
       const storedBackendUrl = await AsyncStorage.getItem('@backend_url');
       const storedAllUsers = await AsyncStorage.getItem('@all_users');
+      const storedLanguage = await AsyncStorage.getItem('@app_language');
 
       const storedDevMode = await AsyncStorage.getItem('@developer_mode');
 
@@ -204,6 +213,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         geminiApiKey: storedGeminiKey || '',
         backendUrl: storedBackendUrl || 'http://localhost:3000',
         allUsers: storedAllUsers ? JSON.parse(storedAllUsers) : [],
+        language: (storedLanguage as any) || 'th',
         isLoaded: true
       });
     } catch (e) {

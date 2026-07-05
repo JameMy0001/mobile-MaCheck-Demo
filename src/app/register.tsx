@@ -9,6 +9,7 @@ import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
 import { useAppStore } from '../store/useAppStore';
 import { SeniorColors } from '@/constants/senior-theme';
+import { useTranslation } from '../constants/translations';
 
 const DISEASES_LIST = [
   { id: 'hypertension', name: 'ความดันโลหิตสูง', icon: 'heartbeat', color: '#E91E63' },
@@ -46,6 +47,9 @@ export default function RegisterScreen() {
   const storeBackendUrl = useAppStore((state) => state.backendUrl);
   const storeDevMode = useAppStore((state) => state.developerMode);
   const refreshAllUsers = useAppStore((state) => state.refreshAllUsers);
+  
+  const { t, language } = useTranslation();
+  const setLanguage = useAppStore((state) => state.setLanguage);
 
   // Register fields
   const [name, setName] = useState('');
@@ -323,8 +327,9 @@ export default function RegisterScreen() {
       await syncProfileWithBackend(updatedProfile);
 
       await addActivityLog(`อัปเดตข้อมูลการตั้งค่าและประวัติคุณตา: "${trimmedName}"`);
-      handleSpeak('บันทึกข้อมูลการตั้งค่าสำเร็จเรียบร้อยแล้วค่ะ');
-      Alert.alert('บันทึกสำเร็จ', 'ข้อมูลการตั้งค่าของคุณตาได้รับการปรับปรุงแล้วค่ะ');
+      const successMsg = t('saveSuccess');
+      handleSpeak(successMsg);
+      Alert.alert(language === 'th' ? 'บันทึกสำเร็จ' : 'Success', successMsg);
       router.replace('/');
     } catch (e) {
       console.error(e);
@@ -495,22 +500,22 @@ export default function RegisterScreen() {
             <View style={[styles.card, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
               <View style={styles.labelRow}>
                 <Feather name="user" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>ชื่อคนไข้</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('patientName')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="ชื่อเล่นของคุณตา/คุณยาย..."
+                placeholder={t('enterPatientName')}
                 value={name}
                 onChangeText={setName}
               />
 
               <View style={styles.labelRow}>
                 <Feather name="phone-call" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>เบอร์ติดต่อฉุกเฉินผู้ดูแล</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('emergencyPhone')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="กรอกเบอร์โทรศัพท์ลูกหลาน..."
+                placeholder={t('enterCgPhone')}
                 keyboardType="phone-pad"
                 value={caregiverPhone}
                 onChangeText={setCaregiverPhone}
@@ -518,24 +523,24 @@ export default function RegisterScreen() {
 
               <View style={styles.labelRow}>
                 <Feather name="server" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🌐 เซิร์ฟเวอร์หลังบ้าน (Backend Server URL)</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🌐 {t('backendServer')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="http://localhost:5001/api"
+                placeholder={t('enterBackendUrl')}
                 value={backendUrl}
                 onChangeText={setBackendUrl}
               />
 
               <View style={styles.labelRow}>
                 <FontAwesome5 name="briefcase-medical" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>โรคประจำตัวที่คุณตาเลือกไว้</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('selectedDiseases')}</Text>
               </View>
               <View style={[styles.selectedDiseasesPanel, doctorMode && { backgroundColor: '#EEE', borderColor: '#000' }]}>
                 <Text style={[styles.selectedDiseasesText, { fontSize: 16 + fontOffset }]}>
                   {selectedDiseases.length > 0 
                     ? selectedDiseases.map(d => DISEASES_LIST.find(item => item.id === d)?.name).join(', ')
-                    : 'ไม่มีโรคประจำตัวที่บันทึกไว้'}
+                    : t('noDiseases')}
                 </Text>
               </View>
 
@@ -615,12 +620,25 @@ export default function RegisterScreen() {
 
               <View style={{ marginBottom: 16 }}>
                 <View style={styles.labelRow}>
-                  <FontAwesome5 name="exclamation-circle" size={18} color="#000" />
-                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>💊 ยาอื่น ๆ ที่แพ้ (ระบุคั่นด้วยเครื่องหมายจุลภาค ,)</Text>
+                  <FontAwesome5 name="stethoscope" size={18} color="#000" />
+                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🩺 {t('otherDiseases')}</Text>
                 </View>
                 <TextInput
                   style={[styles.input, { fontSize: 16 + fontOffset }]}
-                  placeholder="เช่น ยาเพนิซิลลิน, ซัลฟา..."
+                  placeholder={t('enterOtherDiseases')}
+                  value={otherDiseases}
+                  onChangeText={setOtherDiseases}
+                />
+              </View>
+
+              <View style={{ marginBottom: 16 }}>
+                <View style={styles.labelRow}>
+                  <FontAwesome5 name="exclamation-circle" size={18} color="#000" />
+                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>💊 {t('otherAllergies')}</Text>
+                </View>
+                <TextInput
+                  style={[styles.input, { fontSize: 16 + fontOffset }]}
+                  placeholder={t('enterOtherAllergies')}
                   value={otherAllergies}
                   onChangeText={setOtherAllergies}
                 />
@@ -629,9 +647,9 @@ export default function RegisterScreen() {
               {/* 🩺 โหมดสำหรับแพทย์ (Doctor Mode) */}
               <View style={[styles.doctorModeContainer, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
                 <View style={{ flex: 1, paddingRight: 8 }}>
-                  <Text style={[styles.doctorModeTitle, { fontSize: 17 + fontOffset }]}>🩺 โหมดสำหรับแพทย์ (Doctor Mode)</Text>
+                  <Text style={[styles.doctorModeTitle, { fontSize: 17 + fontOffset }]}>🩺 {t('doctorMode')}</Text>
                   <Text style={[styles.doctorModeDesc, { fontSize: 12 + fontOffset }]}>
-                    เปิดระดับความคมชัดสูงและขาวดำพิเศษเพื่อช่วยให้แพทย์ตรวจประวัติยาได้สะดวก
+                    {t('doctorModeDesc')}
                   </Text>
                 </View>
                 <TouchableOpacity 
@@ -646,7 +664,7 @@ export default function RegisterScreen() {
                   }}
                 >
                   <Text style={[styles.doctorModeToggleBtnText, { fontSize: 14 + fontOffset, color: doctorMode ? '#FFF' : '#000' }]}>
-                    {doctorMode ? 'เปิดอยู่' : 'ปิดอยู่'}
+                    {doctorMode ? t('statusActive') : t('statusInactive')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -654,9 +672,9 @@ export default function RegisterScreen() {
               {/* ⚙️ โหมดนักพัฒนา (Developer Mode / Simulator Panel) */}
               <View style={[styles.doctorModeContainer, { marginTop: 12 }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
                 <View style={{ flex: 1, paddingRight: 8 }}>
-                  <Text style={[styles.doctorModeTitle, { fontSize: 17 + fontOffset }]}>⚙️ แผงทดสอบระบบ (Developer Mode)</Text>
+                  <Text style={[styles.doctorModeTitle, { fontSize: 17 + fontOffset }]}>⚙️ {t('devMode')}</Text>
                   <Text style={[styles.doctorModeDesc, { fontSize: 12 + fontOffset }]}>
-                    เปิดใช้งานแผงสาธิตการแจ้งเตือน 3 ระดับบนหน้าหลักเพื่อใช้สำหรับตรวจประเมิน
+                    {t('devModeDesc')}
                   </Text>
                 </View>
                 <TouchableOpacity 
@@ -671,9 +689,49 @@ export default function RegisterScreen() {
                   }}
                 >
                   <Text style={[styles.doctorModeToggleBtnText, { fontSize: 14 + fontOffset, color: developerMode ? '#FFF' : '#000' }]}>
-                    {developerMode ? 'เปิดอยู่' : 'ปิดอยู่'}
+                    {developerMode ? t('statusActive') : t('statusInactive')}
                   </Text>
                 </TouchableOpacity>
+              </View>
+
+              {/* 🌐 ภาษา / Language Toggle Button */}
+              <View style={[styles.doctorModeContainer, { marginTop: 12 }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
+                <View style={{ flex: 1, paddingRight: 8 }}>
+                  <Text style={[styles.doctorModeTitle, { fontSize: 17 + fontOffset }]}>🌐 {t('changeLanguage')}</Text>
+                  <Text style={[styles.doctorModeDesc, { fontSize: 12 + fontOffset }]}>
+                    เลือกภาษา / Toggle app language
+                  </Text>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 6 }}>
+                  <TouchableOpacity 
+                    style={[
+                      styles.langBtn, 
+                      language === 'th' ? styles.langBtnActive : styles.langBtnInactive
+                    ]}
+                    onPress={() => {
+                      setLanguage('th');
+                      handleSpeak('เปลี่ยนภาษาเป็นภาษาไทยแล้วค่ะ');
+                    }}
+                  >
+                    <Text style={[styles.langBtnText, { fontSize: 14 + fontOffset, color: language === 'th' ? '#FFF' : '#000' }]}>
+                      ไทย
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[
+                      styles.langBtn, 
+                      language === 'en' ? styles.langBtnActive : styles.langBtnInactive
+                    ]}
+                    onPress={() => {
+                      setLanguage('en');
+                      handleSpeak('Changed language to English.');
+                    }}
+                  >
+                    <Text style={[styles.langBtnText, { fontSize: 14 + fontOffset, color: language === 'en' ? '#FFF' : '#000' }]}>
+                      EN
+                    </Text>
+                  </TouchableOpacity>
+                </View>
               </View>
 
               {/* 🩺 ปุ่มเปิดเว็บบอร์ดสำหรับแพทย์ (Doctor Dashboard Portal) */}
@@ -689,20 +747,20 @@ export default function RegisterScreen() {
                   doctorMode && { backgroundColor: '#37474F', borderColor: '#000' }
                 ]} 
                 onPress={() => {
-                  handleSpeak('กำลังเปิดหน้าแดชบอร์ดสำหรับแพทย์ค่ะ');
+                  handleSpeak(language === 'th' ? 'กำลังเปิดหน้าแดชบอร์ดสำหรับแพทย์ค่ะ' : 'Opening doctor portal dashboard.');
                   Linking.openURL('http://localhost:5001/doctor');
                 }}
               >
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <FontAwesome5 name="hospital-user" size={20} color="#FFF" />
-                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>เปิดแดชบอร์ดแพทย์ (Doctor Portal)</Text>
+                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>{t('openDoctorPortal')}</Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity style={[styles.registerBtn, { backgroundColor: doctorMode ? '#000' : '#4CAF50' }]} onPress={handleSaveSettings}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <Feather name="check" size={22} color="#FFF" />
-                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>บันทึกข้อมูลการตั้งค่า</Text>
+                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>{t('saveSettings')}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -1301,5 +1359,26 @@ const styles = StyleSheet.create({
   },
   severityBtnText: {
     fontWeight: '800',
+  },
+  langBtn: {
+    borderWidth: 1.5,
+    borderColor: SeniorColors.borderStrong,
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    minWidth: 56,
+    minHeight: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  langBtnActive: {
+    backgroundColor: SeniorColors.primary,
+    borderColor: '#000',
+  },
+  langBtnInactive: {
+    backgroundColor: '#FFF',
+  },
+  langBtnText: {
+    fontWeight: '900',
   },
 });

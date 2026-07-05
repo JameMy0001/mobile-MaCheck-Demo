@@ -8,6 +8,7 @@ import { addActivityLog, getRemoteProfile, clearRemoteNudge } from '../api';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
 import { InfoBanner, PrimaryActionTile, SeniorButton, SeniorHeader } from '../components/senior-ui';
+import { useTranslation } from '../constants/translations';
 import { SeniorColors } from '@/constants/senior-theme';
 import { useSound } from '@/hooks/use-sound';
 import { useFontSize } from '@/hooks/use-font-size';
@@ -34,6 +35,7 @@ export default function HomeScreen() {
 
   const cabinetCount = cabinet.length;
   const [speedUp, setSpeedUp] = useState(false);
+  const { t, language } = useTranslation();
 
 
   // Sound control (shared hook)
@@ -57,18 +59,18 @@ export default function HomeScreen() {
 
   const handleLogout = async () => {
     Alert.alert(
-      'ออกจากระบบ',
-      'คุณต้องการออกจากระบบตู้ยาใช่ไหมคะคุณตา?',
+      language === 'th' ? 'ออกจากระบบ' : 'Logout',
+      language === 'th' ? 'คุณต้องการออกจากระบบตู้ยาใช่ไหมคะคุณตา?' : 'Do you want to log out from the cabinet, grandpa?',
       [
-        { text: 'ยกเลิก', style: 'cancel' },
+        { text: language === 'th' ? 'ยกเลิก' : 'Cancel', style: 'cancel' },
         {
-          text: 'ออกจากระบบ',
+          text: language === 'th' ? 'ออกจากระบบ' : 'Logout',
           style: 'destructive',
           onPress: async () => {
             try {
               // ล้างสถานะปัจจุบัน
               await AsyncStorage.removeItem('@user_profile');
-              Speech.speak('ออกจากระบบสำเร็จแล้วค่ะ', { language: 'th-TH', rate: 0.9 });
+              Speech.speak(language === 'th' ? 'ออกจากระบบสำเร็จแล้วค่ะ' : 'Logged out successfully.', { language: language === 'th' ? 'th-TH' : 'en-US', rate: 0.9 });
               router.replace('/register');
             } catch (e) {
               console.error(e);
@@ -242,7 +244,7 @@ export default function HomeScreen() {
       handleSpeak('คุณตาคะ ถึงเวลากินยาแล้วนะคะ อย่าลืมกินยาตามเวลาที่คุณหมอสั่งด้วยนะคะ');
       addActivityLog('🔔 จำลองแจ้งเตือนระดับ 1: LINE Notification');
     } else if (level === 2) {
-      const msg = 'คุณตาคะ! ลืมกินยาแล้วค่ะ! กรุณากินยาเดี๋ยวนี้เลยนะคะ เรื่องยาสำคัญมากค่ะ!';
+      const msg = language === 'th' ? 'คุณตาคะ! ลืมกินยาแล้วค่ะ! กรุณากินยาเดี๋ยวนี้เลยนะคะ เรื่องยาสำคัญมากค่ะ!' : 'Grandpa! You missed your medicine! Please take it now!';
       handleSpeak(msg);
       addActivityLog('⚠️ จำลองแจ้งเตือนระดับ 2: แบนเนอร์กระพริบ + เสียงเตือนซ้ำ');
       
@@ -250,7 +252,7 @@ export default function HomeScreen() {
         handleSpeak(msg);
       }, 8000);
     } else if (level === 3) {
-      const msg = 'ฉุกเฉินค่ะ! คุณตาไม่ได้กินยาสำคัญมาหลายมื้อแล้ว อาจเป็นอันตรายต่อชีวิต กรุณาโทรหาแพทย์ หรือกดปุ่มโทรหนึ่งหกหกเก้าทันทีค่ะ!';
+      const msg = language === 'th' ? 'ฉุกเฉินค่ะ! คุณตาไม่ได้กินยาสำคัญมาหลายมื้อแล้ว อาจเป็นอันตรายต่อชีวิต กรุณาโทรหาแพทย์ หรือกดปุ่มโทรหนึ่งหกหกเก้าทันทีค่ะ!' : 'Emergency! You missed several doses. It could be dangerous. Call a doctor or 1669 immediately!';
       handleSpeak(msg);
       addActivityLog('🚨 จำลองแจ้งเตือนระดับ 3: ไซเรนฉุกเฉิน + โทร 1669');
 
@@ -267,7 +269,7 @@ export default function HomeScreen() {
     }
     Speech.stop();
     setActiveSimLevel(null);
-    handleSpeak('หยุดการจำลองแจ้งเตือนทั้งหมดแล้วค่ะ');
+    handleSpeak(language === 'th' ? 'หยุดการจำลองแจ้งเตือนทั้งหมดแล้วค่ะ' : 'Simulation stopped.');
     addActivityLog('หยุดการจำลองแจ้งเตือนทั้งหมด');
   };
 
@@ -284,8 +286,8 @@ export default function HomeScreen() {
   }, [activeSimLevel]);
 
   const simulateCall = (num: string) => {
-    handleSpeak(`กำลังโทรฉุกเฉินไปที่เบอร์ ${num} ค่ะ`);
-    Alert.alert('กำลังโทรออก (จำลอง)', `โทรจำลองไปที่: ${num}`);
+    handleSpeak(language === 'th' ? `กำลังโทรฉุกเฉินไปที่เบอร์ ${num} ค่ะ` : `Calling emergency number ${num}.`);
+    Alert.alert(language === 'th' ? 'กำลังโทรออก (จำลอง)' : 'Dialing (Simulated)', `${num}`);
   };
 
   const formatDuration = (sec: number) => {
@@ -300,14 +302,14 @@ export default function HomeScreen() {
       <View style={[styles.container, doctorMode && { backgroundColor: '#E0E0E0' }]}>
         
         <SeniorHeader
-          title="MaCheck"
-          subtitle={`พร้อมดูแลความปลอดภัยยา วันนี้ ${currentTime || '--:--'}`}
+          title={t('appName')}
+          subtitle={`${t('appSubtitle')} ${currentTime || '--:--'}`}
           doctorMode={doctorMode}
           fontOffset={fontOffset}
           right={
             <>
               <SeniorButton
-                label={isSoundMuted ? 'ปิดเสียง' : 'เปิดเสียง'}
+                label={isSoundMuted ? t('voiceMute') : t('voiceOpen')}
                 icon={{ name: isSoundMuted ? 'volume-x' : 'volume-2' }}
                 onPress={toggleSoundWithGreeting}
                 doctorMode={doctorMode}
@@ -316,9 +318,9 @@ export default function HomeScreen() {
                 style={styles.headerPillButton}
               />
               <SeniorButton
-                label="ตั้งค่า"
+                label={language === 'th' ? 'ตั้งค่า' : 'Settings'}
                 icon={{ name: 'settings' }}
-                onPress={() => navTo('/register', 'แก้ไขประวัติของคุณตาค่ะ')}
+                onPress={() => navTo('/register', language === 'th' ? 'แก้ไขประวัติของคุณตาค่ะ' : 'Editing settings.')}
                 doctorMode={doctorMode}
                 fontOffset={fontOffset}
                 variant="secondary"
@@ -331,15 +333,15 @@ export default function HomeScreen() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.homeContent}>
             <InfoBanner
-              title={`สวัสดีค่ะคุณตา ${profile?.name || ''}`}
-              description={`ตู้ยามียา ${cabinetCount} รายการ ระบบพร้อมเช็กความปลอดภัยแบบออฟไลน์`}
+              title={language === 'th' ? `สวัสดีค่ะคุณตา ${profile?.name || ''}` : `Hello, Grandpa ${profile?.name || ''}`}
+              description={language === 'th' ? `ตู้ยามียา ${cabinetCount} รายการ ระบบพร้อมเช็กความปลอดภัยแบบออฟไลน์` : `You have ${cabinetCount} items in your cabinet. Offline safety check ready.`}
               icon={{ family: 'fontAwesome5', name: 'user-circle' }}
               doctorMode={doctorMode}
               fontOffset={fontOffset}
               severity="green"
             >
               <SeniorButton
-                label="ออกจากระบบ"
+                label={language === 'th' ? 'ออกจากระบบ' : 'Logout'}
                 icon={{ name: 'log-out' }}
                 onPress={handleLogout}
                 doctorMode={doctorMode}
@@ -356,11 +358,11 @@ export default function HomeScreen() {
                 <View style={styles.challengeIconBadge}>
                   <Image source={IconWaterDrop} style={{ width: 26, height: 26, resizeMode: 'contain' }} />
                 </View>
-                <Text style={[styles.challengeTitle, { fontSize: 19 + fontOffset }, doctorMode && { color: '#000' }]}>เว้นระยะยาและจิบน้ำ</Text>
+                <Text style={[styles.challengeTitle, { fontSize: 19 + fontOffset }, doctorMode && { color: '#000' }]}>{language === 'th' ? 'เว้นระยะยาและจิบน้ำ' : 'Spacing & Water'}</Text>
               </View>
               
               <Text style={[styles.challengeDesc, { fontSize: 15 + fontOffset }, doctorMode && { color: '#333' }]}>
-                กำลังเว้นระยะยา {activeChallenge.medName} เพื่อถนอมกระเพาะและไตค่ะ
+                {language === 'th' ? `กำลังเว้นระยะยา ${activeChallenge.medName} เพื่อถนอมกระเพาะและไตค่ะ` : `Spacing medication ${activeChallenge.medName} to protect stomach & kidneys.`}
               </Text>
 
               {/* Progress bar */}
@@ -370,12 +372,12 @@ export default function HomeScreen() {
 
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                 <Feather name="clock" size={16} color="#000" />
-                <Text style={[styles.timeLeftText, { fontSize: 22 + fontOffset }, doctorMode && { color: '#000' }]}>เหลือ {formatDuration(activeChallenge.timeLeft)}</Text>
+                <Text style={[styles.timeLeftText, { fontSize: 22 + fontOffset }, doctorMode && { color: '#000' }]}>{language === 'th' ? `เหลือ ${formatDuration(activeChallenge.timeLeft)}` : `Left: ${formatDuration(activeChallenge.timeLeft)}`}</Text>
               </View>
 
               {/* Water Cups */}
               <View style={styles.waterBox}>
-                <Text style={[styles.waterTitle, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>บันทึกจิบน้ำ ({activeChallenge.waterCups || 0} / 4 แก้ว)</Text>
+                <Text style={[styles.waterTitle, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>{language === 'th' ? `บันทึกจิบน้ำ (${activeChallenge.waterCups || 0} / 4 แก้ว)` : `Water Intake (${activeChallenge.waterCups || 0} / 4 Glasses)`}</Text>
                 <View style={styles.dropsRow}>
                   {[1, 2, 3, 4].map(idx => (
                     <Image 
@@ -390,22 +392,22 @@ export default function HomeScreen() {
                   <View style={styles.challengeControls}>
                     <TouchableOpacity style={[styles.recordWaterBtn, doctorMode && { backgroundColor: '#111' }]} onPress={recordWater}>
                       <Image source={IconGlassWater} style={{ width: 18, height: 18, marginRight: 6, resizeMode: 'contain' }} />
-                      <Text style={[styles.recordWaterBtnText, { fontSize: 16 + fontOffset }]}>จิบน้ำ 1 แก้ว</Text>
+                      <Text style={[styles.recordWaterBtnText, { fontSize: 16 + fontOffset }]}>{language === 'th' ? 'จิบน้ำ 1 แก้ว' : 'Drink 1 Glass'}</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
                       style={[styles.speedBtn, speedUp && styles.speedBtnActive]} 
                       onPress={() => setSpeedUp(!speedUp)}
                     >
                       <Feather name="clock" size={16} color="#000" style={{ marginRight: 4 }} />
-                      <Text style={[styles.speedBtnText, { fontSize: 13 + fontOffset }]}>{speedUp ? 'เร่งเวลาอยู่' : 'จำลองเวลา'}</Text>
+                      <Text style={[styles.speedBtnText, { fontSize: 13 + fontOffset }]}>{speedUp ? (language === 'th' ? 'เร่งเวลาอยู่' : 'Accelerated') : (language === 'th' ? 'จำลองเวลา' : 'Simulate Time')}</Text>
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View style={{ marginTop: 10 }}>
-                    <Text style={[styles.successText, { fontSize: 15 + fontOffset }]}>ครบเวลาแล้วค่ะ ทานยาชุดถัดไปได้อย่างปลอดภัย</Text>
+                    <Text style={[styles.successText, { fontSize: 15 + fontOffset }]}>{language === 'th' ? 'ครบเวลาแล้วค่ะ ทานยาชุดถัดไปได้อย่างปลอดภัย' : 'Time complete! Safe to take next dose.'}</Text>
                     <TouchableOpacity style={[styles.finishChallengeBtn, doctorMode && { backgroundColor: '#111' }]} onPress={finishChallenge}>
                       <Feather name="check-circle" size={18} color="#FFF" style={{ marginRight: 6 }} />
-                      <Text style={[styles.finishChallengeBtnText, { fontSize: 17 + fontOffset }]}>จบภารกิจ</Text>
+                      <Text style={[styles.finishChallengeBtnText, { fontSize: 17 + fontOffset }]}>{language === 'th' ? 'จบภารกิจ' : 'Finish Task'}</Text>
                     </TouchableOpacity>
                   </View>
                 )}
@@ -415,31 +417,31 @@ export default function HomeScreen() {
 
           <View style={styles.menuContainer}>
             <PrimaryActionTile
-              title="สแกนเช็กยาตีกัน"
-              description="ถ่ายซองยาหรือเลือกชื่อยา ระบบจะบอกทันทีว่าห้ามกิน ต้องเว้นระยะ หรือปลอดภัย"
-              actionLabel="เริ่มสแกนยา"
+              title={t('scannerTitle')}
+              description={language === 'th' ? 'ถ่ายซองยาหรือเลือกชื่อยา ระบบจะบอกทันทีว่าห้ามกิน ต้องเว้นระยะ หรือปลอดภัย' : 'Scan drug packages or select names to check clashes immediately.'}
+              actionLabel={language === 'th' ? 'เริ่มสแกนยา' : 'Start Scan'}
               icon={{ name: 'camera' }}
               severity="red"
               doctorMode={doctorMode}
               fontOffset={fontOffset}
-              onPress={() => navTo('/scanner', 'เปิดกล้องสแกนซองยาค่ะ')}
+              onPress={() => navTo('/scanner', language === 'th' ? 'เปิดกล้องสแกนซองยาค่ะ' : 'Opening camera to scan.')}
             />
 
             <View style={styles.row}>
               <PrimaryActionTile
-                title="ของแสลง"
-                description="เช็กอาหารที่ควรเลี่ยง"
+                title={t('foodClashTitle')}
+                description={language === 'th' ? 'เช็กอาหารที่ควรเลี่ยง' : 'Check foods to avoid'}
                 icon={{ family: 'fontAwesome5', name: 'apple-alt' }}
                 severity="yellow"
                 compact
                 doctorMode={doctorMode}
                 fontOffset={fontOffset}
-                onPress={() => navTo('/food-clash', 'เช็กของแสลงค่ะ')}
+                onPress={() => navTo('/food-clash', language === 'th' ? 'เช็กของแสลงค่ะ' : 'Checking food clashes.')}
               />
 
               <PrimaryActionTile
-                title="โทรฉุกเฉิน"
-                description="โทรหาลูกหลานหรือ 1669"
+                title={language === 'th' ? 'โทรฉุกเฉิน' : 'Emergency Call'}
+                description={language === 'th' ? 'โทรหาลูกหลานหรือ 1669' : 'Call caregiver or 1669'}
                 icon={{ name: 'phone-call' }}
                 severity="red"
                 compact
@@ -451,25 +453,25 @@ export default function HomeScreen() {
 
             <View style={styles.row}>
               <PrimaryActionTile
-                title={`ตู้ยา (${cabinetCount})`}
-                description="ดูรายการยาและตารางยาตีกัน"
+                title={language === 'th' ? `ตู้ยา (${cabinetCount})` : `Cabinet (${cabinetCount})`}
+                description={language === 'th' ? 'ดูรายการยาและตารางยาตีกัน' : 'View meds & interactions'}
                 icon={{ family: 'fontAwesome5', name: 'pills' }}
                 severity="green"
                 compact
                 doctorMode={doctorMode}
                 fontOffset={fontOffset}
-                onPress={() => navTo('/cabinet', 'เปิดตู้ยาค่ะ')}
+                onPress={() => navTo('/cabinet', language === 'th' ? 'เปิดตู้ยาค่ะ' : 'Opening cabinet.')}
               />
 
               <PrimaryActionTile
-                title="ลูกหลาน"
-                description="เปิดหน้าจอติดตาม"
+                title={t('caregiverTitle')}
+                description={language === 'th' ? 'เปิดหน้าจอติดตาม' : 'Connect caregiver nudges'}
                 image={IconNurseGirl}
                 severity="info"
                 compact
                 doctorMode={doctorMode}
                 fontOffset={fontOffset}
-                onPress={() => navTo('/caregiver', 'เปิดระบบติดตามประวัติสำหรับลูกหลานค่ะ')}
+                onPress={() => navTo('/caregiver', language === 'th' ? 'เปิดระบบติดตามประวัติสำหรับลูกหลานค่ะ' : 'Opening caregiver tracker.')}
               />
             </View>
           </View>
