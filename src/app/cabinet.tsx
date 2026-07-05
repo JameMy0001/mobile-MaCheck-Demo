@@ -34,6 +34,28 @@ export default function CabinetScreen() {
   const { customAlert, setCustomAlert } = useCustomAlert();
   const allergies = profile?.allergies || [];
 
+  const translateMedName = (n: string) => {
+    if (language === 'th') return n;
+    let translated = n;
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน \(แก้ปวดกล้ามเนื้อ\/กระดูกอักเสบชนิดรุนแรง\)/g, 'Ibuprofen (NSAIDs Pain Reliever)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \(Warfarin\)/g, 'Blood Thinner (Warfarin)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \/ ยาต้านลิ่มเลือดอุดตันในเส้นเลือด/g, 'Blood Thinner (Warfarin / Aspirin)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด/g, 'Blood Thinner');
+    translated = translated.replace(/ยาลดไขมัน \(Simvastatin\)/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดความดัน \(Amlodipine\)/g, 'Hypertension Med (Amlodipine)');
+    translated = translated.replace(/ยาลดความดัน \(Lisinopril\)/g, 'Hypertension Med (Lisinopril)');
+    translated = translated.replace(/ยาโรคเบาหวาน \(Metformin\)/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ยาโรคเบาหวาน เมทฟอร์มิน \(ยาลดระดับน้ำตาลในเลือด\)/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ยาพาราเซตามอล \(แก้ปวด \/ ลดไข้\)/g, 'Paracetamol (Acetaminophen)');
+    translated = translated.replace(/ยาพาราเซตามอล/g, 'Paracetamol');
+    translated = translated.replace(/ยาแก้ปวดพอนสแตน \(แก้ปวดฟัน \/ ปวดประจำเดือน \/ ปวดข้อกระดูก\)/g, 'Ponstan (Mefenamic Acid)');
+    translated = translated.replace(/ยาแก้ปวดข้อ/g, 'Pain Reliever');
+    translated = translated.replace(/ยาโรคหัวใจ \(Digoxin\)/g, 'Heart Disease Med (Digoxin)');
+    translated = translated.replace(/ยาลดไขมันในเส้นเลือด เจมไฟโบรซิล/g, 'Cholesterol Med (Gemfibrozil)');
+    return translated;
+  };
+
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -112,11 +134,11 @@ export default function CabinetScreen() {
     if (medicines.some(m => m.name.toLowerCase() === name.toLowerCase())) {
       setCustomAlert({
         visible: true,
-        title: 'ยาซ้ำในตู้ยา',
-        message: `ยา "${name}" มีอยู่ในตู้ยาเรียบร้อยแล้วค่ะคุณตา`,
+        title: language === 'th' ? 'ยาซ้ำในตู้ยา' : 'Duplicate Medicine',
+        message: language === 'th' ? `ยา "${name}" มีอยู่ในตู้ยาเรียบร้อยแล้วค่ะคุณตา` : `Medication "${translateMedName(name)}" is already in your cabinet.`,
         type: 'warning'
       });
-      handleSpeak(`ยา ${name} มีอยู่ในตู้ยาเรียบร้อยแล้วค่ะ`);
+      handleSpeak(language === 'th' ? `ยา ${name} มีอยู่ในตู้ยาเรียบร้อยแล้วค่ะ` : `Medication ${translateMedName(name)} is already in your cabinet.`);
       return;
     }
 
@@ -168,24 +190,32 @@ export default function CabinetScreen() {
         // แพ้รุนแรง (Severe) -> บล็อก 100%
         setCustomAlert({
           visible: true,
-          title: '🚨 ตรวจพบประวัติแพ้ยารุนแรง!',
-          message: `คุณตามีประวัติแพ้ยา "${name}" อย่างรุนแรง (Severe) ห้ามเพิ่มและรับประทานยานี้โดยเด็ดขาดเพื่อความปลอดภัยค่ะ!`,
+          title: language === 'th' ? '🚨 ตรวจพบประวัติแพ้ยารุนแรง!' : '🚨 Severe Drug Allergy Detected!',
+          message: language === 'th' 
+            ? `คุณตามีประวัติแพ้ยา "${name}" อย่างรุนแรง (Severe) ห้ามเพิ่มและรับประทานยานี้โดยเด็ดขาดเพื่อความปลอดภัยค่ะ!` 
+            : `You have a severe allergy history to "${translateMedName(name)}". Adding or taking this medication is strictly prohibited!`,
           type: 'error'
         });
-        handleSpeak(`ห้ามรับประทานยานี้เด็ดขาดเนื่องจากตรวจพบประวัติแพ้ยารุนแรงค่ะ`);
+        handleSpeak(language === 'th' 
+          ? `ห้ามรับประทานยานี้เด็ดขาดเนื่องจากตรวจพบประวัติแพ้ยารุนแรงค่ะ` 
+          : 'Do not take this medicine under any circumstances due to severe allergy history.');
         return;
       } else {
         // แพ้ปานกลาง (Moderate) -> เตือนให้ยืนยัน
         setCustomAlert({
           visible: true,
-          title: '⚠️ แจ้งเตือนประวัติแพ้ยา',
-          message: `คุณตามีประวัติแพ้ยา "${name}" ในระดับปานกลาง (Moderate) คุณตายืนยันที่จะเพิ่มยานี้ลงตู้ยาตามใบสั่งแพทย์ใช่ไหมคะ?`,
+          title: language === 'th' ? '⚠️ แจ้งเตือนประวัติแพ้ยา' : '⚠️ Moderate Drug Allergy Alert',
+          message: language === 'th' 
+            ? `คุณตามีประวัติแพ้ยา "${name}" ในระดับปานกลาง (Moderate) คุณตายืนยันที่จะเพิ่มยานี้ลงตู้ยาตามใบสั่งแพทย์ใช่ไหมคะ?` 
+            : `You have a moderate allergy history to "${translateMedName(name)}". Do you confirm adding this medicine to your cabinet?`,
           type: 'confirm',
           onConfirm: () => {
             proceedAdding();
           }
         });
-        handleSpeak(`โปรดระมัดระวังเนื่องจากเป็นยากลุ่มที่มีประวัติแพ้ปานกลางค่ะ คุณตายืนยันที่จะเพิ่มเข้าตู้ยาใช่ไหมคะ`);
+        handleSpeak(language === 'th' 
+          ? `โปรดระมัดระวังเนื่องจากเป็นยากลุ่มที่มีประวัติแพ้ปานกลางค่ะ คุณตายืนยันที่จะเพิ่มเข้าตู้ยาใช่ไหมคะ` 
+          : 'Please be careful as this is a moderate drug allergy group. Do you confirm adding it to your cabinet?');
         return;
       }
     }
@@ -197,14 +227,14 @@ export default function CabinetScreen() {
   const removeMedicine = (id: string, name: string) => {
     setCustomAlert({
       visible: true,
-      title: 'ลบยาออกจากตู้ยา',
-      message: `คุณตาต้องการลบยา "${name}" ออกจากตู้ยาใช่ไหมคะ?`,
+      title: language === 'th' ? 'ลบยาออกจากตู้ยา' : 'Remove Medicine',
+      message: language === 'th' ? `คุณตาต้องการลบยา "${name}" ออกจากตู้ยาใช่ไหมคะ?` : `Do you want to remove "${translateMedName(name)}" from your cabinet?`,
       type: 'confirm',
       onConfirm: () => {
         const newMeds = medicines.filter(m => m.id !== id);
         saveCabinet(newMeds);
         addActivityLog(`คุณตาลบยา "${name}" ออกจากตู้ยา`);
-        handleSpeak(`ลบ ${name} ออกจากตู้แล้วค่ะ`);
+        handleSpeak(language === 'th' ? `ลบ ${name} ออกจากตู้แล้วค่ะ` : `Removed ${translateMedName(name)} from cabinet.`);
       }
     });
   };
@@ -303,7 +333,9 @@ export default function CabinetScreen() {
                         source={require('../../assets/images/icons/icon_pill.png')} 
                         style={{ width: 20, height: 20, resizeMode: 'contain' }} 
                       />
-                      <Text style={[styles.suggestionText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>{item.formalName || item.keywords[0]}</Text>
+                      <Text style={[styles.suggestionText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
+                        {translateMedName(item.formalName || item.keywords[0])}
+                      </Text>
                     </View>
                   </TouchableOpacity>
                 ))}

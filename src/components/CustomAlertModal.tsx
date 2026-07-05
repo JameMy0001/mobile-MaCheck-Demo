@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, Image } from 'react-na
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { CustomAlertState } from '../hooks/use-custom-alert';
 import { SeniorColors } from '@/constants/senior-theme';
+import { useTranslation } from '../constants/translations';
 
 const IconGlassWater = require('../../assets/images/icons/icon_glass_water.png');
 const IconSiren = require('../../assets/images/icons/icon_siren.png');
@@ -22,6 +23,8 @@ export function CustomAlertModal({
   doctorMode,
   fontOffset
 }: CustomAlertModalProps) {
+  const { t, language } = useTranslation();
+
   const alertTone =
     alert.type === 'error' || alert.type === 'call'
       ? SeniorColors.danger
@@ -52,7 +55,9 @@ export function CustomAlertModal({
               style={[styles.waterOkBtn, doctorMode && { backgroundColor: '#555' }]} 
               onPress={onClose}
             >
-              <Text style={[styles.waterOkBtnText, { fontSize: 16 + fontOffset }]}>ชื่นใจจ้าคุณตา 👍</Text>
+              <Text style={[styles.waterOkBtnText, { fontSize: 16 + fontOffset }]}>
+                {language === 'th' ? 'ชื่นใจจ้าคุณตา 👍' : 'Refreshing! 👍'}
+              </Text>
             </TouchableOpacity>
           </View>
         ) : alert.type === 'confirm' ? (
@@ -67,7 +72,9 @@ export function CustomAlertModal({
                 style={[styles.confirmBtn, styles.btnCancel, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]} 
                 onPress={onClose}
               >
-                <Text style={[styles.btnCancelText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>ยกเลิก</Text>
+                <Text style={[styles.btnCancelText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
+                  {language === 'th' ? 'ยกเลิก' : 'Cancel'}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.confirmBtn, styles.btnConfirm, doctorMode && { backgroundColor: '#555', borderColor: '#000' }]} 
@@ -76,7 +83,9 @@ export function CustomAlertModal({
                   onClose();
                 }}
               >
-                <Text style={[styles.btnConfirmText, { fontSize: 16 + fontOffset }]}>ตกลง</Text>
+                <Text style={[styles.btnConfirmText, { fontSize: 16 + fontOffset }]}>
+                  {language === 'th' ? 'ตกลง' : 'OK'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -85,24 +94,28 @@ export function CustomAlertModal({
             <View style={styles.sirenWrapper}>
               <Image source={IconSiren} style={{ width: 56, height: 56, resizeMode: 'contain' }} />
             </View>
-            <Text style={[styles.emergencyCallTitle, { fontSize: 24 + fontOffset }]}>กำลังโทรออกฉุกเฉิน</Text>
+            <Text style={[styles.emergencyCallTitle, { fontSize: 24 + fontOffset }]}>
+              {language === 'th' ? 'กำลังโทรออกฉุกเฉิน' : 'Emergency Call in Progress'}
+            </Text>
             <View style={styles.dialNumbers}>
               <Text style={[styles.dialLabel, { fontSize: 16 + fontOffset }]}>
-                เบอร์ลูกหลาน: <Text style={styles.dialValue}>{alert.phone}</Text>
+                {language === 'th' ? 'เบอร์ลูกหลาน: ' : 'Caregiver Phone: '}<Text style={styles.dialValue}>{alert.phone}</Text>
               </Text>
               <Text style={[styles.dialLabel, { fontSize: 16 + fontOffset }]}>
-                เบอร์สายด่วน: <Text style={styles.dialValue}>1669 (โรงพยาบาล)</Text>
+                {language === 'th' ? 'เบอร์สายด่วน: ' : 'Emergency Hotline: '}<Text style={styles.dialValue}>1669 {language === 'th' ? '(โรงพยาบาล)' : '(Hospital)'}</Text>
               </Text>
             </View>
             <Text style={[styles.dialWarning, { fontSize: 14 + fontOffset }]}>
-              หลานสาว AI ได้ส่งบันทึกกิจกรรมไปให้ลูกหลานทราบแล้วค่ะ
+              {language === 'th' ? 'หลานสาว AI ได้ส่งบันทึกกิจกรรมไปให้ลูกหลานทราบแล้วค่ะ' : 'AI Assistant has notified your caregiver of this event.'}
             </Text>
             <TouchableOpacity 
               style={[styles.hangUpBtn, doctorMode && { backgroundColor: '#555' }]} 
               onPress={onClose}
             >
               <Feather name="phone-off" size={20} color="#FFF" />
-              <Text style={[styles.hangUpBtnText, { fontSize: 16 + fontOffset }]}>วางสาย / ยกเลิก</Text>
+              <Text style={[styles.hangUpBtnText, { fontSize: 16 + fontOffset }]}>
+                {language === 'th' ? 'วางสาย / ยกเลิก' : 'Hang Up / Cancel'}
+              </Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -126,7 +139,9 @@ export function CustomAlertModal({
               ]} 
               onPress={onClose}
             >
-              <Text style={[styles.alertBtnText, { fontSize: 16 + fontOffset }]}>ตกลง/รับทราบ</Text>
+              <Text style={[styles.alertBtnText, { fontSize: 16 + fontOffset }]}>
+                {language === 'th' ? 'ตกลง/รับทราบ' : 'OK / Acknowledge'}
+              </Text>
             </TouchableOpacity>
           </View>
         )}

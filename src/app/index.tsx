@@ -216,8 +216,10 @@ export default function HomeScreen() {
       console.error('Call failed:', err);
       setCustomAlert({
         visible: true,
-        title: 'ระบบสายด่วนฉุกเฉิน',
-        message: `ไม่สามารถเปิดโปรแกรมโทรออกอัตโนมัติได้ค่ะ (เบอร์ผู้ดูแล: ${rawPhone})\nโปรดใช้โทรศัพท์โทรติดต่อ 1669 โดยตรงนะคะ`,
+        title: language === 'th' ? 'ระบบสายด่วนฉุกเฉิน' : 'Emergency Hotline System',
+        message: language === 'th' 
+          ? `ไม่สามารถเปิดโปรแกรมโทรออกอัตโนมัติได้ค่ะ (เบอร์ผู้ดูแล: ${rawPhone})\nโปรดใช้โทรศัพท์โทรติดต่อ 1669 โดยตรงนะคะ` 
+          : `Could not start automatic call. (Caregiver: ${rawPhone})\nPlease call 1669 directly using your phone.`,
         type: 'call',
         phone: rawPhone
       });
@@ -484,14 +486,16 @@ export default function HomeScreen() {
               onPress={openAlertSimulator}
             >
               <Feather name="bell" size={22} color={doctorMode ? '#000' : '#FFF'} style={{ marginRight: 8 }} />
-              <Text style={{ color: doctorMode ? '#000' : '#FFF', fontWeight: '900', fontSize: 16 }}>🔔 เปิดทดสอบระบบแจ้งเตือน (3 ระดับ)</Text>
+              <Text style={{ color: doctorMode ? '#000' : '#FFF', fontWeight: '900', fontSize: 16 }}>
+                {language === 'th' ? '🔔 เปิดทดสอบระบบแจ้งเตือน (3 ระดับ)' : '🔔 Open Alert Simulator (3 Levels)'}
+              </Text>
             </TouchableOpacity>
           )}
 
           <View style={styles.mirrorContainer}>
             <View style={[styles.syncBadge, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
               <Text style={[styles.syncText, doctorMode && { color: '#000' }]}>
-                <Image source={IconKey} style={{ width: 16, height: 16, resizeMode: 'contain', marginRight: 4 }} /> รหัสติดตาม: <Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{profile?.syncCode || '------'}</Text>
+                <Image source={IconKey} style={{ width: 16, height: 16, resizeMode: 'contain', marginRight: 4 }} /> {language === 'th' ? 'รหัสติดตาม: ' : 'Sync Code: '} <Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{profile?.syncCode || '------'}</Text>
               </Text>
             </View>
           </View>
@@ -524,37 +528,47 @@ export default function HomeScreen() {
               <View style={[styles.alertHeaderBadge, { backgroundColor: '#FF6F00' }]}>
                 <Feather name="bell" size={24} color="#FFF" />
               </View>
-              <Text style={[styles.alertTitle, { fontSize: 20 + fontOffset }]}>🔔 ทดสอบระบบจำลองแจ้งเตือน</Text>
+              <Text style={[styles.alertTitle, { fontSize: 20 + fontOffset }]}>
+                {language === 'th' ? '🔔 ทดสอบระบบจำลองแจ้งเตือน' : '🔔 Alert System Simulator'}
+              </Text>
               <Text style={[styles.alertMessage, { fontSize: 14 + fontOffset }]}>
-                กรุณาเลือกความรุนแรงของการแจ้งเตือนที่ต้องการจำลองเพื่อการทดสอบระบบค่ะ
+                {language === 'th' ? 'กรุณาเลือกความรุนแรงของการแจ้งเตือนที่ต้องการจำลองเพื่อการทดสอบระบบค่ะ' : 'Please select the warning severity level you want to simulate.'}
               </Text>
               
               <TouchableOpacity 
                 style={[styles.simChoiceBtn, { backgroundColor: '#4CAF50' }]} 
                 onPress={() => simulateAlert(1)}
               >
-                <Text style={styles.simChoiceBtnText}>🟢 Level 1: แจ้งเตือนทาง LINE</Text>
+                <Text style={styles.simChoiceBtnText}>
+                  {language === 'th' ? '🟢 Level 1: แจ้งเตือนทาง LINE' : '🟢 Level 1: LINE Notification'}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
                 style={[styles.simChoiceBtn, { backgroundColor: '#FF9800' }]} 
                 onPress={() => simulateAlert(2)}
               >
-                <Text style={styles.simChoiceBtnText}>🟡 Level 2: เสียงเตือนซ้ำ + แถบกระพริบ</Text>
+                <Text style={styles.simChoiceBtnText}>
+                  {language === 'th' ? '🟡 Level 2: เสียงเตือนซ้ำ + แถบกระพริบ' : '🟡 Level 2: Repeating Alarm + Flashing'}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
                 style={[styles.simChoiceBtn, { backgroundColor: '#D32F2F' }]} 
                 onPress={() => simulateAlert(3)}
               >
-                <Text style={styles.simChoiceBtnText}>🔴 Level 3: ไซเรนฉุกเฉิน + สายด่วน</Text>
+                <Text style={styles.simChoiceBtnText}>
+                  {language === 'th' ? '🔴 Level 3: ไซเรนฉุกเฉิน + สายด่วน' : '🔴 Level 3: Emergency Siren + Call 1669'}
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity 
                 style={[styles.simChoiceBtn, { backgroundColor: '#FFF', borderColor: '#000', borderWidth: 2 }]} 
                 onPress={() => setAlertSimModalVisible(false)}
               >
-                <Text style={[styles.simChoiceBtnText, { color: '#000' }]}>ปิด</Text>
+                <Text style={[styles.simChoiceBtnText, { color: '#000' }]}>
+                  {language === 'th' ? 'ปิด' : 'Close'}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -565,19 +579,29 @@ export default function HomeScreen() {
           <View style={styles.linePopup}>
             <View style={styles.linePopupHeader}>
               <Text style={styles.linePopupTitle}>LINE</Text>
-              <Text style={styles.linePopupSubtitle}>ตู้ยาอุ่นใจแจ้งเตือน</Text>
-              <Text style={styles.linePopupTime}>เมื่อกี้</Text>
+              <Text style={styles.linePopupSubtitle}>
+                {language === 'th' ? 'ตู้ยาอุ่นใจแจ้งเตือน' : 'MaCheck Cabinet Alert'}
+              </Text>
+              <Text style={styles.linePopupTime}>
+                {language === 'th' ? 'เมื่อกี้' : 'Just Now'}
+              </Text>
             </View>
             <View style={styles.linePopupBody}>
               <View style={styles.lineBubble}>
                 <Text style={styles.lineBubbleText}>
-                  🔔 คุณตาคะ ถึงเวลากินยาแล้วนะคะ อย่าลืมกินยาตามเวลาที่คุณหมอสั่งด้วยนะคะ 💊❤️
+                  {language === 'th' 
+                    ? '🔔 คุณตาคะ ถึงเวลากินยาแล้วนะคะ อย่าลืมกินยาตามเวลาที่คุณหมอสั่งด้วยนะคะ 💊❤️' 
+                    : '🔔 Grandpa! It is time for your medicine. Please do not forget to take it as prescribed by your doctor. 💊❤️'}
                 </Text>
               </View>
-              <Text style={styles.lineBubbleAuthor}>หลานสาวตู้ยาอุ่นใจ</Text>
+              <Text style={styles.lineBubbleAuthor}>
+                {language === 'th' ? 'หลานสาวตู้ยาอุ่นใจ' : 'MaCheck Assistant'}
+              </Text>
             </View>
             <TouchableOpacity style={styles.linePopupBtn} onPress={stopAlertSimulation}>
-              <Text style={styles.linePopupBtnText}>✓ รับทราบ</Text>
+              <Text style={styles.linePopupBtnText}>
+                {language === 'th' ? '✓ รับทราบ' : '✓ Acknowledge'}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -585,9 +609,15 @@ export default function HomeScreen() {
         {/* Level 2: Flashing Orange Warning Banner */}
         {activeSimLevel === 2 && (
           <View style={[styles.flashBanner, { backgroundColor: flashColorToggle ? '#FF3D00' : '#FF9100' }]}>
-            <Text style={styles.flashBannerText}>⚠️ คุณตา! ลืมกินยาแล้วค่ะ! กรุณากินยาเดี๋ยวนี้เลยนะคะ! ⚠️</Text>
+            <Text style={styles.flashBannerText}>
+              {language === 'th' 
+                ? '⚠️ คุณตา! ลืมกินยาแล้วค่ะ! กรุณากินยาเดี๋ยวนี้เลยนะคะ! ⚠️' 
+                : '⚠️ Grandpa! You missed your medicine! Please take it now! ⚠️'}
+            </Text>
             <TouchableOpacity style={styles.flashBannerBtn} onPress={stopAlertSimulation}>
-              <Text style={styles.flashBannerBtnText}>หยุดเตือน</Text>
+              <Text style={styles.flashBannerBtnText}>
+                {language === 'th' ? 'หยุดเตือน' : 'Stop Alert'}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -602,20 +632,22 @@ export default function HomeScreen() {
                     <FontAwesome5 name="lightbulb" size={32} color="#D32F2F" />
                   </View>
                   <Text style={{ fontSize: 24, fontWeight: '900', color: '#D32F2F', marginTop: 10 }}>
-                    🚨 ฉุกเฉิน! ลืมกินยาสำคัญ
+                    {language === 'th' ? '🚨 ฉุกเฉิน! ลืมกินยาสำคัญ' : '🚨 Emergency! Missed Meds'}
                   </Text>
                 </View>
                 <Text style={{ fontSize: 16, fontWeight: '700', color: '#333', textAlign: 'center', lineHeight: 24, marginBottom: 20 }}>
-                  คุณตาไม่ได้กินยาสำคัญมาหลายมื้อแล้ว{"\n"}
-                  อาจเป็นอันตรายต่อสุขภาพอย่างร้ายแรง{"\n"}
-                  กรุณาติดต่อแพทย์หรือโทรฉุกเฉินทันที
+                  {language === 'th' 
+                    ? `คุณตาไม่ได้กินยาสำคัญมาหลายมื้อแล้ว\nอาจเป็นอันตรายต่อสุขภาพอย่างร้ายแรง\nกรุณาติดต่อแพทย์หรือโทรฉุกเฉินทันที`
+                    : `You have missed your critical medication doses.\nThis could be extremely dangerous.\nPlease call doctor or emergency hotline.`}
                 </Text>
                 
                 <TouchableOpacity 
                   style={[styles.emergencyCallBtn, { backgroundColor: '#D32F2F', marginBottom: 12 }]} 
                   onPress={() => simulateCall('1669')}
                 >
-                  <Text style={styles.emergencyCallBtnText}>📞 โทรฉุกเฉิน 1669</Text>
+                  <Text style={styles.emergencyCallBtnText}>
+                    {language === 'th' ? '📞 โทรฉุกเฉิน 1669' : '📞 Call Emergency 1669'}
+                  </Text>
                 </TouchableOpacity>
 
                 {caregiverPhone ? (
@@ -623,12 +655,16 @@ export default function HomeScreen() {
                     style={[styles.emergencyCallBtn, { backgroundColor: '#37474F', marginBottom: 12 }]} 
                     onPress={() => simulateCall(caregiverPhone)}
                   >
-                    <Text style={styles.emergencyCallBtnText}>📞 โทรหาลูกหลาน ({caregiverPhone})</Text>
+                    <Text style={styles.emergencyCallBtnText}>
+                      {language === 'th' ? `📞 โทรหาลูกหลาน (${caregiverPhone})` : `📞 Call Caregiver (${caregiverPhone})`}
+                    </Text>
                   </TouchableOpacity>
                 ) : null}
 
                 <TouchableOpacity style={styles.emergencyCancelBtn} onPress={stopAlertSimulation}>
-                  <Text style={styles.emergencyCancelBtnText}>หยุดการจำลอง</Text>
+                  <Text style={styles.emergencyCancelBtnText}>
+                    {language === 'th' ? 'หยุดการจำลอง' : 'Stop Simulation'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>

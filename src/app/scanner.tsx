@@ -328,14 +328,46 @@ export default function ScannerScreen() {
     };
   };
 
+  const translateScannerText = (text: string) => {
+    if (language === 'th') return text;
+    let translated = text;
+    // Replace reasons
+    translated = translated.replace(/ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามใช้หรือห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ/g, 'The system detected a high-risk prohibited medication or drug clash, and has hidden further details for safety purposes.');
+    translated = translated.replace(/ปลอดภัย ทานร่วมกันได้!/g, 'Safe to take together!');
+    translated = translated.replace(/ยาที่สแกน:/g, 'Scanned Med:');
+    translated = translated.replace(/ยาในตู้ของคุณตา:/g, 'Cabinet Med:');
+    translated = translated.replace(/ผลการวิเคราะห์:/g, 'Analysis Result:');
+    translated = translated.replace(/ยาทั้ง 2 ชนิดนี้สามารถรับประทานร่วมกันได้อย่างปลอดภัยตามขนาดและเวลาที่แพทย์สั่งค่ะคุณตา/g, 'These two medications can be taken together safely according to your physician\'s instructions.');
+    translated = translated.replace(/พบความเสี่ยงตีกับยาในตู้:/g, 'Found risk of interaction with cabinet med:');
+    translated = translated.replace(/ยาแก้ปวดกลุ่ม NSAIDs ตัวนี้ห้ามทานนะคะ! เพราะจะทำให้ความดันขึ้น ไตพัง และกัดกระเพาะอย่างรุนแรง แถมยังตีกับยาละลายลิ่มเลือดด้วยค่ะ/g, 'Do not take this NSAID pain reliever! It increases blood pressure, harms kidneys, irritates the stomach, and clashes with blood thinners.');
+    translated = translated.replace(/ตรวจพบประวัติแพ้ยารุนแรงของผู้ใช้/g, 'Detected severe user drug allergy history');
+    
+    // Replace names
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน \(แก้ปวดกล้ามเนื้อ\/กระดูกอักเสบชนิดรุนแรง\)/g, 'Ibuprofen (NSAIDs Pain Reliever)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \(Warfarin\)/g, 'Blood Thinner (Warfarin)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด/g, 'Blood Thinner');
+    translated = translated.replace(/ยาลดไขมัน \(Simvastatin\)/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดความดัน \(Amlodipine\)/g, 'Hypertension Med (Amlodipine)');
+    translated = translated.replace(/ยาลดความดัน \(Lisinopril\)/g, 'Hypertension Med (Lisinopril)');
+    translated = translated.replace(/ยาโรคเบาหวาน \(Metformin\)/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ยาพาราเซตามอล/g, 'Paracetamol');
+    translated = translated.replace(/ยาแก้ปวดข้อ/g, 'Pain Reliever');
+    translated = translated.replace(/ยาโรคหัวใจ \(Digoxin\)/g, 'Heart Disease Med (Digoxin)');
+    
+    return translated;
+  };
+
   const cleanResultDescription = (text?: string) => {
-    if (!text) return 'ไม่มีรายละเอียดเพิ่มเติม';
+    if (!text) return language === 'th' ? 'ไม่มีรายละเอียดเพิ่มเติม' : 'No additional details available';
     return text.replace(/[❌✅⚠️🔍]/g, '').replace(/\n{3,}/g, '\n\n').trim();
   };
 
   const getResultReason = (severity: string, text?: string) => {
     if (severity === 'red') {
-      return 'ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามใช้หรือห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ';
+      return language === 'th' 
+        ? 'ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามใช้หรือห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ' 
+        : 'The system detected a high-risk prohibited medication or drug clash, and has hidden further details for safety purposes.';
     }
     return cleanResultDescription(text);
   };
@@ -355,7 +387,9 @@ export default function ScannerScreen() {
               <View style={styles.modalHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <Feather name="search" size={22} color="#000" />
-                  <Text style={styles.modalTitle}>ระบุชื่อยาที่แสกน</Text>
+                  <Text style={styles.modalTitle}>
+                    {language === 'th' ? 'ระบุชื่อยาที่แสกน' : 'Search Medication'}
+                  </Text>
                 </View>
                 <TouchableOpacity onPress={() => setSelectModalVisible(false)}>
                   <Feather name="x" size={26} color="#000" />
@@ -364,7 +398,7 @@ export default function ScannerScreen() {
 
               <TextInput
                 style={styles.modalSearchInput}
-                placeholder="พิมพ์ชื่อยาที่นี่... (เช่น พารา, ไอบู)"
+                placeholder={language === 'th' ? 'พิมพ์ชื่อยาที่นี่... (เช่น พารา, ไอบู)' : 'Type medicine name... (e.g. Paracetamol)'}
                 value={searchText}
                 onChangeText={handleSearchChange}
               />
@@ -382,7 +416,9 @@ export default function ScannerScreen() {
                           source={require('../../assets/images/icons/icon_pill.png')} 
                           style={{ width: 20, height: 20, resizeMode: 'contain' }} 
                         />
-                        <Text style={styles.suggestionText}>{med.formalName || med.keywords[0]}</Text>
+                        <Text style={styles.suggestionText}>
+                          {translateScannerText(med.formalName || med.keywords[0])}
+                        </Text>
                       </View>
                     </TouchableOpacity>
                   ))
@@ -619,16 +655,18 @@ export default function ScannerScreen() {
                 <Feather name="help-circle" size={80} color="#78909C" />
               </View>
             )}
-            <Text selectable style={[styles.medNameText, { fontSize: 22 + fontOffset }, doctorMode && { color: '#000' }]}>{result.name}</Text>
+            <Text selectable style={[styles.medNameText, { fontSize: 22 + fontOffset }, doctorMode && { color: '#000' }]}>
+              {translateScannerText(result.name)}
+            </Text>
             {!isError && (
               <SeniorButton
-                label="เปลี่ยนชื่อยา"
+                label={language === 'th' ? 'เปลี่ยนชื่อยา' : 'Change Name'}
                 icon={{ name: 'edit' }}
                 doctorMode={doctorMode}
                 fontOffset={fontOffset}
                 variant="ghost"
                 onPress={() => {
-                  handleSpeak('เลือกหรือพิมพ์ชื่อยาที่ถูกต้องได้เลยค่ะ');
+                  handleSpeak(language === 'th' ? 'เลือกหรือพิมพ์ชื่อยาที่ถูกต้องได้เลยค่ะ' : 'Please type or select the correct medication.');
                   setSearchText('');
                   setFilteredMeds([]);
                   setSelectModalVisible(true);
@@ -644,8 +682,8 @@ export default function ScannerScreen() {
             doctorMode={doctorMode}
             fontOffset={fontOffset}
             sections={[
-              { label: language === 'th' ? 'ยาที่สแกน' : 'Scanned Med', value: result.name },
-              { label: language === 'th' ? 'เหตุผล' : 'Reason', value: getResultReason(tone.severity, isError ? result.error : result.descTh) },
+              { label: language === 'th' ? 'ยาที่สแกน' : 'Scanned Med', value: translateScannerText(result.name) },
+              { label: language === 'th' ? 'เหตุผล' : 'Reason', value: translateScannerText(getResultReason(tone.severity, isError ? result.error : result.descTh)) },
               { label: language === 'th' ? 'สิ่งที่ควรทำ' : 'What you should do', value: tone.action },
             ]}
             action={

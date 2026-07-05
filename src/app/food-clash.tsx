@@ -171,8 +171,49 @@ export default function FoodClashScreen() {
     };
   };
 
+  const translateFoodText = (text: string) => {
+    if (language === 'th') return text;
+    let translated = text;
+    // Replace safe messages
+    translated = translated.replace(/ปลอดภัย ทานได้สบายใจค่ะ ไม่พบประวัติการขัดกับยาในตู้หรือโรคประจำตัวของคุณตาเกี่ยวกับ "(.*?)" ในคลังข้อมูลเครื่องค่ะ/g, 'Safe to consume. No registered risks or interactions detected with your current cabinet medications or diseases regarding "$1".');
+    translated = translated.replace(/ปลอดภัย ทานได้ค่ะคุณตา/g, 'Safe to consume, Grandpa');
+    translated = translated.replace(/ของแสลงนี้อาจส่งผลไม่ดีกับผู้ที่ทาน/g, 'This food or herb may cause adverse reactions for patients who take');
+    translated = translated.replace(/แต่คุณตาไม่มีประวัติโรคหรือยาเหล่านี้ในระบบตู้ยาปัจจุบันค่ะ/g, 'but you do not have a history of these diseases or medications in your current cabinet.');
+    
+    // Replace warning messages
+    translated = translated.replace(/คำเตือน! พบข้อควรระวัง:/g, 'Warning! Precautions detected:');
+    translated = translated.replace(/เกี่ยวข้องกับโรคประจำตัวที่บันทึกไว้/g, 'Clashes with registered medical conditions');
+    translated = translated.replace(/เกี่ยวข้องกับยาในตู้ของคุณตา/g, 'Clashes with medications in cabinet');
+    translated = translated.replace(/คำแนะนำ:/g, 'Recommendation:');
+    
+    // Replace conditions translations
+    translated = translated.replace(/โรคประจำตัว/g, 'Medical condition');
+    translated = translated.replace(/ยา/g, 'Medication');
+    translated = translated.replace(/โรคความดันสูง/g, 'Hypertension');
+    translated = translated.replace(/โรคเบาหวาน/g, 'Diabetes');
+    translated = translated.replace(/โรคหัวใจ/g, 'Heart Disease');
+    translated = translated.replace(/โรคไขมันสูง/g, 'Hyperlipidemia');
+    translated = translated.replace(/โรคไต/g, 'Kidney Disease');
+    translated = translated.replace(/โรคกระเพาะ/g, 'Stomach Disease');
+    translated = translated.replace(/โรคตับ/g, 'Liver Disease');
+    translated = translated.replace(/หรือ/g, ' or ');
+
+    // Specific food warnings
+    translated = translated.replace(/โสมเกาหลี/g, 'Korean Ginseng');
+    translated = translated.replace(/ชะเอมเทศ/g, 'Licorice');
+    translated = translated.replace(/กระเทียมโทน/g, 'Garlic');
+    translated = translated.replace(/น้ำเกรปฟรุต/g, 'Grapefruit juice');
+    translated = translated.replace(/ผักกระเฉด/g, 'Water Mimosa');
+    translated = translated.replace(/หน่อไม้ดอง/g, 'Pickled Bamboo Shoot');
+    translated = translated.replace(/ของหมักดอง/g, 'Pickled/Fermented Food');
+    translated = translated.replace(/ห้ามทานโสมเกาหลีร่วมกับยาเบาหวาน หรือยาความดัน เพราะจะทำให้ความดันโลหิตตกอย่างรุนแรงและเกิดภาวะน้ำตาลในเลือดต่ำขั้นวิกฤตได้ค่ะ/g, 'Strictly avoid Korean Ginseng while taking Diabetes or Hypertension medications, as it can cause a severe drop in blood pressure and critical hypoglycemia.');
+    translated = translated.replace(/ห้ามทานชะเอมเทศร่วมกับยาลดความดัน เพราะชะเอมเทศจะไปล้างฤทธิ์ยาและทำให้ความดันของปลอดภัยสูงขึ้นจนอันตรายค่ะ/g, 'Strictly avoid Licorice with Hypertension medications, as Licorice neutralizes the drug efficacy and can cause dangerously high blood pressure.');
+    translated = translated.replace(/หลีกเลี่ยงการทานอาหารเค็มจัดร่วมกับยาลดความดันและโรคไต เพราะเกลือจะดึงน้ำส่งผลให้หัวใจทำงานหนักและความดันโลหิตสูงขึ้นอย่างรุนแรงค่ะ/g, 'Avoid very salty foods while taking Hypertension or Kidney Disease medications, as high sodium causes severe water retention and dangerous blood pressure spikes.');
+    return translated;
+  };
+
   const cleanFoodDescription = (text?: string) => {
-    if (!text) return 'ไม่มีรายละเอียดเพิ่มเติม';
+    if (!text) return language === 'th' ? 'ไม่มีรายละเอียดเพิ่มเติม' : 'No additional details';
     return text.replace(/[🚨🟢]/g, '').replace(/\*\*/g, '').replace(/\n{3,}/g, '\n\n').trim();
   };
 
@@ -259,7 +300,7 @@ export default function FoodClashScreen() {
               fontOffset={fontOffset}
               sections={[
                 { label: language === 'th' ? 'อาหารที่เช็ก' : 'Checked Food', value: inputText || 'Selected food' },
-                { label: language === 'th' ? 'เหตุผล' : 'Reason', value: getFoodReason(result.severity, result.descTh) },
+                { label: language === 'th' ? 'เหตุผล' : 'Reason', value: translateFoodText(getFoodReason(result.severity, result.descTh)) },
                 { label: language === 'th' ? 'สิ่งที่ควรทำ' : 'What you should do', value: getFoodTone(result.severity).action },
               ]}
               action={
