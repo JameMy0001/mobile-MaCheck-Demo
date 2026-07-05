@@ -9,6 +9,7 @@ import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
 import { useSound } from '@/hooks/use-sound';
 import { SafetyStatusCard, SeniorButton } from '@/components/senior-ui';
+import { useTranslation } from '../constants/translations';
 import { SafetySeverity, SeniorColors } from '@/constants/senior-theme';
 
 export default function FoodClashScreen() {
@@ -21,6 +22,7 @@ export default function FoodClashScreen() {
   const { fontOffset } = useFontSize();
   const { doctorMode } = useDoctorMode();
   const { handleSpeak } = useSound();
+  const { t, language } = useTranslation();
 
   const navigation = useNavigation();
 
@@ -148,24 +150,24 @@ export default function FoodClashScreen() {
     if (severity === 'red') {
       return {
         severity: 'red',
-        title: 'ควรเลี่ยง',
-        description: 'ระบบจัดรายการนี้เป็นกลุ่มห้ามทานร่วมกัน',
-        action: 'หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัย',
+        title: language === 'th' ? 'ควรเลี่ยง' : 'Avoid',
+        description: language === 'th' ? 'ระบบจัดรายการนี้เป็นกลุ่มห้ามทานร่วมกัน' : 'High danger interaction level.',
+        action: language === 'th' ? 'หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัย' : 'Do not take this together. Consult a doctor or pharmacist for safety.',
       };
     }
     if (severity === 'yellow') {
       return {
         severity: 'yellow',
-        title: 'ทานอย่างระวัง',
-        description: 'มีข้อควรระวังบางอย่าง ควรทานน้อยและสังเกตอาการ',
-        action: 'ทานแต่น้อย เว้นระยะจากยา และดื่มน้ำตามเหมาะสม',
+        title: language === 'th' ? 'ทานอย่างระวัง' : 'Caution',
+        description: language === 'th' ? 'มีข้อควรระวังบางอย่าง ควรทานน้อยและสังเกตอาการ' : 'Precautions found. Take in small amounts and monitor.',
+        action: language === 'th' ? 'ทานแต่น้อย เว้นระยะจากยา และดื่มน้ำตามเหมาะสม' : 'Space from medications, consume in moderation and stay hydrated.',
       };
     }
     return {
       severity: 'green',
-      title: 'ทานได้',
-      description: 'ไม่พบความเสี่ยงสำคัญกับข้อมูลในตู้ยาขณะนี้',
-      action: 'ทานได้ตามปกติ แต่ยังควรยึดคำแนะนำแพทย์เป็นหลัก',
+      title: language === 'th' ? 'ทานได้' : 'Safe',
+      description: language === 'th' ? 'ไม่พบความเสี่ยงสำคัญกับข้อมูลในตู้ยาขณะนี้' : 'No registered risk detected with your current cabinet.',
+      action: language === 'th' ? 'ทานได้ตามปกติ แต่ยังควรยึดคำแนะนำแพทย์เป็นหลัก' : 'Safe to consume normally. Always follow your doctor\'s advice.',
     };
   };
 
@@ -176,7 +178,7 @@ export default function FoodClashScreen() {
 
   const getFoodReason = (severity: string, text?: string) => {
     if (severity === 'red') {
-      return 'ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ';
+      return language === 'th' ? 'ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ' : 'High interaction detected. Details hidden for safety.';
     }
     return cleanFoodDescription(text);
   };
@@ -187,15 +189,17 @@ export default function FoodClashScreen() {
         <View style={[styles.header, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
           <FontAwesome5 name="lemon" size={32} color="#000" />
           <View style={{ flex: 1 }}>
-            <Text style={[styles.headerTitle, { fontSize: 26 + fontOffset }, doctorMode && { color: '#000' }]}>เช็กของแสลง</Text>
-            <Text style={[styles.headerSubtitle, { fontSize: 15 + fontOffset }, doctorMode && { color: '#333' }]}>ดูว่าอาหารหรือสมุนไพรขัดกับยาในตู้ไหม</Text>
+            <Text style={[styles.headerTitle, { fontSize: 26 + fontOffset }, doctorMode && { color: '#000' }]}>{t('foodClashTitle')}</Text>
+            <Text style={[styles.headerSubtitle, { fontSize: 15 + fontOffset }, doctorMode && { color: '#333' }]}>
+              {language === 'th' ? 'ดูว่าอาหารหรือสมุนไพรขัดกับยาในตู้ไหม' : 'Check if foods or herbs clash with your cabinet'}
+            </Text>
           </View>
         </View>
 
         <View style={styles.inputContainer}>
           <TextInput
             style={[styles.input, { fontSize: 18 + fontOffset }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}
-            placeholder="พิมพ์ชื่ออาหารหรือผลไม้... (เช่น ส้มโอ, ของเค็ม)"
+            placeholder={language === 'th' ? 'พิมพ์ชื่ออาหารหรือผลไม้... (เช่น ส้มโอ, ของเค็ม)' : 'Type food name... (e.g., Grapefruit)'}
             value={inputText}
             onChangeText={setInputText}
             onSubmitEditing={checkFood}
@@ -209,30 +213,33 @@ export default function FoodClashScreen() {
           {!result ? (
             <View style={styles.emptyState}>
               <Text selectable style={[styles.emptyText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>
-                พิมพ์ชื่ออาหาร ผลไม้ หรือสมุนไพร{"\n"}หลานจะเช็กให้อย่างรวดเร็วออฟไลน์ว่าขัดกับยาในตู้หรือโรคประจำตัวของคุณตาไหมค่ะ!
+                {language === 'th' 
+                  ? 'พิมพ์ชื่ออาหาร ผลไม้ หรือสมุนไพร\nหลานจะเช็กให้อย่างรวดเร็วออฟไลน์ว่าขัดกับยาในตู้หรือโรคประจำตัวของคุณตาไหมค่ะ!' 
+                  : 'Type foods, fruits, or herbs.\nI will check if they clash with your current medications or conditions offline.'}
               </Text>
 
               {/* Demo help items */}
               <View style={[styles.demoBox, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <FontAwesome5 name="lightbulb" size={18} color={doctorMode ? '#000' : '#FBC02D'} />
-                  <Text style={[styles.demoTitle, { fontSize: 16 + fontOffset }]}>คำค้นหาที่พบบ่อย</Text>
+                  <Text style={[styles.demoTitle, { fontSize: 16 + fontOffset }]}>
+                    {language === 'th' ? 'คำค้นหาที่พบบ่อย' : 'Common Queries'}
+                  </Text>
                 </View>
                 {[
-                  'ส้มโอ',
-                  'ของเค็มจัด (มาม่า, ปลาร้า)',
-                  'ของหวานจัด (ทุเรียน, น้ำผึ้ง)',
-                  'ผักใบเขียว (คะน้า, บรอกโคลี)',
-                  'นมสด / แคลเซียม',
-                  'ชา / กาแฟ'
+                  language === 'th' ? 'ส้มโอ' : 'Grapefruit',
+                  language === 'th' ? 'ของเค็มจัด (มาม่า, ปลาร้า)' : 'Salty foods (Noodles, Pickled Fish)',
+                  language === 'th' ? 'ของหวานจัด (ทุเรียน, น้ำผึ้ง)' : 'Sweet foods (Durian, Honey)',
+                  language === 'th' ? 'ผักใบเขียว (คะน้า, บรอกโคลี)' : 'Green veg (Kale, Broccoli)',
+                  language === 'th' ? 'นมสด / แคลเซียม' : 'Fresh Milk / Calcium',
+                  language === 'th' ? 'ชา / กาแฟ' : 'Tea / Coffee'
                 ].map((item) => (
                   <TouchableOpacity 
                     key={item} 
                     style={[styles.demoItemBtn, doctorMode && { borderColor: '#000', backgroundColor: '#ECEFF1' }]}
                     onPress={() => {
-                      setInputText(item);
-                      // Simulate a small delay for speech guidance
-                      handleSpeak(item);
+                      setInputText(item.split(' (')[0]);
+                      handleSpeak(item.split(' (')[0]);
                     }}
                   >
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
@@ -251,13 +258,13 @@ export default function FoodClashScreen() {
               doctorMode={doctorMode}
               fontOffset={fontOffset}
               sections={[
-                { label: 'อาหารที่เช็ก', value: inputText || 'รายการที่เลือก' },
-                { label: 'เหตุผล', value: getFoodReason(result.severity, result.descTh) },
-                { label: 'สิ่งที่ควรทำ', value: getFoodTone(result.severity).action },
+                { label: language === 'th' ? 'อาหารที่เช็ก' : 'Checked Food', value: inputText || 'Selected food' },
+                { label: language === 'th' ? 'เหตุผล' : 'Reason', value: getFoodReason(result.severity, result.descTh) },
+                { label: language === 'th' ? 'สิ่งที่ควรทำ' : 'What you should do', value: getFoodTone(result.severity).action },
               ]}
               action={
                 <SeniorButton
-                  label="เช็กอาหารอย่างอื่นต่อ"
+                  label={language === 'th' ? 'เช็กอาหารอย่างอื่นต่อ' : 'Check another food'}
                   icon={{ name: 'refresh-cw' }}
                   onPress={() => setResult(null)}
                   doctorMode={doctorMode}

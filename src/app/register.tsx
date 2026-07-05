@@ -382,34 +382,68 @@ export default function RegisterScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'} 
         style={[styles.container, doctorMode && { backgroundColor: '#E0E0E0' }]}
       >
-        {/* Top Header with Back button if already registered */}
-        <View style={[styles.topHeader, doctorMode && { backgroundColor: '#E0E0E0', borderColor: '#000' }]}>
+        {/* Top Header with Back button & Language Selector */}
+        <View style={[styles.topHeader, { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }, doctorMode && { backgroundColor: '#E0E0E0', borderColor: '#000' }]}>
           {hasProfile ? (
             <TouchableOpacity 
               style={[styles.backBtn, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}
               onPress={() => router.replace('/')}
             >
               <Feather name="chevron-left" size={24} color="#000" />
-              <Text style={[styles.backBtnText, { fontSize: 15 + fontOffset }, doctorMode && { color: '#000' }]}>กลับหน้าหลัก</Text>
+              <Text style={[styles.backBtnText, { fontSize: 15 + fontOffset }, doctorMode && { color: '#000' }]}>{t('backToHome')}</Text>
             </TouchableOpacity>
           ) : (
-            <View style={{ height: 44, justifyContent: 'center' }}>
-              <Text style={{ fontSize: 16, fontWeight: '800', color: doctorMode ? '#000' : '#B71C1C' }}>⚠️ จำเป็นต้องลงทะเบียนก่อนเข้าหน้าหลักค่ะ</Text>
+            <View style={{ height: 44, justifyContent: 'center', flex: 1, paddingRight: 8 }}>
+              <Text style={{ fontSize: 13 + fontOffset, fontWeight: '800', color: doctorMode ? '#000' : '#B71C1C' }}>
+                {language === 'th' ? '⚠️ จำเป็นต้องลงทะเบียนก่อนค่ะ' : '⚠️ Registration required first'}
+              </Text>
             </View>
           )}
+
+          {/* 🌐 Language Switcher on Header Right */}
+          <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+            <TouchableOpacity 
+              style={[
+                styles.langBtnCompact, 
+                language === 'th' ? styles.langBtnCompactActive : styles.langBtnCompactInactive
+              ]}
+              onPress={() => {
+                setLanguage('th');
+                handleSpeak('เปลี่ยนภาษาเป็นภาษาไทยแล้วค่ะ');
+              }}
+            >
+              <Text style={[styles.langBtnCompactText, { fontSize: 13 + fontOffset, color: language === 'th' ? '#FFF' : '#000' }]}>
+                ไทย
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[
+                styles.langBtnCompact, 
+                language === 'en' ? styles.langBtnCompactActive : styles.langBtnCompactInactive
+              ]}
+              onPress={() => {
+                setLanguage('en');
+                handleSpeak('Changed language to English.');
+              }}
+            >
+              <Text style={[styles.langBtnCompactText, { fontSize: 13 + fontOffset, color: language === 'en' ? '#FFF' : '#000' }]}>
+                EN
+              </Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Font Size Selector Row */}
         <View style={[styles.fontSizeRow, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
-          <Text style={[styles.fontSizeLabel, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>🔍 ขนาดอักษร:</Text>
+          <Text style={[styles.fontSizeLabel, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>🔍 {t('fontSizeTitle')}</Text>
           <View style={styles.fontSizeButtons}>
             {['small', 'normal', 'medium', 'large', 'xlarge'].map((size) => {
               let label = '';
-              if (size === 'small') label = 'เล็ก';
-              else if (size === 'normal') label = 'ปกติ';
-              else if (size === 'medium') label = 'กลาง';
-              else if (size === 'large') label = 'ใหญ่';
-              else if (size === 'xlarge') label = 'ใหญ่มาก';
+              if (size === 'small') label = language === 'th' ? 'เล็ก' : 'Small';
+              else if (size === 'normal') label = language === 'th' ? 'ปกติ' : 'Normal';
+              else if (size === 'medium') label = language === 'th' ? 'กลาง' : 'Medium';
+              else if (size === 'large') label = language === 'th' ? 'ใหญ่' : 'Large';
+              else if (size === 'xlarge') label = language === 'th' ? 'ใหญ่มาก' : 'X-Large';
 
               return (
                 <TouchableOpacity
@@ -434,8 +468,8 @@ export default function RegisterScreen() {
               <FontAwesome5 name="heartbeat" size={32} color="#D32F2F" />
               <Text style={[styles.logo, { fontSize: 32 + fontOffset }]}>MaCheck</Text>
             </View>
-            <Text style={[styles.title, { fontSize: 22 + fontOffset }]}>ระบบจัดการผู้ป่วยตู้ยา</Text>
-            <Text style={[styles.subtitle, { fontSize: 14 + fontOffset }]}>ระบบลงทะเบียนและเข้าสู่ระบบเพื่อเช็กข้อมูลและประวัติการรักษาย้อนหลัง</Text>
+            <Text style={[styles.title, { fontSize: 22 + fontOffset }]}>{language === 'th' ? 'ระบบจัดการผู้ป่วยตู้ยา' : 'Medication Patient Dashboard'}</Text>
+            <Text style={[styles.subtitle, { fontSize: 14 + fontOffset }]}>{language === 'th' ? 'ระบบลงทะเบียนและเข้าสู่ระบบเพื่อเช็กข้อมูลและประวัติการรักษาย้อนหลัง' : 'Register and log in to configure medical safety profile and check history.'}</Text>
           </View>
 
           {/* Neobrutalist Tab Switcher */}
@@ -449,14 +483,14 @@ export default function RegisterScreen() {
                 ]} 
                 onPress={() => {
                   setActiveTab('settings');
-                  handleSpeak('สลับมาหน้าข้อมูลและตั้งค่าค่ะ');
+                  handleSpeak(language === 'th' ? 'สลับมาหน้าข้อมูลและตั้งค่าค่ะ' : 'Switched to settings and configuration.');
                 }}
               >
                 <Text style={[
                   styles.tabBtnText, 
                   { fontSize: 14 + fontOffset },
                   doctorMode && activeTab === 'settings' && { color: '#FFF' }
-                ]}>ข้อมูลและตั้งค่า</Text>
+                ]}>{t('settingsTab')}</Text>
               </TouchableOpacity>
             )}
             <TouchableOpacity 
@@ -467,14 +501,14 @@ export default function RegisterScreen() {
               ]} 
               onPress={() => {
                 setActiveTab('register');
-                handleSpeak('สลับมาหน้าลงทะเบียนผู้ป่วยใหม่ค่ะ');
+                handleSpeak(language === 'th' ? 'สลับมาหน้าลงทะเบียนผู้ป่วยใหม่ค่ะ' : 'Switched to register new patient.');
               }}
             >
               <Text style={[
                 styles.tabBtnText, 
                 { fontSize: 14 + fontOffset },
                 doctorMode && activeTab === 'register' && { color: '#FFF' }
-              ]}>ลงทะเบียนใหม่</Text>
+              ]}>{t('registerTab')}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[
@@ -484,14 +518,14 @@ export default function RegisterScreen() {
               ]} 
               onPress={() => {
                 setActiveTab('login');
-                handleSpeak('สลับมาหน้าเข้าสู่ระบบค่ะ');
+                handleSpeak(language === 'th' ? 'สลับมาหน้าเข้าสู่ระบบค่ะ' : 'Switched to login.');
               }}
             >
               <Text style={[
                 styles.tabBtnText, 
                 { fontSize: 14 + fontOffset },
                 doctorMode && activeTab === 'login' && { color: '#FFF' }
-              ]}>เข้าสู่ระบบ</Text>
+              ]}>{t('loginTab')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -1379,6 +1413,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFF',
   },
   langBtnText: {
+    fontWeight: '900',
+  },
+  langBtnCompact: {
+    borderWidth: 1.5,
+    borderColor: SeniorColors.borderStrong,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    minWidth: 44,
+    minHeight: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  langBtnCompactActive: {
+    backgroundColor: SeniorColors.primary,
+    borderColor: '#000',
+  },
+  langBtnCompactInactive: {
+    backgroundColor: '#FFF',
+  },
+  langBtnCompactText: {
     fontWeight: '900',
   },
 });

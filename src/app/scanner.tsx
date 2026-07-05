@@ -12,6 +12,7 @@ import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
 import { SafetyStatusCard, SeniorButton } from '../components/senior-ui';
+import { useTranslation } from '../constants/translations';
 import { SafetySeverity, SeniorColors } from '@/constants/senior-theme';
 
 const DEMO_IMAGES: Record<string, any> = {
@@ -57,6 +58,7 @@ export default function ScannerScreen() {
   const { fontOffset } = useFontSize();
   const { handleSpeak } = useSound();
   const { customAlert, setCustomAlert } = useCustomAlert();
+  const { t, language } = useTranslation();
 
   const navigation = useNavigation();
 
@@ -75,9 +77,11 @@ export default function ScannerScreen() {
   if (!permission.granted) {
     return (
       <View style={styles.centerContainer}>
-        <Text style={styles.errorText}>ต้องอนุญาตให้ใช้กล้องก่อนนะคะคุณตา</Text>
+        <Text style={styles.errorText}>
+          {language === 'th' ? 'ต้องอนุญาตให้ใช้กล้องก่อนนะคะคุณตา' : 'Camera permission is required.'}
+        </Text>
         <TouchableOpacity style={styles.actionBtn} onPress={requestPermission}>
-          <Text style={styles.actionBtnText}>อนุญาต</Text>
+          <Text style={styles.actionBtnText}>{language === 'th' ? 'อนุญาต' : 'Allow'}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -295,32 +299,32 @@ export default function ScannerScreen() {
     if (severity === 'red') {
       return {
         severity: 'red',
-        title: 'ห้ามกิน',
-        description: 'ระบบจัดรายการนี้เป็นกลุ่มห้ามใช้หรือห้ามทานร่วมกัน',
-        action: 'หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัย',
+        title: language === 'th' ? 'ห้ามกิน' : 'Do Not Take',
+        description: language === 'th' ? 'ระบบจัดรายการนี้เป็นกลุ่มห้ามใช้หรือห้ามทานร่วมกัน' : 'This drug is classified as a high-risk clash.',
+        action: language === 'th' ? 'หยุดก่อน อย่าทดลองทานเอง และติดต่อแพทย์ เภสัชกร หรือลูกหลานเพื่อยืนยันความปลอดภัย' : 'Do not ingest. Contact doctor, pharmacist or caregiver immediately.',
       };
     }
     if (severity === 'yellow') {
       return {
         severity: 'yellow',
-        title: 'ต้องเว้นระยะ',
-        description: 'กินได้เฉพาะเมื่อเว้นระยะและทำตามคำแนะนำอย่างระมัดระวัง',
-        action: 'เริ่มภารกิจเว้นระยะยา หรือถามลูกหลานก่อนกิน',
+        title: language === 'th' ? 'ต้องเว้นระยะ' : 'Must Space Doses',
+        description: language === 'th' ? 'กินได้เฉพาะเมื่อเว้นระยะและทำตามคำแนะนำอย่างระมัดระวัง' : 'Take only if spaced out properly and follow cautions.',
+        action: language === 'th' ? 'เริ่มภารกิจเว้นระยะยา หรือถามลูกหลานก่อนกิน' : 'Start drug spacing challenge or call family first.',
       };
     }
     if (severity === 'green') {
       return {
         severity: 'green',
-        title: 'ปลอดภัย',
-        description: 'ไม่พบปฏิกิริยาสำคัญกับข้อมูลในตู้ยาขณะนี้',
-        action: 'กินตามขนาดและเวลาที่แพทย์สั่งตามปกติ',
+        title: language === 'th' ? 'ปลอดภัย' : 'Safe',
+        description: language === 'th' ? 'ไม่พบปฏิกิริยาสำคัญกับข้อมูลในตู้ยาขณะนี้' : 'No recorded interactions found with current cabinet.',
+        action: language === 'th' ? 'กินตามขนาดและเวลาที่แพทย์สั่งตามปกติ' : 'Ingest normally according to prescription instructions.',
       };
     }
     return {
       severity: 'unknown',
-      title: 'ไม่พบข้อมูล',
-      description: 'ระบบยังไม่มีข้อมูลยานี้ในฐานข้อมูลเครื่อง',
-      action: 'ให้ลูกหลานหรือแพทย์ช่วยตรวจสอบก่อนกินยา',
+      title: language === 'th' ? 'ไม่พบข้อมูล' : 'No Data Found',
+      description: language === 'th' ? 'ระบบยังไม่มีข้อมูลยานี้ในฐานข้อมูลเครื่อง' : 'Drug is not registered in offline database.',
+      action: language === 'th' ? 'ให้ลูกหลานหรือแพทย์ช่วยตรวจสอบก่อนกินยา' : 'Ask caregivers or doctors to review safety before ingestion.',
     };
   };
 
@@ -640,14 +644,14 @@ export default function ScannerScreen() {
             doctorMode={doctorMode}
             fontOffset={fontOffset}
             sections={[
-              { label: 'ยาที่สแกน', value: result.name },
-              { label: 'เหตุผล', value: getResultReason(tone.severity, isError ? result.error : result.descTh) },
-              { label: 'สิ่งที่ควรทำ', value: tone.action },
+              { label: language === 'th' ? 'ยาที่สแกน' : 'Scanned Med', value: result.name },
+              { label: language === 'th' ? 'เหตุผล' : 'Reason', value: getResultReason(tone.severity, isError ? result.error : result.descTh) },
+              { label: language === 'th' ? 'สิ่งที่ควรทำ' : 'What you should do', value: tone.action },
             ]}
             action={
               result.severity === 'yellow' ? (
                 <SeniorButton
-                  label="เริ่มภารกิจเว้นระยะยา"
+                  label={language === 'th' ? 'เริ่มภารกิจเว้นระยะยา' : 'Start Spacing Task'}
                   icon={{ name: 'clock' }}
                   doctorMode={doctorMode}
                   fontOffset={fontOffset}
@@ -658,7 +662,7 @@ export default function ScannerScreen() {
           />
 
           <SeniorButton
-            label="สแกนอีกครั้ง"
+            label={language === 'th' ? 'สแกนอีกครั้ง' : 'Scan Again'}
             icon={{ name: 'refresh-cw' }}
             doctorMode={doctorMode}
             fontOffset={fontOffset}
@@ -681,52 +685,64 @@ export default function ScannerScreen() {
         <View style={styles.overlay}>
           {/* Staged Presentation Case Selector */}
           <View style={styles.demoSelectorContainer}>
-            <Text style={styles.demoSelectorTitle}>🎭 เลือกกรณีตัวอย่าง (คลิกก่อนกดถ่ายภาพ):</Text>
+            <Text style={styles.demoSelectorTitle}>
+              {language === 'th' ? '🎭 เลือกกรณีตัวอย่าง (คลิกก่อนกดถ่ายภาพ):' : '🎭 Select Demo Case (Click before capturing):'}
+            </Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.demoSelectorScroll}>
               <TouchableOpacity 
                 style={[styles.demoSelectBtn, activeCase === 'case1' && styles.demoSelectBtnActive]} 
                 onPress={() => {
                   setActiveCase('case1');
-                  handleSpeak('เลือกเคสที่หนึ่ง ยาตีกัน ห้ามกินร่วมกันเด็ดขาดค่ะ');
+                  handleSpeak(language === 'th' ? 'เลือกเคสที่หนึ่ง ยาตีกัน ห้ามกินร่วมกันเด็ดขาดค่ะ' : 'Case 1: Severe drug interaction, do not take.');
                 }}
               >
-                <Text style={[styles.demoSelectBtnText, activeCase === 'case1' && styles.demoSelectBtnTextActive]}>1. ยาตีกัน (แดง)</Text>
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case1' && styles.demoSelectBtnTextActive]}>
+                  {language === 'th' ? '1. ยาตีกัน (แดง)' : '1. Severe Clash (Red)'}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.demoSelectBtn, activeCase === 'case2' && styles.demoSelectBtnActive]} 
                 onPress={() => {
                   setActiveCase('case2');
-                  handleSpeak('เลือกเคสที่สอง ยาทานร่วมกันได้อย่างปลอดภัยค่ะ');
+                  handleSpeak(language === 'th' ? 'เลือกเคสที่สอง ยาทานร่วมกันได้อย่างปลอดภัยค่ะ' : 'Case 2: Safe to take together.');
                 }}
               >
-                <Text style={[styles.demoSelectBtnText, activeCase === 'case2' && styles.demoSelectBtnTextActive]}>2. ทานร่วมกันได้ (เขียว)</Text>
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case2' && styles.demoSelectBtnTextActive]}>
+                  {language === 'th' ? '2. ทานร่วมกันได้ (เขียว)' : '2. Safe to Take (Green)'}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.demoSelectBtn, activeCase === 'case3' && styles.demoSelectBtnActive]} 
                 onPress={() => {
                   setActiveCase('case3');
-                  handleSpeak('เลือกเคสที่สาม ยาควรทานห่างกันสองชั่วโมงค่ะ');
+                  handleSpeak(language === 'th' ? 'เลือกเคสที่สาม ยาควรทานห่างกันสองชั่วโมงค่ะ' : 'Case 3: Space doses by 2 hours.');
                 }}
               >
-                <Text style={[styles.demoSelectBtnText, activeCase === 'case3' && styles.demoSelectBtnTextActive]}>3. ทานห่างกัน (เหลือง)</Text>
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case3' && styles.demoSelectBtnTextActive]}>
+                  {language === 'th' ? '3. ทานห่างกัน (เหลือง)' : '3. Space 2 Hrs (Yellow)'}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.demoSelectBtn, activeCase === 'case4' && styles.demoSelectBtnActive]} 
                 onPress={() => {
                   setActiveCase('case4');
-                  handleSpeak('เลือกเคสที่สี่ ยาห้ามกินกับโรคไตค่ะ');
+                  handleSpeak(language === 'th' ? 'เลือกเคสที่สี่ ยาห้ามกินกับโรคไตค่ะ' : 'Case 4: Dangerous for Kidney Disease.');
                 }}
               >
-                <Text style={[styles.demoSelectBtnText, activeCase === 'case4' && styles.demoSelectBtnTextActive]}>4. ยาต้องห้ามกับโรคไต (แดง)</Text>
+                <Text style={[styles.demoSelectBtnText, activeCase === 'case4' && styles.demoSelectBtnTextActive]}>
+                  {language === 'th' ? '4. ยาต้องห้ามกับโรคไต (แดง)' : '4. Kidney Disease Clash (Red)'}
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity 
                 style={[styles.demoSelectBtn, activeCase === 'unknown' && styles.demoSelectBtnActive]} 
                 onPress={() => {
                   setActiveCase('unknown');
-                  handleSpeak('เลือกเคสที่ห้า ยานอกฐานข้อมูลระบบค่ะ');
+                  handleSpeak(language === 'th' ? 'เลือกเคสที่ห้า ยานอกฐานข้อมูลระบบค่ะ' : 'Case 5: Unregistered drug in database.');
                 }}
               >
-                <Text style={[styles.demoSelectBtnText, activeCase === 'unknown' && styles.demoSelectBtnTextActive]}>5. ยานอกฐานข้อมูล (เทา)</Text>
+                <Text style={[styles.demoSelectBtnText, activeCase === 'unknown' && styles.demoSelectBtnTextActive]}>
+                  {language === 'th' ? '5. ยานอกฐานข้อมูล (เทา)' : '5. Unknown Drug (Gray)'}
+                </Text>
               </TouchableOpacity>
             </ScrollView>
           </View>
@@ -737,7 +753,9 @@ export default function ScannerScreen() {
             <View style={styles.frameCornerBL} />
             <View style={styles.frameCornerBR} />
           </View>
-          <Text style={styles.guideText}>วางซองยาไว้ในกรอบแล้วกดปุ่มถ่ายรูป</Text>
+          <Text style={styles.guideText}>
+            {language === 'th' ? 'วางซองยาไว้ในกรอบแล้วกดปุ่มถ่ายรูป' : 'Place medication package inside target frame and capture'}
+          </Text>
         </View>
 
         <View style={styles.controls}>

@@ -11,6 +11,7 @@ import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore, CabinetMed } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
 import { MedCard } from '../components/MedCard';
+import { useTranslation } from '../constants/translations';
 import { SeniorColors } from '@/constants/senior-theme';
 
 export default function CabinetScreen() {
@@ -18,6 +19,7 @@ export default function CabinetScreen() {
   const medicines = useAppStore((state) => state.cabinet) as CabinetMed[];
   const setCabinetStore = useAppStore((state) => state.setCabinet);
   const addLog = useAppStore((state) => state.addLog);
+  const { t, language } = useTranslation();
 
   const [inputText, setInputText] = useState('');
   const [dbMeds, setDbMeds] = useState<any[]>([]);
@@ -272,7 +274,7 @@ export default function CabinetScreen() {
         <View style={[styles.header, doctorMode && { backgroundColor: '#E0E0E0', borderColor: '#000' }]}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12, flex: 1 }}>
             <FontAwesome5 name="pills" size={32} color="#000" />
-            <Text style={[styles.headerTitle, { fontSize: 28 + fontOffset }, doctorMode && { color: '#000' }]}>ตู้ยาของฉัน</Text>
+            <Text style={[styles.headerTitle, { fontSize: 28 + fontOffset }, doctorMode && { color: '#000' }]}>{t('cabinetTitle')}</Text>
           </View>
           <TouchableOpacity style={[{ padding: 8 }, doctorMode && { backgroundColor: '#FFF', borderWidth: 2, borderColor: '#000', borderRadius: 8 }]} onPress={() => toggleSound()}>
             <Feather name={isSoundMuted ? "volume-x" : "volume-2"} size={26} color="#000" />
@@ -284,7 +286,7 @@ export default function CabinetScreen() {
           <View style={{ flex: 1, zIndex: 10 }}>
             <TextInput
               style={[styles.input, { fontSize: 18 + fontOffset }, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}
-              placeholder="พิมพ์ชื่อยา หรือเลือกคำแนะนำ..."
+              placeholder={language === 'th' ? 'พิมพ์ชื่อยา หรือเลือกคำแนะนำ...' : 'Search medications...'}
               value={inputText}
               onChangeText={handleTextChange}
             />
@@ -309,7 +311,7 @@ export default function CabinetScreen() {
             )}
           </View>
           <TouchableOpacity style={[styles.addBtn, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]} onPress={addMedicine}>
-            <Text style={[styles.addBtnText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>เพิ่ม</Text>
+            <Text style={[styles.addBtnText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>{language === 'th' ? 'เพิ่ม' : 'Add'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -330,26 +332,29 @@ export default function CabinetScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <FontAwesome5 name="th" size={18} color="#000" />
                 <Text style={[styles.matrixBtnText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
-                  🧪 ตารางเมทริกซ์ยาตีกัน (Interaction Matrix)
+                  {language === 'th' ? '🧪 ตารางเมทริกซ์ยาตีกัน (Matrix)' : '🧪 Interaction Grid Matrix'}
                 </Text>
               </View>
             </TouchableOpacity>
           )}
           
           {/* Many Meds Caution Warning */}
-          {/* Many Meds Caution Warning */}
           {medicines.length >= 3 && (
             <View style={[styles.cautionBanner, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]}>
               <FontAwesome5 name="exclamation-triangle" size={24} color={doctorMode ? '#000' : '#D32F2F'} />
               <Text style={[styles.cautionText, { fontSize: 15 + fontOffset }, doctorMode && { color: '#000' }]}>
-                คุณตามียาในตู้ยา {medicines.length} ตัว แล้วนะคะ เวลาทานแนะนำให้ทานเว้นระยะห่าง เพื่อถนอมกระเพาะและไตค่ะ
+                {language === 'th' 
+                  ? `คุณตามียาในตู้ยา ${medicines.length} ตัว แล้วนะคะ เวลาทานแนะนำให้ทานเว้นระยะห่าง เพื่อถนอมกระเพาะและไตค่ะ` 
+                  : `You have ${medicines.length} medications in cabinet. We recommend spacing doses to protect your stomach & kidneys.`}
               </Text>
             </View>
           )}
 
           {medicines.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={[styles.emptyText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>ตู้ยาว่างเปล่าจ้า!{"\n"}ลองพิมพ์ค้นหาชื่อยาแล้วกดปุ่มเพิ่มดูนะคะคุณตา</Text>
+              <Text style={[styles.emptyText, { fontSize: 18 + fontOffset }, doctorMode && { color: '#000' }]}>
+                {language === 'th' ? 'ตู้ยาว่างเปล่าจ้า!\nลองพิมพ์ค้นหาชื่อยาแล้วกดปุ่มเพิ่มดูนะคะคุณตา' : 'Cabinet is empty!\nSearch and add medications to check clashes.'}
+              </Text>
             </View>
           ) : (
             medicines.map((med) => (
@@ -390,7 +395,9 @@ export default function CabinetScreen() {
               <View style={[styles.matrixModalHeader, doctorMode && { borderColor: '#000' }]}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <FontAwesome5 name="th" size={24} color="#000" />
-                  <Text style={[styles.matrixModalTitle, { fontSize: 22 + fontOffset }]}>ตารางยาตีกัน (Matrix)</Text>
+                  <Text style={[styles.matrixModalTitle, { fontSize: 22 + fontOffset }]}>
+                    {language === 'th' ? 'ตารางยาตีกัน (Matrix)' : 'Interaction Grid Matrix'}
+                  </Text>
                 </View>
                 <TouchableOpacity 
                   style={[styles.closeMatrixBtn, doctorMode && { backgroundColor: '#000', borderColor: '#000' }]} 
@@ -403,7 +410,9 @@ export default function CabinetScreen() {
               <ScrollView style={{ flex: 1 }}>
                 <View style={{ padding: 12 }}>
                   <Text style={[styles.matrixSubtitle, { fontSize: 16 + fontOffset }]}>
-                    ตารางวิเคราะห์การกินยาคู่กันระหว่างยาทุกตัวในตู้ยา ณ ปัจจุบันของคุณตา:
+                    {language === 'th' 
+                      ? 'ตารางวิเคราะห์การกินยาคู่กันระหว่างยาทุกตัวในตู้ยา ณ ปัจจุบันของคุณตา:' 
+                      : 'Interaction analysis grid between all drugs in Grandpas cabinet:'}
                   </Text>
                   
                   {/* Grid Container */}
@@ -413,7 +422,9 @@ export default function CabinetScreen() {
                       {/* Header Row */}
                       <View style={{ flexDirection: 'row', borderBottomWidth: 3, borderColor: '#000', backgroundColor: '#37474F' }}>
                         <View style={[styles.matrixHeaderCell, { width: 120, borderRightWidth: 2, borderColor: '#000', justifyContent: 'center', alignItems: 'center' }]}>
-                          <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 13 }}>ยา ↓ / ยา →</Text>
+                          <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 13 }}>
+                            {language === 'th' ? 'ยา ↓ / ยา →' : 'Drug ↓ / Drug →'}
+                          </Text>
                         </View>
                         {medicines.map((colMed) => {
                           const shortName = colMed.name.split(' ')[0].slice(0, 8);
@@ -497,20 +508,22 @@ export default function CabinetScreen() {
                   <View style={[styles.matrixLegend, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                       <FontAwesome5 name="info-circle" size={16} color="#000" />
-                      <Text style={{ fontWeight: '800', fontSize: 15 }}>คำอธิบายระดับสัญลักษณ์:</Text>
+                      <Text style={{ fontWeight: '800', fontSize: 15 }}>
+                        {language === 'th' ? 'คำอธิบายระดับสัญลักษณ์:' : 'Symbols Explanation:'}
+                      </Text>
                     </View>
                     <View style={{ gap: 6 }}>
                       <Text style={{ fontSize: 14, fontWeight: '700', color: doctorMode ? '#000' : '#D32F2F' }}>
-                        🔴 อันตรายสูง (ห้ามกินยาคู่กันโดยเด็ดขาด)
+                        {language === 'th' ? '🔴 อันตรายสูง (ห้ามกินยาคู่กันโดยเด็ดขาด)' : '🔴 High Danger (Do not take together)'}
                       </Text>
                       <Text style={{ fontSize: 14, fontWeight: '700', color: doctorMode ? '#000' : '#F57F17' }}>
-                        🟡 ควรระวังเว้นระยะ (ควรห่างกันอย่างน้อย 2 ชม.)
+                        {language === 'th' ? '🟡 ควรระวังเว้นระยะ (ควรห่างกันอย่างน้อย 2 ชม.)' : '🟡 Space Dose (At least 2 hours apart)'}
                       </Text>
                       <Text style={{ fontSize: 14, fontWeight: '700', color: doctorMode ? '#000' : '#2E7D32' }}>
-                        🟢 ปลอดภัยดี (สามารถกินร่วมกันได้ปกติ)
+                        {language === 'th' ? '🟢 ปลอดภัยดี (สามารถกินร่วมกันได้ปกติ)' : '🟢 Safe (Can be taken together)'}
                       </Text>
                       <Text style={{ fontSize: 14, fontWeight: '700', color: '#757575' }}>
-                        — ยาตัวเดียวกัน
+                        {language === 'th' ? '— ยาตัวเดียวกัน' : '— Same Drug'}
                       </Text>
                     </View>
                   </View>

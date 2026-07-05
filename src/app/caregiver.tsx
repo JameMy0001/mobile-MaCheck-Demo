@@ -10,6 +10,7 @@ import { useDoctorMode } from '@/hooks/use-doctor-mode';
 import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
+import { useTranslation } from '../constants/translations';
 import { SeniorColors } from '@/constants/senior-theme';
 
 export default function CaregiverScreen() {
@@ -22,6 +23,9 @@ export default function CaregiverScreen() {
   const { doctorMode } = useDoctorMode();
   const { fontOffset } = useFontSize();
   const { handleSpeak } = useSound();
+  const { t, language } = useTranslation();
+
+  const navigation = useNavigation();
 
   // Caregiver Remote Tracking states
   const [targetPhone, setTargetPhone] = useState('');
@@ -33,8 +37,6 @@ export default function CaregiverScreen() {
   const [isLoadingRemote, setIsLoadingRemote] = useState(false);
 
   const { customAlert, setCustomAlert } = useCustomAlert();
-
-  const navigation = useNavigation();
 
   useEffect(() => {
     handleSpeak('ยินดีต้อนรับเข้าสู่หน้าจอลูกหลานเพื่อติดตามอาการค่ะ');
@@ -225,8 +227,8 @@ export default function CaregiverScreen() {
         <View style={[styles.syncHeader, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
           <Feather name="cloud-lightning" size={28} color={doctorMode ? '#000' : SeniorColors.primary} />
           <Text style={[styles.syncTitle, doctorMode && { color: '#000' }]}>
-            สถานะ: <Text style={[styles.syncStatus, doctorMode && { color: '#000' }]}>
-              {isRemoteConnected ? `ซิงค์คลาวด์เบอร์ ${remoteProfile.phone}` : 'กำลังติดตามการซิงค์ออฟไลน์'}
+            {language === 'th' ? 'สถานะ: ' : 'Status: '}<Text style={[styles.syncStatus, doctorMode && { color: '#000' }]}>
+              {isRemoteConnected ? (language === 'th' ? `ซิงค์คลาวด์เบอร์ ${remoteProfile.phone}` : `Synced cloud ${remoteProfile.phone}`) : (language === 'th' ? 'กำลังติดตามการซิงค์ออฟไลน์' : 'Monitoring local offline device')}
             </Text>
           </Text>
         </View>
@@ -237,17 +239,19 @@ export default function CaregiverScreen() {
           <View style={[styles.card, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
             <View style={styles.cardHeader}>
               <Feather name="cloud" size={24} color="#000" />
-              <Text style={styles.cardTitle}>เชื่อมต่อติดตามระยะไกล (Cloud Sync)</Text>
+              <Text style={styles.cardTitle}>
+                {language === 'th' ? 'เชื่อมต่อติดตามระยะไกล (Cloud Sync)' : 'Remote Tracking (Cloud Sync)'}
+              </Text>
             </View>
             {!isRemoteConnected ? (
               <View style={{ gap: 10 }}>
                 <Text style={{ fontSize: 14 + fontOffset, fontWeight: '700', color: '#333' }}>
-                  ป้อนเบอร์โทรศัพท์หรือรหัสเชื่อมต่อคุณตาคุณยาย เพื่อดึงข้อมูลตู้ยาและประวัติกิจกรรมแบบเรียลไทม์ข้ามอุปกรณ์:
+                  {language === 'th' ? 'ป้อนเบอร์โทรศัพท์หรือรหัสเชื่อมต่อคุณตาคุณยาย เพื่อดึงข้อมูลตู้ยาและประวัติกิจกรรมแบบเรียลไทม์ข้ามอุปกรณ์:' : 'Enter Grandpas mobile number to pull cabinet and activity logs in real-time across devices:'}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                   <TextInput
                     style={[styles.remoteInput, { fontSize: 16 + fontOffset }]}
-                    placeholder="กรอกเบอร์โทรคุณตา เช่น 0812345678"
+                    placeholder={language === 'th' ? 'กรอกเบอร์โทรคุณตา เช่น 0812345678' : 'Grandpas phone e.g. 0812345678'}
                     keyboardType="phone-pad"
                     value={targetPhone}
                     onChangeText={setTargetPhone}
@@ -258,7 +262,7 @@ export default function CaregiverScreen() {
                     disabled={isLoadingRemote}
                   >
                     <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 16 + fontOffset }}>
-                      {isLoadingRemote ? 'รอ...' : 'เชื่อมต่อ'}
+                      {isLoadingRemote ? (language === 'th' ? 'รอ...' : 'Waiting...') : (language === 'th' ? 'เชื่อมต่อ' : 'Connect')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -267,14 +271,14 @@ export default function CaregiverScreen() {
               <View style={{ gap: 10 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                   <Text style={{ fontSize: 16 + fontOffset, fontWeight: '800', color: doctorMode ? '#000' : SeniorColors.success }}>
-                    ซิงค์กับเครื่องคุณตา &quot;{remoteProfile.name}&quot; สำเร็จ
+                    {language === 'th' ? `ซิงค์กับเครื่องคุณตา "${remoteProfile.name}" สำเร็จ` : `Connected to Grandpa "${remoteProfile.name}" successfully`}
                   </Text>
                   <TouchableOpacity
                     style={styles.disconnectBtn}
                     onPress={disconnectRemote}
                   >
                     <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 13 + fontOffset }}>
-                      ตัดการเชื่อมต่อ
+                      {language === 'th' ? 'ตัดการเชื่อมต่อ' : 'Disconnect'}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -286,26 +290,28 @@ export default function CaregiverScreen() {
           <View style={[styles.card, styles.profileCard, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
             <View style={styles.cardHeader}>
               <FontAwesome5 name="user-alt" size={24} color="#000" />
-              <Text style={styles.cardTitle}>ข้อมูลคุณตา/คุณยาย</Text>
+              <Text style={styles.cardTitle}>
+                {language === 'th' ? 'ข้อมูลคุณตา/คุณยาย' : 'Grandpas Profile Details'}
+              </Text>
             </View>
             {isRemoteConnected ? (
               // Remote Profile Display
               <View style={styles.profileDetails}>
                 <View style={styles.profileItemRow}>
                   <Feather name="user" size={18} color="#000" />
-                  <Text style={styles.profileText}> ชื่อ: {remoteProfile.name} (คุณตาทางไกล)</Text>
+                  <Text style={styles.profileText}> {language === 'th' ? `ชื่อ: ${remoteProfile.name} (คุณตาทางไกล)` : `Name: ${remoteProfile.name} (Remote Grandpa)`}</Text>
                 </View>
                 <View style={styles.profileItemRow}>
                   <Feather name="phone" size={18} color="#000" />
-                  <Text style={styles.profileText}> สายด่วน: {remoteProfile.phone}</Text>
+                  <Text style={styles.profileText}> {language === 'th' ? `สายด่วน: ${remoteProfile.phone}` : `Caregiver Phone: ${remoteProfile.phone}`}</Text>
                 </View>
                 <View style={styles.profileItemRow}>
                   <Feather name="key" size={18} color="#000" />
-                  <Text style={styles.profileText}> รหัสติดตาม (Cloud Sync): <Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{remoteProfile.syncCode}</Text></Text>
+                  <Text style={styles.profileText}> {language === 'th' ? 'รหัสติดตาม (Cloud Sync): ' : 'Sync Key (Cloud Sync): '}<Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{remoteProfile.syncCode}</Text></Text>
                 </View>
                 <View style={styles.profileItemRow}>
                   <FontAwesome5 name="stethoscope" size={18} color="#000" />
-                  <Text style={styles.profileText}> โรคประจำตัว:</Text>
+                  <Text style={styles.profileText}> {language === 'th' ? 'โรคประจำตัว:' : 'Conditions:'}</Text>
                 </View>
                 <View style={styles.badgeContainer}>
                   {remoteProfile.diseases && remoteProfile.diseases.length > 0 ? (
@@ -315,7 +321,7 @@ export default function CaregiverScreen() {
                       </View>
                     ))
                   ) : (
-                    <Text style={styles.noDataText}>ไม่มีโรคประจำตัวที่ระบุ</Text>
+                    <Text style={styles.noDataText}>{language === 'th' ? 'ไม่มีโรคประจำตัวที่ระบุ' : 'No registered conditions'}</Text>
                   )}
                   {remoteProfile.otherDiseases ? (
                     remoteProfile.otherDiseases.split(',').map((d: string) => (
@@ -357,19 +363,19 @@ export default function CaregiverScreen() {
               <View style={styles.profileDetails}>
                 <View style={styles.profileItemRow}>
                   <Feather name="user" size={18} color="#000" />
-                  <Text style={styles.profileText}> ชื่อ: {profile.name}</Text>
+                  <Text style={styles.profileText}> {language === 'th' ? `ชื่อ: ${profile.name}` : `Name: ${profile.name}`}</Text>
                 </View>
                 <View style={styles.profileItemRow}>
                   <Feather name="phone" size={18} color="#000" />
-                  <Text style={styles.profileText}> สายด่วน: {profile.phone}</Text>
+                  <Text style={styles.profileText}> {language === 'th' ? `สายด่วน: ${profile.phone}` : `Caregiver Phone: ${profile.phone}`}</Text>
                 </View>
                 <View style={styles.profileItemRow}>
                   <Feather name="key" size={18} color="#000" />
-                  <Text style={styles.profileText}> รหัสติดตาม (Cloud Sync): <Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{profile.syncCode}</Text></Text>
+                  <Text style={styles.profileText}> {language === 'th' ? 'รหัสติดตาม (Cloud Sync): ' : 'Sync Key (Cloud Sync): '}<Text style={[styles.syncCode, doctorMode && { color: '#000' }]}>{profile.syncCode}</Text></Text>
                 </View>
                 <View style={styles.profileItemRow}>
                   <FontAwesome5 name="stethoscope" size={18} color="#000" />
-                  <Text style={styles.profileText}> โรคประจำตัว:</Text>
+                  <Text style={styles.profileText}> {language === 'th' ? 'โรคประจำตัว:' : 'Conditions:'}</Text>
                 </View>
                 <View style={styles.badgeContainer}>
                   {profile.diseases && profile.diseases.length > 0 ? (
@@ -379,7 +385,7 @@ export default function CaregiverScreen() {
                       </View>
                     ))
                   ) : (
-                    <Text style={styles.noDataText}>ไม่มีโรคประจำตัวที่ระบุ</Text>
+                    <Text style={styles.noDataText}>{language === 'th' ? 'ไม่มีโรคประจำตัวที่ระบุ' : 'No registered conditions'}</Text>
                   )}
                   {profile.otherDiseases ? (
                     profile.otherDiseases.split(',').map((d: string) => (
@@ -394,24 +400,26 @@ export default function CaregiverScreen() {
                   <View style={{ marginTop: 8 }}>
                     <View style={styles.profileItemRow}>
                       <FontAwesome5 name="exclamation-triangle" size={16} color="#000" />
-                      <Text style={styles.profileText}> ประวัติแพ้ยา:</Text>
+                      <Text style={styles.profileText}> {language === 'th' ? 'ประวัติแพ้ยา:' : 'Drug Allergy History:'}</Text>
                     </View>
                     <View style={styles.badgeContainer}>
-                      {profile.allergies.map((a: any) => (
-                        <View key={a.medId} style={[styles.badge, { backgroundColor: a.severity === 'severe' ? '#FFEBEE' : '#FFF3E0', borderColor: a.severity === 'severe' ? '#FFCDD2' : '#FFE0B2' }]}>
-                          <Text style={[styles.badgeText, { color: a.severity === 'severe' ? '#C62828' : '#E65100' }]}>
-                            {a.medId === 'aspirin' ? 'ยาแก้ปวดข้อ (Aspirin)' : 
-                             a.medId === 'ibuprofen' ? 'ยาแก้ปวดข้อ (Ibuprofen)' :
-                             a.medId === 'simvastatin' ? 'ยาลดไขมัน (Simvastatin)' :
-                             a.medId === 'warfarin' ? 'ยาละลายลิ่มเลือด (Warfarin)' :
-                             a.medId === 'metformin' ? 'ยาเบาหวาน (Metformin)' :
-                             a.medId === 'amlodipine' ? 'ยาลดความดัน (Amlodipine)' :
-                             a.medId === 'lisinopril' ? 'ยาลดความดัน (Lisinopril)' :
-                             a.medId === 'digoxin' ? 'ยาคุมชีพจร (Digoxin)' : a.medId}
-                            ({a.severity === 'severe' ? 'รุนแรง' : 'ปานกลาง'})
-                          </Text>
-                        </View>
-                      ))}
+                      {profile.allergies.map((a: any) => {
+                        const allergyMedLabel = a.medId === 'aspirin' ? (language === 'th' ? 'ยาแก้ปวดข้อ (Aspirin)' : 'Aspirin') :
+                                                a.medId === 'ibuprofen' ? (language === 'th' ? 'ยาแก้ปวดข้อ (Ibuprofen)' : 'Ibuprofen') :
+                                                a.medId === 'simvastatin' ? (language === 'th' ? 'ยาลดไขมัน (Simvastatin)' : 'Simvastatin') :
+                                                a.medId === 'warfarin' ? (language === 'th' ? 'ยาละลายลิ่มเลือด (Warfarin)' : 'Warfarin') :
+                                                a.medId === 'metformin' ? (language === 'th' ? 'ยาเบาหวาน (Metformin)' : 'Metformin') :
+                                                a.medId === 'amlodipine' ? (language === 'th' ? 'ยาลดความดัน (Amlodipine)' : 'Amlodipine') :
+                                                a.medId === 'lisinopril' ? (language === 'th' ? 'ยาลดความดัน (Lisinopril)' : 'Lisinopril') :
+                                                a.medId === 'digoxin' ? (language === 'th' ? 'ยาคุมชีพจร (Digoxin)' : 'Digoxin') : a.medId;
+                        return (
+                          <View key={a.medId} style={[styles.badge, { backgroundColor: a.severity === 'severe' ? '#FFEBEE' : '#FFF3E0', borderColor: a.severity === 'severe' ? '#FFCDD2' : '#FFE0B2' }]}>
+                            <Text style={[styles.badgeText, { color: a.severity === 'severe' ? '#C62828' : '#E65100' }]}>
+                              {allergyMedLabel} ({a.severity === 'severe' ? (language === 'th' ? 'รุนแรง' : 'Severe') : (language === 'th' ? 'ปานกลาง' : 'Moderate')})
+                            </Text>
+                          </View>
+                        );
+                      })}
                     </View>
                   </View>
                 ) : null}
@@ -420,16 +428,20 @@ export default function CaregiverScreen() {
                 <TouchableOpacity 
                   style={[styles.switchUserBtn, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]}
                   onPress={() => {
-                    handleSpeak('พาไปหน้าลงทะเบียนและสลับข้อมูลผู้ป่วยย้อนหลังค่ะ');
+                    handleSpeak(language === 'th' ? 'พาไปหน้าลงทะเบียนและสลับข้อมูลผู้ป่วยย้อนหลังค่ะ' : 'Navigating to profile switcher and registration.');
                     router.push('/register');
                   }}
                 >
                   <Feather name="users" size={16} color="#000" style={{ marginRight: 6 }} />
-                  <Text style={styles.switchUserBtnText}>สลับผู้ป่วย / ลงทะเบียนเพิ่ม</Text>
+                  <Text style={styles.switchUserBtnText}>
+                    {language === 'th' ? 'สลับผู้ป่วย / ลงทะเบียนเพิ่ม' : 'Switch Patient / Register New'}
+                  </Text>
                 </TouchableOpacity>
               </View>
             ) : (
-              <Text style={styles.noDataText}>ยังไม่ได้ลงทะเบียนคนไข้ในระบบค่ะ</Text>
+              <Text style={styles.noDataText}>
+                {language === 'th' ? 'ยังไม่ได้ลงทะเบียนคนไข้ในระบบค่ะ' : 'No patient registered on this device yet.'}
+              </Text>
             )}
           </View>
 
@@ -438,11 +450,13 @@ export default function CaregiverScreen() {
             <View style={[styles.card, styles.nudgeCard, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
               <View style={[styles.cardHeader, { borderColor: doctorMode ? '#000' : SeniorColors.warning }]}>
                 <FontAwesome5 name="bell" size={24} color="#000" />
-                <Text style={styles.cardTitle}>แผงสะกิดระยะไกล (Cloud Nudge)</Text>
+                <Text style={styles.cardTitle}>
+                  {language === 'th' ? 'แผงสะกิดระยะไกล (Cloud Nudge)' : 'Remote Alerts (Cloud Nudge)'}
+                </Text>
               </View>
               <View style={{ gap: 12 }}>
                 <Text style={{ fontSize: 14 + fontOffset, fontWeight: '700', color: '#555' }}>
-                  ส่งสัญญาณสะกิดแบบเร่งด่วน ไปส่งเสียงพูดและป๊อปอัปแจ้งเตือนที่ตู้ยาของคุณตาทันที:
+                  {language === 'th' ? 'ส่งสัญญาณสะกิดแบบเร่งด่วน ไปส่งเสียงพูดและป๊อปอัปแจ้งเตือนที่ตู้ยาของคุณตาทันที:' : 'Send instant audio alerts and nudge popups to Grandpas device immediately:'}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   <TouchableOpacity
@@ -450,26 +464,30 @@ export default function CaregiverScreen() {
                     onPress={() => triggerRemoteNudge('med', 'เตือนเวลาทานยา')}
                   >
                     <FontAwesome5 name="pills" size={18} color="#000" style={{ marginBottom: 4 }} />
-                    <Text style={{ fontWeight: '900', fontSize: 13 + fontOffset }}>สะกิดกินยา</Text>
+                    <Text style={{ fontWeight: '900', fontSize: 13 + fontOffset }}>
+                      {language === 'th' ? 'สะกิดกินยา' : 'Nudge Meds'}
+                    </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.nudgeBtn, styles.nudgeWaterBtn]}
                     onPress={() => triggerRemoteNudge('water', 'สะกิดจิบน้ำ')}
                   >
                     <FontAwesome5 name="tint" size={18} color="#000" style={{ marginBottom: 4 }} />
-                    <Text style={{ fontWeight: '900', fontSize: 13 + fontOffset }}>สะกิดจิบน้ำ</Text>
+                    <Text style={{ fontWeight: '900', fontSize: 13 + fontOffset }}>
+                      {language === 'th' ? 'สะกิดจิบน้ำ' : 'Nudge Water'}
+                    </Text>
                   </TouchableOpacity>
                 </View>
 
                 {/* Send Custom text message */}
                 <View style={{ marginTop: 8 }}>
                   <Text style={{ fontSize: 14 + fontOffset, fontWeight: '800', color: '#333', marginBottom: 6 }}>
-                    💬 ส่งข้อความสั้นเตือนใจคุณตา:
+                    {language === 'th' ? '💬 ส่งข้อความสั้นเตือนใจคุณตา:' : '💬 Send a custom reminder message:'}
                   </Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     <TextInput
                       style={[styles.remoteInput, { fontSize: 14 + fontOffset }]}
-                      placeholder="เช่น วันนี้หลานเป็นห่วง อย่าลืมกินยานะครับ..."
+                      placeholder={language === 'th' ? 'เช่น วันนี้หลานเป็นห่วง อย่าลืมกินยานะครับ...' : 'e.g., Don\'t forget to take your pills today...'}
                       value={messageInput}
                       onChangeText={setMessageInput}
                     />
@@ -477,7 +495,9 @@ export default function CaregiverScreen() {
                       style={styles.sendBtn}
                       onPress={() => triggerRemoteNudge('message', 'ส่งข้อความเตือนใจ', messageInput)}
                     >
-                      <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 14 + fontOffset }}>ส่ง</Text>
+                      <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 14 + fontOffset }}>
+                        {language === 'th' ? 'ส่ง' : 'Send'}
+                      </Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -485,12 +505,12 @@ export default function CaregiverScreen() {
                 {/* Remotely add medication */}
                 <View style={{ marginTop: 8, borderTopWidth: 1, borderStyle: 'dashed', borderColor: '#FFB300', paddingTop: 12 }}>
                   <Text style={{ fontSize: 14 + fontOffset, fontWeight: '800', color: '#333', marginBottom: 6 }}>
-                    ➕ เพิ่มรายการยาลงตู้ยาคุณตาทางไกล:
+                    {language === 'th' ? '➕ เพิ่มรายการยาลงตู้ยาคุณตาทางไกล:' : '➕ Add drug to remote cabinet:'}
                   </Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     <TextInput
                       style={[styles.remoteInput, { fontSize: 14 + fontOffset }]}
-                      placeholder="ป้อนชื่อยาแล้วกดตกลงเพื่อบันทึกแทน"
+                      placeholder={language === 'th' ? 'ป้อนชื่อยาแล้วกดตกลงเพื่อบันทึกแทน' : 'Type drug name and press enter to add...'}
                       onSubmitEditing={(e) => {
                         remoteAddMed(e.nativeEvent.text);
                       }}
@@ -506,7 +526,9 @@ export default function CaregiverScreen() {
             <View style={styles.cardHeader}>
               <FontAwesome5 name="pills" size={24} color="#000" />
               <Text style={styles.cardTitle}>
-                {isRemoteConnected ? `รายการยาในตู้ยาคุณตา (${remoteCabinet.length})` : `รายการยาในตู้ยาล่าสุด (${cabinet.length})`}
+                {isRemoteConnected 
+                  ? (language === 'th' ? `รายการยาในตู้ยาคุณตา (${remoteCabinet.length})` : `Meds in Grandpas Cabinet (${remoteCabinet.length})`) 
+                  : (language === 'th' ? `รายการยาในตู้ยาล่าสุด (${cabinet.length})` : `Cabinet Medications (${cabinet.length})`)}
               </Text>
             </View>
             {(isRemoteConnected ? remoteCabinet : cabinet).length > 0 ? (
@@ -530,7 +552,9 @@ export default function CaregiverScreen() {
               </View>
             ) : (
               <Text style={styles.noDataText}>
-                {isRemoteConnected ? 'ไม่มีรายการยาในตู้ยาคุณตาบนคลาวด์ขณะนี้ค่ะ' : 'ไม่มีรายการยาในตู้ยาของคุณตาขณะนี้ค่ะ'}
+                {isRemoteConnected 
+                  ? (language === 'th' ? 'ไม่มีรายการยาในตู้ยาคุณตาบนคลาวด์ขณะนี้ค่ะ' : 'No medications registered in remote cloud.') 
+                  : (language === 'th' ? 'ไม่มีรายการยาในตู้ยาของคุณตาขณะนี้ค่ะ' : 'No medications in local cabinet.')}
               </Text>
             )}
           </View>
@@ -541,7 +565,9 @@ export default function CaregiverScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                 <FontAwesome5 name="history" size={24} color="#000" />
                 <Text style={styles.cardTitle}>
-                  {isRemoteConnected ? 'ประวัติกิจกรรมคุณตาทางไกล' : 'บันทึกกิจกรรมล่าสุด'}
+                  {isRemoteConnected 
+                    ? (language === 'th' ? 'ประวัติกิจกรรมคุณตาทางไกล' : 'Grandpas Activity Logs') 
+                    : (language === 'th' ? 'บันทึกกิจกรรมล่าสุด' : 'Recent Activity Logs')}
                 </Text>
               </View>
               {!isRemoteConnected && logs.length > 0 && (
