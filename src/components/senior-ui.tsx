@@ -354,8 +354,10 @@ const styles = StyleSheet.create({
   },
   actionTileCompact: {
     flex: 1,
-    minHeight: 118,
+    minHeight: 180,
+    flexDirection: 'column',
     alignItems: 'flex-start',
+    gap: SeniorSpacing.md,
   },
   actionIconBadge: {
     width: SeniorTouch.large,
@@ -373,6 +375,7 @@ const styles = StyleSheet.create({
   actionCopy: {
     flex: 1,
     gap: SeniorSpacing.xs,
+    alignSelf: 'stretch',
   },
   actionTitle: {
     color: SeniorColors.text,
