@@ -32,6 +32,8 @@ export default function Layout() {
     }
   }, [isLoaded]);
 
+  const language = useAppStore((state) => state.language);
+
   if (!isLoaded) {
     return null; // Don't render screens until state is loaded
   }
@@ -39,11 +41,42 @@ export default function Layout() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="register" options={{ title: 'ลงทะเบียนผู้สูงอายุ', ...calmHeader, headerShown: false }} />
-      <Stack.Screen name="scanner" options={{ title: 'สแกนเช็กยาตีกัน', ...calmHeader }} />
-      <Stack.Screen name="cabinet" options={{ title: 'ตู้ยาของฉัน', ...calmHeader }} />
-      <Stack.Screen name="food-clash" options={{ title: 'เช็กของแสลง', ...calmHeader }} />
-      <Stack.Screen name="caregiver" options={{ title: 'หน้าจอลูกหลาน', ...calmHeader }} />
+      <Stack.Screen 
+        name="register" 
+        options={{ 
+          title: language === 'th' ? 'ลงทะเบียนและตั้งค่า' : 'Settings & Register', 
+          ...calmHeader, 
+          headerShown: false 
+        }} 
+      />
+      <Stack.Screen 
+        name="scanner" 
+        options={{ 
+          title: language === 'th' ? 'สแกนเช็กยาตีกัน' : 'Drug Clash Scanner', 
+          ...calmHeader 
+        }} 
+      />
+      <Stack.Screen 
+        name="cabinet" 
+        options={{ 
+          title: language === 'th' ? 'ตู้ยาของฉัน' : 'My Cabinet', 
+          ...calmHeader 
+        }} 
+      />
+      <Stack.Screen 
+        name="food-clash" 
+        options={{ 
+          title: language === 'th' ? 'เช็กของแสลง' : 'Food Clash Checker', 
+          ...calmHeader 
+        }} 
+      />
+      <Stack.Screen 
+        name="caregiver" 
+        options={{ 
+          title: language === 'th' ? 'หน้าจอลูกหลาน' : 'Caregiver Monitor', 
+          ...calmHeader 
+        }} 
+      />
     </Stack>
   );
 }

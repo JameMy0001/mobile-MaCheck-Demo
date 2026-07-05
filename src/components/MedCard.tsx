@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { SeniorColors } from '@/constants/senior-theme';
+import { useTranslation } from '../constants/translations';
 
 interface MedCardProps {
   med: any;
@@ -18,6 +19,25 @@ export function MedCard({
   fontOffset,
   onDelete
 }: MedCardProps) {
+  const { t, language } = useTranslation();
+
+  const translateMedName = (name: string) => {
+    if (language === 'th') return name;
+    let translated = name;
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน \(แก้ปวดกล้ามเนื้อ\/กระดูกอักเสบชนิดรุนแรง\)/g, 'Ibuprofen (NSAIDs Pain Reliever)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \(Warfarin\)/g, 'Blood Thinner (Warfarin)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด/g, 'Blood Thinner');
+    translated = translated.replace(/ยาลดไขมัน \(Simvastatin\)/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดความดัน \(Amlodipine\)/g, 'Hypertension Med (Amlodipine)');
+    translated = translated.replace(/ยาลดความดัน \(Lisinopril\)/g, 'Hypertension Med (Lisinopril)');
+    translated = translated.replace(/ยาโรคเบาหวาน \(Metformin\)/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ยาพาราเซตามอล/g, 'Paracetamol');
+    translated = translated.replace(/ยาแก้ปวดข้อ/g, 'Pain Reliever');
+    translated = translated.replace(/ยาโรคหัวใจ \(Digoxin\)/g, 'Heart Disease Med (Digoxin)');
+    return translated;
+  };
+
   return (
     <View style={[styles.medCard, doctorMode && styles.grayMedCard]}>
       <View style={styles.medCardTop}>
@@ -28,9 +48,13 @@ export function MedCard({
           />
         </View>
         <View style={{ flex: 1 }}>
-          <Text selectable style={[styles.medName, { fontSize: 21 + fontOffset }, doctorMode && { color: '#000' }]}>{med.name}</Text>
+          <Text selectable style={[styles.medName, { fontSize: 21 + fontOffset }, doctorMode && { color: '#000' }]}>
+            {translateMedName(med.name)}
+          </Text>
           {info?.formalName && (
-            <Text selectable style={[styles.formalName, { fontSize: 15 + fontOffset }, doctorMode && { color: '#555' }]}>{info.formalName}</Text>
+            <Text selectable style={[styles.formalName, { fontSize: 15 + fontOffset }, doctorMode && { color: '#555' }]}>
+              {language === 'th' ? info.formalName : translateMedName(info.formalName)}
+            </Text>
           )}
         </View>
         <TouchableOpacity 
@@ -48,7 +72,8 @@ export function MedCard({
             <View style={styles.detailRow}>
               <FontAwesome5 name="info-circle" size={16} color={doctorMode ? '#000' : '#0288D1'} />
               <Text selectable style={[styles.detailsText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
-                ขนาด/ลักษณะ: {info.dosage} {info.shape ? `| ${info.shape}` : ''}
+                {language === 'th' ? 'ขนาด/ลักษณะ: ' : 'Dosage/Appearance: '}
+                {language === 'th' ? info.dosage : info.dosage} {info.shape ? `| ${info.shape}` : ''}
               </Text>
             </View>
           )}
@@ -56,7 +81,10 @@ export function MedCard({
             <View style={[styles.notesBox, doctorMode && styles.grayNotesBox]}>
               <View style={styles.detailRow}>
                 <FontAwesome5 name="stethoscope" size={16} color={doctorMode ? '#000' : '#2E7D32'} />
-                <Text selectable style={[styles.notesText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>คำสั่งแพทย์: {info.notes}</Text>
+                <Text selectable style={[styles.notesText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
+                  {language === 'th' ? 'คำสั่งแพทย์: ' : 'Physician Notes: '}
+                  {language === 'th' ? info.notes : info.notes}
+                </Text>
               </View>
             </View>
           )}
@@ -64,7 +92,10 @@ export function MedCard({
             <View style={[styles.storageBox, doctorMode && styles.grayStorageBox]}>
               <View style={styles.detailRow}>
                 <FontAwesome5 name="box" size={16} color={doctorMode ? '#000' : '#F57F17'} />
-                <Text selectable style={[styles.storageText, { fontSize: 15 + fontOffset }, doctorMode && { color: '#000' }]}>วิธีเก็บรักษา: {info.storageTh}</Text>
+                <Text selectable style={[styles.storageText, { fontSize: 15 + fontOffset }, doctorMode && { color: '#000' }]}>
+                  {language === 'th' ? 'วิธีเก็บรักษา: ' : 'Storage: '}
+                  {language === 'th' ? info.storageTh : info.storageTh}
+                </Text>
               </View>
             </View>
           )}
@@ -73,7 +104,9 @@ export function MedCard({
         <View style={[styles.medDetails, doctorMode && { borderColor: '#000' }]}>
           <View style={styles.detailRow}>
             <Feather name="info" size={16} color={doctorMode ? '#000' : '#757575'} />
-            <Text selectable style={[styles.detailsText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>ไม่พบข้อมูลคำแนะนำเพิ่มเติมเกี่ยวกับยานี้ในระบบเครื่องค่ะ</Text>
+            <Text selectable style={[styles.detailsText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
+              {t('noCabinetMedInstructions')}
+            </Text>
           </View>
         </View>
       )}

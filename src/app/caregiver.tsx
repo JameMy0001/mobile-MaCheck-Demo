@@ -208,15 +208,66 @@ export default function CaregiverScreen() {
 
   const getDiseaseThName = (d: string) => {
     const mapping: { [key: string]: string } = {
-      hypertension: 'ความดันสูง',
-      diabetes: 'เบาหวาน',
-      heart: 'โรคหัวใจ',
-      lipid: 'ไขมันในเลือดสูง',
-      kidney: 'โรคไต',
-      stomach: 'โรคกระเพาะ',
-      liver: 'โรคตับ'
+      hypertension: language === 'th' ? 'ความดันสูง' : 'Hypertension',
+      diabetes: language === 'th' ? 'เบาหวาน' : 'Diabetes',
+      heart: language === 'th' ? 'โรคหัวใจ' : 'Heart Disease',
+      lipid: language === 'th' ? 'ไขมันในเลือดสูง' : 'Hyperlipidemia',
+      kidney: language === 'th' ? 'โรคไต' : 'Kidney Disease',
+      stomach: language === 'th' ? 'โรคกระเพาะ' : 'Stomach Disease',
+      liver: language === 'th' ? 'โรคตับ' : 'Liver Disease'
     };
     return mapping[d] || d;
+  };
+
+  const translateMedName = (name: string) => {
+    if (language === 'th') return name;
+    let translated = name;
+    translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
+    translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน \(แก้ปวดกล้ามเนื้อ\/กระดูกอักเสบชนิดรุนแรง\)/g, 'Ibuprofen (NSAIDs Pain Reliever)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \(Warfarin\)/g, 'Blood Thinner (Warfarin)');
+    translated = translated.replace(/ยาต้านการแข็งตัวของเลือด/g, 'Blood Thinner');
+    translated = translated.replace(/ยาลดไขมัน \(Simvastatin\)/g, 'Cholesterol Lowering (Simvastatin)');
+    translated = translated.replace(/ยาลดความดัน \(Amlodipine\)/g, 'Hypertension Med (Amlodipine)');
+    translated = translated.replace(/ยาลดความดัน \(Lisinopril\)/g, 'Hypertension Med (Lisinopril)');
+    translated = translated.replace(/ยาโรคเบาหวาน \(Metformin\)/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ยาพาราเซตามอล/g, 'Paracetamol');
+    translated = translated.replace(/ยาแก้ปวดข้อ/g, 'Pain Reliever');
+    translated = translated.replace(/ยาโรคหัวใจ \(Digoxin\)/g, 'Heart Disease Med (Digoxin)');
+    return translated;
+  };
+
+  const translateLogText = (text: string) => {
+    if (language === 'th') return text;
+    let translated = text;
+    translated = translated.replace(/เช็กของแสลง:/g, 'Checked food clash:');
+    translated = translated.replace(/\(ปลอดภัย ทานได้\)/g, '(Safe to consume)');
+    translated = translated.replace(/\(พบจุดขัดกันความเสี่ยงสูงระดับ: red\)/g, '(Found high risk interaction: red)');
+    translated = translated.replace(/\(พบจุดขัดกันความเสี่ยงสูงระดับ: yellow\)/g, '(Found warning interaction: yellow)');
+    translated = translated.replace(/\(ไม่มีประวัติขัดกับคุณตา - ทานได้\)/g, '(No clashes - Safe to consume)');
+    translated = translated.replace(/คุณตาสแกนทดสอบกรณีตัวอย่าง:/g, 'Simulated scan test case:');
+    translated = translated.replace(/ผลลัพธ์:/g, 'Result:');
+    translated = translated.replace(/คุณตากดปุ่มเรียกสายด่วนฉุกเฉิน:/g, 'Pressed emergency call speed-dial:');
+    translated = translated.replace(/ได้รับสัญญาณสะกิดระยะไกลจากลูกหลาน:/g, 'Received remote caregiver nudge:');
+    translated = translated.replace(/คุณตากดบันทึกจิบน้ำสะสม แก้วที่:/g, 'Grandpa logged water intake, cup:');
+    translated = translated.replace(/คุณตาสิ้นสุดภารกิจความปลอดภัยเว้นระยะยา:/g, 'Grandpa finished Spacing Challenge for:');
+    translated = translated.replace(/เปิดเครื่องจำลองระดับแจ้งเตือน \(Alert Simulator\)/g, 'Opened Alert Simulator Panel');
+    translated = translated.replace(/จำลองแจ้งเตือนระดับ 1: LINE Notification/g, 'Simulated Level 1 Alert: LINE Notification');
+    translated = translated.replace(/จำลองแจ้งเตือนระดับ 2: แบนเนอร์กระพริบ \+ เสียงเตือนซ้ำ/g, 'Simulated Level 2 Alert: Flashing banner + repeat sound');
+    translated = translated.replace(/จำลองแจ้งเตือนระดับ 3: ไซเรนฉุกเฉิน \+ โทร 1669/g, 'Simulated Level 3 Alert: Emergency siren + call 1669');
+    translated = translated.replace(/หยุดการจำลองแจ้งเตือนทั้งหมด/g, 'Stopped all alert simulations');
+    translated = translated.replace(/ลงทะเบียนผู้ป่วยใหม่:/g, 'Registered new patient:');
+    translated = translated.replace(/อัปเดตข้อมูลการตั้งค่าและประวัติคุณตา:/g, 'Updated settings and medical history:');
+    translated = translated.replace(/เข้าสู่ระบบในชื่อผู้ใช้:/g, 'Logged in as:');
+    translated = translated.replace(/คุณตาสแกนเช็กยา:/g, 'Scanned medication:');
+    translated = translated.replace(/\(ผลลัพธ์ระดับสี: (.*?)\)/g, '(Color result: $1)');
+    translated = translated.replace(/เริ่มชาเลนจ์ความปลอดภัยของยาแก้ปวด:/g, 'Started medicine Spacing Challenge for:');
+    translated = translated.replace(/คุณตาเพิ่มยา/g, 'Grandpa added medicine');
+    translated = translated.replace(/เข้าตู้ยา/g, 'to cabinet');
+    translated = translated.replace(/คุณตาลบยา/g, 'Grandpa deleted medicine');
+    translated = translated.replace(/ออกจากตู้ยา/g, 'from cabinet');
+    translated = translated.replace(/คุณตาเปิดดูตารางปฏิกิริยายาตีกัน \(Interaction Matrix\)/g, 'Opened Interaction Matrix Grid');
+    translated = translated.replace(/เพิ่มข้อมูลยาตัวใหม่ลงฐานข้อมูล:/g, 'Added new medicine to local DB:');
+    return translated;
   };
 
   return (
@@ -336,21 +387,21 @@ export default function CaregiverScreen() {
                   <View style={{ marginTop: 8 }}>
                     <View style={styles.profileItemRow}>
                       <FontAwesome5 name="exclamation-triangle" size={16} color="#000" />
-                      <Text style={styles.profileText}> ประวัติแพ้ยาคุณตา:</Text>
+                      <Text style={styles.profileText}> {language === 'th' ? 'ประวัติแพ้ยาคุณตา:' : 'Grandpas Allergies:'}</Text>
                     </View>
                     <View style={styles.badgeContainer}>
                       {remoteProfile.allergies.map((a: any) => (
                         <View key={a.medId} style={[styles.badge, { backgroundColor: a.severity === 'severe' ? '#FFEBEE' : '#FFF3E0', borderColor: a.severity === 'severe' ? '#FFCDD2' : '#FFE0B2' }]}>
                           <Text style={[styles.badgeText, { color: a.severity === 'severe' ? '#C62828' : '#E65100' }]}>
-                            {a.medId === 'aspirin' ? 'ยาแก้ปวดข้อ (Aspirin)' : 
-                             a.medId === 'ibuprofen' ? 'ยาแก้ปวดข้อ (Ibuprofen)' :
-                             a.medId === 'simvastatin' ? 'ยาลดไขมัน (Simvastatin)' :
-                             a.medId === 'warfarin' ? 'ยาละลายลิ่มเลือด (Warfarin)' :
-                             a.medId === 'metformin' ? 'ยาเบาหวาน (Metformin)' :
-                             a.medId === 'amlodipine' ? 'ยาลดความดัน (Amlodipine)' :
-                             a.medId === 'lisinopril' ? 'ยาลดความดัน (Lisinopril)' :
-                             a.medId === 'digoxin' ? 'ยาคุมชีพจร (Digoxin)' : a.medId}
-                            ({a.severity === 'severe' ? 'รุนแรง' : 'ปานกลาง'})
+                            {a.medId === 'aspirin' ? (language === 'th' ? 'ยาแก้ปวดข้อ (Aspirin)' : 'Aspirin') : 
+                             a.medId === 'ibuprofen' ? (language === 'th' ? 'ยาแก้ปวดข้อ (Ibuprofen)' : 'Ibuprofen') :
+                             a.medId === 'simvastatin' ? (language === 'th' ? 'ยาลดไขมัน (Simvastatin)' : 'Simvastatin') :
+                             a.medId === 'warfarin' ? (language === 'th' ? 'ยาละลายลิ่มเลือด (Warfarin)' : 'Warfarin') :
+                             a.medId === 'metformin' ? (language === 'th' ? 'ยาเบาหวาน (Metformin)' : 'Metformin') :
+                             a.medId === 'amlodipine' ? (language === 'th' ? 'ยาลดความดัน (Amlodipine)' : 'Amlodipine') :
+                             a.medId === 'lisinopril' ? (language === 'th' ? 'ยาลดความดัน (Lisinopril)' : 'Lisinopril') :
+                             a.medId === 'digoxin' ? (language === 'th' ? 'ยาคุมชีพจร (Digoxin)' : 'Digoxin') : a.medId}
+                            ({a.severity === 'severe' ? (language === 'th' ? 'รุนแรง' : 'Severe') : (language === 'th' ? 'ปานกลาง' : 'Moderate')})
                           </Text>
                         </View>
                       ))}
@@ -540,7 +591,7 @@ export default function CaregiverScreen() {
                         source={require('../../assets/images/icons/icon_pill.png')} 
                         style={{ width: 22, height: 22, resizeMode: 'contain' }} 
                       />
-                      <Text style={styles.medItemText}>{med.name}</Text>
+                      <Text style={styles.medItemText}>{translateMedName(med.name)}</Text>
                     </View>
                     {isRemoteConnected && (
                       <TouchableOpacity onPress={() => remoteDeleteMed(med.id || med.medId, med.name)}>
@@ -585,7 +636,7 @@ export default function CaregiverScreen() {
                       <Feather name="clock" size={14} color="#757575" />
                       <Text style={styles.logTime}>{log.timestamp}</Text>
                     </View>
-                    <Text style={styles.logText}>{log.text}</Text>
+                    <Text style={styles.logText}>{translateLogText(log.text)}</Text>
                   </View>
                 ))}
               </View>

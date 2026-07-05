@@ -40,6 +40,23 @@ export const translations = {
     enterOtherAllergies: "เช่น ยาเพนิซิลลิน, ซัลฟา...",
     changeLanguage: "ภาษา / Language",
     saveSuccess: "บันทึกข้อมูลการตั้งค่าเรียบร้อยแล้วค่ะ",
+
+    // Added translation keys
+    nicknameLabel: "ชื่อเล่นของคุณตา / คุณยาย",
+    phoneUsernameLabel: "เบอร์โทรศัพท์ (ใช้เป็น Username)",
+    birthdatePasswordLabel: "วันเดือนปีเกิด (ใช้เป็น Password)",
+    patientDiseasesLabel: "โรคประจำตัวของคุณตา / คุณยาย",
+    allergiesTitleLabel: "ประวัติแพ้ยา (ถ้ามี กดเลือกยาที่แพ้ได้เลยค่ะ)",
+    severeLabel: "รุนแรง",
+    moderateLabel: "ปานกลาง",
+    saveAndStartButton: "บันทึกและเริ่มใช้งาน",
+    loginPhoneLabel: "เบอร์โทรศัพท์ (Username)",
+    loginBirthdateLabel: "วันเดือนปีเกิด (Password)",
+    enterLoginPhonePlaceholder: "กรอกเบอร์โทรศัพท์ที่ลงทะเบียนไว้...",
+    enterLoginBirthdatePlaceholder: "กรอกวันเดือนปีเกิด (เช่น 15/08/2495)",
+    loginButtonText: "เข้าสู่ระบบตู้ยา",
+    quickLoginLabel: "ผู้ป่วยในเครื่องนี้ (แตะเพื่อสลับเข้าด่วน):",
+    noCabinetMedInstructions: "ไม่พบข้อมูลคำแนะนำเพิ่มเติมเกี่ยวกับยานี้ในระบบเครื่องค่ะ",
   },
   en: {
     appName: "MaCheck Cabinet",
@@ -80,6 +97,23 @@ export const translations = {
     enterOtherAllergies: "e.g., Penicillin, Sulfa...",
     changeLanguage: "Language / ภาษา",
     saveSuccess: "Settings saved successfully",
+
+    // Added translation keys
+    nicknameLabel: "Elderly's Nickname",
+    phoneUsernameLabel: "Phone Number (Username)",
+    birthdatePasswordLabel: "Date of Birth (Password)",
+    patientDiseasesLabel: "Chronic Diseases",
+    allergiesTitleLabel: "Drug Allergies (Optional, tap to select)",
+    severeLabel: "Severe",
+    moderateLabel: "Moderate",
+    saveAndStartButton: "Save & Start Using",
+    loginPhoneLabel: "Phone Number (Username)",
+    loginBirthdateLabel: "Date of Birth (Password)",
+    enterLoginPhonePlaceholder: "Enter registered phone number...",
+    enterLoginBirthdatePlaceholder: "Enter date of birth (e.g., 15/08/2495)",
+    loginButtonText: "Log In to Cabinet",
+    quickLoginLabel: "Patients on this device (tap to quick login):",
+    noCabinetMedInstructions: "No additional instructions found in local database.",
   }
 };
 

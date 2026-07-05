@@ -21,11 +21,6 @@ const DISEASES_LIST = [
   { id: 'liver', name: 'โรคตับ', icon: 'shield-alt', color: '#4CAF50' },
 ];
 
-interface AllergyEntry {
-  medId: string;
-  severity: 'severe' | 'moderate' | 'mild';
-}
-
 const ALLERGIES_LIST = [
   { id: 'aspirin', name: 'ยาแอสไพริน (Aspirin)', color: '#FFEBEE' },
   { id: 'ibuprofen', name: 'ยาแก้ปวดข้อ (Ibuprofen)', color: '#ECEFF1' },
@@ -36,6 +31,40 @@ const ALLERGIES_LIST = [
   { id: 'lisinopril', name: 'ยาลดความดัน (Lisinopril)', color: '#E8EAF6' },
   { id: 'digoxin', name: 'ยาโรคหัวใจ (Digoxin)', color: '#F3E5F5' },
 ];
+
+const getDiseaseTranslation = (id: string, defaultName: string, language: 'th' | 'en') => {
+  if (language === 'th') return defaultName;
+  const mapping: { [key: string]: string } = {
+    hypertension: 'Hypertension',
+    diabetes: 'Diabetes',
+    heart: 'Heart Disease',
+    lipid: 'Hyperlipidemia',
+    kidney: 'Kidney Disease',
+    stomach: 'Stomach Disease',
+    liver: 'Liver Disease'
+  };
+  return mapping[id] || defaultName;
+};
+
+const getAllergyTranslation = (id: string, defaultName: string, language: 'th' | 'en') => {
+  if (language === 'th') return defaultName;
+  const mapping: { [key: string]: string } = {
+    aspirin: 'Aspirin (Pain Reliever)',
+    ibuprofen: 'Ibuprofen (NSAID)',
+    simvastatin: 'Simvastatin (Cholesterol)',
+    warfarin: 'Warfarin (Blood Thinner)',
+    metformin: 'Metformin (Diabetes)',
+    amlodipine: 'Amlodipine (Blood Pressure)',
+    lisinopril: 'Lisinopril (Blood Pressure)',
+    digoxin: 'Digoxin (Heart Rate)'
+  };
+  return mapping[id] || defaultName;
+};
+
+interface AllergyEntry {
+  medId: string;
+  severity: 'severe' | 'moderate' | 'mild';
+}
 
 export default function RegisterScreen() {
   const router = useRouter();
@@ -573,14 +602,17 @@ export default function RegisterScreen() {
               <View style={[styles.selectedDiseasesPanel, doctorMode && { backgroundColor: '#EEE', borderColor: '#000' }]}>
                 <Text style={[styles.selectedDiseasesText, { fontSize: 16 + fontOffset }]}>
                   {selectedDiseases.length > 0 
-                    ? selectedDiseases.map(d => DISEASES_LIST.find(item => item.id === d)?.name).join(', ')
+                    ? selectedDiseases.map(d => {
+                        const item = DISEASES_LIST.find(x => x.id === d);
+                        return item ? getDiseaseTranslation(item.id, item.name, language) : d;
+                      }).join(', ')
                     : t('noDiseases')}
                 </Text>
               </View>
 
               <View style={styles.labelRow}>
                 <FontAwesome5 name="exclamation-triangle" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🚨 ประวัติแพ้ยาของคุณตา</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🚨 {t('allergyHistory')}</Text>
               </View>
               <View style={styles.allergiesContainer}>
                 {ALLERGIES_LIST.map((item) => {
@@ -605,7 +637,7 @@ export default function RegisterScreen() {
                            styles.allergyCardTitle, 
                            { fontSize: 13 + fontOffset, color: doctorMode ? '#000' : (isAllergic ? borderColor : '#333') }
                          ]}>
-                           {isAllergic ? '✅ ' : ''}{item.name}
+                           {isAllergic ? '✅ ' : ''}{getAllergyTranslation(item.id, item.name, language)}
                          </Text>
                        </TouchableOpacity>
                        {isAllergic && (
@@ -618,7 +650,7 @@ export default function RegisterScreen() {
                              onPress={() => setAllergySeverity(item.id, 'severe')}
                            >
                              <Text style={[styles.severityBtnText, { fontSize: 11 + fontOffset, color: severity === 'severe' ? '#FFF' : '#333' }]}>
-                               รุนแรง
+                               {t('severeLabel')}
                              </Text>
                            </TouchableOpacity>
                            <TouchableOpacity
@@ -629,7 +661,7 @@ export default function RegisterScreen() {
                              onPress={() => setAllergySeverity(item.id, 'moderate')}
                            >
                              <Text style={[styles.severityBtnText, { fontSize: 11 + fontOffset, color: severity === 'moderate' ? '#FFF' : '#333' }]}>
-                               ปานกลาง
+                               {t('moderateLabel')}
                              </Text>
                            </TouchableOpacity>
                          </View>
@@ -637,19 +669,6 @@ export default function RegisterScreen() {
                      </View>
                    );
                 })}
-              </View>
-
-              <View style={{ marginBottom: 16 }}>
-                <View style={styles.labelRow}>
-                  <FontAwesome5 name="stethoscope" size={18} color="#000" />
-                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🩺 โรคประจำตัวอื่น ๆ (ระบุคั่นด้วยเครื่องหมายจุลภาค ,)</Text>
-                </View>
-                <TextInput
-                  style={[styles.input, { fontSize: 16 + fontOffset }]}
-                  placeholder="เช่น ความดันลูกตา, ไมเกรน..."
-                  value={otherDiseases}
-                  onChangeText={setOtherDiseases}
-                />
               </View>
 
               <View style={{ marginBottom: 16 }}>
@@ -803,22 +822,22 @@ export default function RegisterScreen() {
             <View style={[styles.card, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
               <View style={styles.labelRow}>
                 <Feather name="user" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>ชื่อเล่นของคุณตา / คุณยาย</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('nicknameLabel')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="ตัวอย่าง: คุณตาเก่ง"
+                placeholder={language === 'th' ? 'ตัวอย่าง: คุณตาเก่ง' : 'e.g., Grandpa Jame'}
                 value={name}
                 onChangeText={setName}
               />
 
               <View style={styles.labelRow}>
                 <Feather name="phone" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>เบอร์โทรศัพท์ (ใช้เป็น Username)</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('phoneUsernameLabel')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="ตัวอย่าง: 0812345678"
+                placeholder={language === 'th' ? 'ตัวอย่าง: 0812345678' : 'e.g., 0812345678'}
                 keyboardType="phone-pad"
                 value={phone}
                 onChangeText={setPhone}
@@ -826,11 +845,11 @@ export default function RegisterScreen() {
 
               <View style={styles.labelRow}>
                 <Feather name="calendar" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>วันเดือนปีเกิด (ใช้เป็น Password)</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('birthdatePasswordLabel')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="ตัวอย่าง: 15/08/2495"
+                placeholder={language === 'th' ? 'ตัวอย่าง: 15/08/2495' : 'e.g., 15/08/2495'}
                 keyboardType="phone-pad"
                 value={birthdate}
                 onChangeText={(t) => setBirthdate(formatBirthdate(t, birthdate))}
@@ -840,7 +859,7 @@ export default function RegisterScreen() {
               <View style={{ borderTopWidth: 2, borderColor: doctorMode ? '#000' : '#EEE', paddingTop: 12, marginTop: 8 }}>
                 <View style={styles.labelRow}>
                   <FontAwesome5 name="stethoscope" size={18} color="#000" />
-                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>โรคประจำตัวของคุณตา</Text>
+                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('patientDiseasesLabel')}</Text>
                 </View>
                 <View style={styles.diseasesContainer}>
                   {DISEASES_LIST.map((disease) => {
@@ -860,7 +879,7 @@ export default function RegisterScreen() {
                            color={isSelected ? '#FFF' : '#000'} 
                          />
                          <Text style={[styles.diseaseBtnText, { fontSize: 16 + fontOffset }, isSelected && styles.selectedText]}>
-                           {disease.name}
+                           {getDiseaseTranslation(disease.id, disease.name, language)}
                          </Text>
                          {isSelected && (
                            <Feather name="check-circle" size={14} color="#FFF" style={styles.checkIcon} />
@@ -874,7 +893,7 @@ export default function RegisterScreen() {
               <View style={{ marginBottom: 16 }}>
                 <View style={styles.labelRow}>
                   <FontAwesome5 name="exclamation-triangle" size={18} color="#000" />
-                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🚨 ประวัติแพ้ยา (ถ้ามี กดเลือกยาที่แพ้ได้เลยค่ะ)</Text>
+                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🚨 {t('allergiesTitleLabel')}</Text>
                 </View>
                 <View style={styles.allergiesContainer}>
                   {ALLERGIES_LIST.map((item) => {
@@ -899,7 +918,7 @@ export default function RegisterScreen() {
                              styles.allergyCardTitle, 
                              { fontSize: 13 + fontOffset, color: doctorMode ? '#000' : (isAllergic ? borderColor : '#333') }
                            ]}>
-                             {isAllergic ? '✅ ' : ''}{item.name}
+                             {isAllergic ? '✅ ' : ''}{getAllergyTranslation(item.id, item.name, language)}
                            </Text>
                          </TouchableOpacity>
                          {isAllergic && (
@@ -912,7 +931,7 @@ export default function RegisterScreen() {
                                onPress={() => setAllergySeverity(item.id, 'severe')}
                              >
                                <Text style={[styles.severityBtnText, { fontSize: 11 + fontOffset, color: severity === 'severe' ? '#FFF' : '#333' }]}>
-                                 รุนแรง
+                                 {t('severeLabel')}
                                </Text>
                              </TouchableOpacity>
                              <TouchableOpacity
@@ -923,7 +942,7 @@ export default function RegisterScreen() {
                                onPress={() => setAllergySeverity(item.id, 'moderate')}
                              >
                                <Text style={[styles.severityBtnText, { fontSize: 11 + fontOffset, color: severity === 'moderate' ? '#FFF' : '#333' }]}>
-                                 ปานกลาง
+                                 {t('moderateLabel')}
                                </Text>
                              </TouchableOpacity>
                            </View>
@@ -937,11 +956,11 @@ export default function RegisterScreen() {
               <View style={{ marginBottom: 16 }}>
                 <View style={styles.labelRow}>
                   <FontAwesome5 name="stethoscope" size={18} color="#000" />
-                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🩺 โรคประจำตัวอื่น ๆ (ระบุคั่นด้วยเครื่องหมายจุลภาค ,)</Text>
+                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>🩺 {t('otherDiseases')}</Text>
                 </View>
                 <TextInput
                   style={[styles.input, { fontSize: 16 + fontOffset }]}
-                  placeholder="เช่น ความดันลูกตา, ไมเกรน..."
+                  placeholder={t('enterOtherDiseases')}
                   value={otherDiseases}
                   onChangeText={setOtherDiseases}
                 />
@@ -950,11 +969,11 @@ export default function RegisterScreen() {
               <View style={{ marginBottom: 16 }}>
                 <View style={styles.labelRow}>
                   <FontAwesome5 name="exclamation-circle" size={18} color="#000" />
-                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>💊 ยาอื่น ๆ ที่แพ้ (ระบุคั่นด้วยเครื่องหมายจุลภาค ,)</Text>
+                  <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>💊 {t('otherAllergies')}</Text>
                 </View>
                 <TextInput
                   style={[styles.input, { fontSize: 16 + fontOffset }]}
-                  placeholder="เช่น ยาเพนิซิลลิน, ซัลฟา..."
+                  placeholder={t('enterOtherAllergies')}
                   value={otherAllergies}
                   onChangeText={setOtherAllergies}
                 />
@@ -963,7 +982,7 @@ export default function RegisterScreen() {
               <TouchableOpacity style={[styles.registerBtn, doctorMode && { backgroundColor: '#000' }]} onPress={handleRegister}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <Feather name="user-plus" size={22} color="#FFF" />
-                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>บันทึกและเริ่มใช้งาน</Text>
+                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>{t('saveAndStartButton')}</Text>
                 </View>
               </TouchableOpacity>
             </View>
@@ -972,11 +991,11 @@ export default function RegisterScreen() {
             <View style={[styles.card, doctorMode && { backgroundColor: '#FFF', borderColor: '#000' }]}>
               <View style={styles.labelRow}>
                 <Feather name="phone" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>เบอร์โทรศัพท์ (Username)</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('loginPhoneLabel')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="กรอกเบอร์โทรศัพท์ที่ลงทะเบียนไว้..."
+                placeholder={t('enterLoginPhonePlaceholder')}
                 keyboardType="phone-pad"
                 value={loginPhone}
                 onChangeText={setLoginPhone}
@@ -984,11 +1003,11 @@ export default function RegisterScreen() {
 
               <View style={styles.labelRow}>
                 <Feather name="lock" size={18} color="#000" />
-                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>วันเดือนปีเกิด (Password)</Text>
+                <Text style={[styles.labelText, { fontSize: 17 + fontOffset }]}>{t('loginBirthdateLabel')}</Text>
               </View>
               <TextInput
                 style={[styles.input, { fontSize: 18 + fontOffset }]}
-                placeholder="กรอกวันเดือนปีเกิด (เช่น 15/08/2495)"
+                placeholder={t('enterLoginBirthdatePlaceholder')}
                 keyboardType="phone-pad"
                 value={loginBirthdate}
                 onChangeText={(t) => setLoginBirthdate(formatBirthdate(t, loginBirthdate))}
@@ -997,14 +1016,14 @@ export default function RegisterScreen() {
               <TouchableOpacity style={[styles.registerBtn, { backgroundColor: doctorMode ? '#000' : '#2196F3' }]} onPress={handleLogin}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <Feather name="log-in" size={22} color="#FFF" />
-                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>เข้าสู่ระบบตู้ยา</Text>
+                  <Text style={[styles.registerBtnText, { fontSize: 20 + fontOffset }]}>{t('loginButtonText')}</Text>
                 </View>
               </TouchableOpacity>
 
               {/* Quick Login Patient List for Elderly Ease-of-Use */}
               {allUsers.length > 0 && (
                 <View style={styles.quickLoginSection}>
-                  <Text style={[styles.quickLoginTitle, { fontSize: 15 + fontOffset }]}>ผู้ป่วยในเครื่องนี้ (แตะเพื่อสลับเข้าด่วน):</Text>
+                  <Text style={[styles.quickLoginTitle, { fontSize: 15 + fontOffset }]}>{t('quickLoginLabel')}</Text>
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickLoginScroll}>
                     {allUsers.map((u) => (
                       <TouchableOpacity 
@@ -1012,7 +1031,7 @@ export default function RegisterScreen() {
                         style={styles.quickUserCard}
                         onPress={() => {
                           setLoginPhone(u.phone);
-                          handleSpeak(`สลับข้อมูลไปที่คุณตา ${u.name} กรุณากรอกรหัสวันเกิดค่ะ`);
+                          handleSpeak(language === 'th' ? `สลับข้อมูลไปที่คุณตา ${u.name} กรุณากรอกรหัสวันเกิดค่ะ` : `Switched patient to ${u.name}. Please enter birthdate passcode.`);
                         }}
                       >
                         <View style={styles.quickUserAvatar}>
