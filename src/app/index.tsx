@@ -309,7 +309,6 @@ export default function HomeScreen() {
           right={
             <>
               <SeniorButton
-                label={isSoundMuted ? t('voiceMute') : t('voiceOpen')}
                 icon={{ name: isSoundMuted ? 'volume-x' : 'volume-2' }}
                 onPress={toggleSoundWithGreeting}
                 doctorMode={doctorMode}
@@ -318,7 +317,6 @@ export default function HomeScreen() {
                 style={styles.headerPillButton}
               />
               <SeniorButton
-                label={language === 'th' ? 'ตั้งค่า' : 'Settings'}
                 icon={{ name: 'settings' }}
                 onPress={() => navTo('/register', language === 'th' ? 'แก้ไขประวัติของคุณตาค่ะ' : 'Editing settings.')}
                 doctorMode={doctorMode}

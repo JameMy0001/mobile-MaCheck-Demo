@@ -87,7 +87,7 @@ export function SeniorButton({
   variant = 'primary',
   style,
 }: {
-  label: string;
+  label?: string;
   icon?: IconSpec;
   onPress: () => void;
   doctorMode: boolean;
@@ -115,12 +115,15 @@ export function SeniorButton({
       style={[
         styles.seniorButton,
         { backgroundColor: bg, borderColor: doctorMode ? '#111111' : variant === 'ghost' ? SeniorColors.border : bg },
+        !label && { paddingHorizontal: 12, minWidth: 48, gap: 0 },
         style,
       ]}
       onPress={onPress}
     >
       {icon ? <RenderIcon icon={icon} size={20} color={fg} /> : null}
-      <Text style={[styles.seniorButtonText, { color: fg, fontSize: 17 + fontOffset }]}>{label}</Text>
+      {label ? (
+        <Text style={[styles.seniorButtonText, { color: fg, fontSize: 17 + fontOffset }]}>{label}</Text>
+      ) : null}
     </TouchableOpacity>
   );
 }

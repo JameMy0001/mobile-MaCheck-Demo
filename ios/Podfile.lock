@@ -3,7 +3,7 @@ PODS:
     - ExpoModulesCore
   - EXConstants (55.0.16):
     - ExpoModulesCore
-  - Expo (55.0.26):
+  - Expo (55.0.27):
     - ExpoModulesCore
     - hermes-engine
     - RCTRequired
@@ -30,17 +30,17 @@ PODS:
     - Yoga
   - ExpoAsset (55.0.17):
     - ExpoModulesCore
-  - ExpoCamera (55.0.19):
+  - ExpoCamera (55.0.20):
     - ExpoModulesCore
-  - ExpoCameraBarcodeScanning (55.0.19):
+  - ExpoCameraBarcodeScanning (55.0.20):
     - ExpoCamera
     - ZXingObjC/OneD
     - ZXingObjC/PDF417
-  - ExpoDevice (55.0.17):
+  - ExpoDevice (55.0.18):
     - ExpoModulesCore
   - ExpoDomWebView (55.0.6):
     - ExpoModulesCore
-  - ExpoFileSystem (55.0.22):
+  - ExpoFileSystem (55.0.23):
     - ExpoModulesCore
   - ExpoFont (55.0.8):
     - ExpoModulesCore
@@ -55,7 +55,7 @@ PODS:
     - SDWebImageWebPCoder (~> 0.14.6)
   - ExpoKeepAwake (55.0.8):
     - ExpoModulesCore
-  - ExpoLinking (55.0.15):
+  - ExpoLinking (55.0.16):
     - ExpoModulesCore
   - ExpoLogBox (55.0.12):
     - React-Core
@@ -94,18 +94,18 @@ PODS:
   - ExpoRouter (55.0.16):
     - ExpoModulesCore
     - RNScreens
-  - ExpoSpeech (55.0.14):
+  - ExpoSpeech (55.0.15):
     - ExpoModulesCore
-  - ExpoSplashScreen (55.0.21):
+  - ExpoSplashScreen (55.0.22):
     - ExpoModulesCore
   - ExpoSymbols (55.0.9):
     - ExpoModulesCore
-  - ExpoSystemUI (55.0.18):
+  - ExpoSystemUI (55.0.19):
     - ExpoModulesCore
   - ExpoUI (55.0.17):
     - ExpoModulesCore
     - React-RCTFabric
-  - ExpoWebBrowser (55.0.16):
+  - ExpoWebBrowser (55.0.17):
     - ExpoModulesCore
   - FBLazyVector (0.83.6)
   - hermes-engine (0.14.1):
@@ -1591,8 +1591,6 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-voice (3.2.4):
-    - React-Core
   - React-NativeModulesApple (0.83.6):
     - hermes-engine
     - React-callinvoker
@@ -2240,7 +2238,7 @@ DEPENDENCIES:
   - ExpoCameraBarcodeScanning (from `../node_modules/expo-camera/ios`)
   - ExpoDevice (from `../node_modules/expo-device/ios`)
   - "ExpoDomWebView (from `../node_modules/@expo/dom-webview/ios`)"
-  - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
+  - ExpoFileSystem (from `../node_modules/expo/node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
   - ExpoGlassEffect (from `../node_modules/expo-glass-effect/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios`)
@@ -2297,7 +2295,6 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
-  - "react-native-voice (from `../node_modules/@react-native-voice/voice`)"
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-networking (from `../node_modules/react-native/ReactCommon/react/networking`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
@@ -2368,7 +2365,7 @@ EXTERNAL SOURCES:
   ExpoDomWebView:
     :path: "../node_modules/@expo/dom-webview/ios"
   ExpoFileSystem:
-    :path: "../node_modules/expo-file-system/ios"
+    :path: "../node_modules/expo/node_modules/expo-file-system/ios"
   ExpoFont:
     :path: "../node_modules/expo-font/ios"
   ExpoGlassEffect:
@@ -2480,8 +2477,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
-  react-native-voice:
-    :path: "../node_modules/@react-native-voice/voice"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-networking:
@@ -2566,29 +2561,29 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   EXApplication: a1413100c36551bef1d775fc6c64147286962bf8
   EXConstants: dadbeba983acc30f855a919658a2b34fbd86615d
-  Expo: a74260e921728e06b81d3811a508acd5858812d6
+  Expo: b0f96de93d2e9ab7c6eabcf88597b13f6fe3f67e
   ExpoAsset: 7721c5c4ae2a7c3c8147a046727ac6c020b05648
-  ExpoCamera: 7926674f9ec1be53bfc83b21c908b7fadd381b32
-  ExpoCameraBarcodeScanning: d798baaca89608f387d851649a201f2cf6d0033e
-  ExpoDevice: b8a65afe42c3c5934eb6983870672fe785b39dea
+  ExpoCamera: 2de46080bc1a2472bdd969ec8ea6f1b7d6dba13d
+  ExpoCameraBarcodeScanning: fbe3aaa1512d93ff7a618549fc74124a6b807cc4
+  ExpoDevice: 2d3050f79f8e0b6d6da7933d4fc5f54908731b34
   ExpoDomWebView: b2e9d601f9cb77d3c97da73234e175b64be91928
-  ExpoFileSystem: 61e663d0bbd1a973d324530d1d6ee559a5e5192c
+  ExpoFileSystem: 49ab894dee0818cb8b83d489fc51eafade73efb9
   ExpoFont: a7e34a75bdfb703fa07a0e87807f836236608c76
   ExpoGlassEffect: 2dedac2fe817f9b02d0dad29ce0aef7afebc5cd4
   ExpoImage: 5854bd51edd7c0a775755473598f9daeb3fde4e3
   ExpoKeepAwake: d0eb7a0719500d2a43fbf29b6f79e84d70c75ebf
-  ExpoLinking: 40f36cf134ea6930f37867858c0643877b865d53
+  ExpoLinking: 221ab136d976b632e04ff4023660cc9c24233d07
   ExpoLogBox: a678d36477ab9544fe63e0b5328a0716539b6774
   ExpoModulesCore: 5e1ad569ce7cf8d35c0737585f34cc299fc3f0ca
   ExpoModulesJSI: 964334271fc77832736f66ee1785761cdc778dbe
   ExpoNotifications: f27e1d6e2852871419557397389385e91b9f5645
   ExpoRouter: e0e2aa4b03843e7abfa3e63e0cdd6c642d74780f
-  ExpoSpeech: afff97450c029ce8a3cf0e2f122423870c756e59
-  ExpoSplashScreen: 049301b226bce8284fcafb7923fcad3a43f23a9f
+  ExpoSpeech: f9cebf83938d03098cb03b4b9eaa41a7304fd797
+  ExpoSplashScreen: 693efd4323f4561d4c87c79050be7a0a4b9bfc51
   ExpoSymbols: 896159288ad708e1a32dc12c92fe5f90bff01126
-  ExpoSystemUI: fbc4f8af83f2b8338c1de69a79624769536f09d1
+  ExpoSystemUI: 1ddcb63fce373d0f597eb248aba2c92c8710737e
   ExpoUI: 3d10642147c44f94a4557f1defe2efd3244349af
-  ExpoWebBrowser: 5847267c496125abe38afccae97d34cb6ecc5340
+  ExpoWebBrowser: 3f57d6eec40cd76608ee9e660915bc474b7cfa6a
   FBLazyVector: 427fa1856a481856091061293ce865a75aa4f20f
   hermes-engine: 9c0af487ba99f66b26df77a92264552a4a3114bc
   libavif: 5f8e715bea24debec477006f21ef9e95432e254d
@@ -2631,7 +2626,6 @@ SPEC CHECKSUMS:
   React-Mapbuffer: bcd9f00a498b2981c7b390f00fd2b7cd6e0ead29
   React-microtasksnativemodule: 203b41906d627dac7d697bccba6137b630951fae
   react-native-safe-area-context: 37e680fc4cace3c0030ee46e8987d24f5d3bdab2
-  react-native-voice: 908a0eba96c8c3d643e4f98b7232c6557d0a6f9c
   React-NativeModulesApple: 9068613f7650828eed29ead6fc0d0a1620117e6a
   React-networking: 233dd85e1b890ca191f64f0896153165571b3039
   React-oscompat: 05afae2c7689405dbb4f6458110d501d55357980
