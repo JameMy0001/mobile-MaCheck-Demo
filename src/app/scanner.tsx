@@ -344,6 +344,29 @@ export default function ScannerScreen() {
     translated = translated.replace(/ยาแก้ปวดกลุ่ม NSAIDs ตัวนี้ห้ามทานนะคะ! เพราะจะทำให้ความดันขึ้น ไตพัง และกัดกระเพาะอย่างรุนแรง แถมยังตีกับยาละลายลิ่มเลือดด้วยค่ะ/g, 'Do not take this NSAID pain reliever! It increases blood pressure, harms kidneys, irritates the stomach, and clashes with blood thinners.');
     translated = translated.replace(/ตรวจพบประวัติแพ้ยารุนแรงของผู้ใช้/g, 'Detected severe user drug allergy history');
     
+    // Demo Mock Cases Translations
+    translated = translated.replace(/ยาแก้ปวดอักเสบข้อ\/กล้ามเนื้อ/g, 'NSAID Pain Reliever');
+    translated = translated.replace(/ยาลดความดันโลหิตสูง/g, 'Hypertension Med');
+    translated = translated.replace(/ยาลดไขมันในเลือด/g, 'Cholesterol Lowering');
+    translated = translated.replace(/ยาควบคุมเบาหวาน\/ยาลดน้ำตาล/g, 'Diabetes Med (Metformin)');
+    translated = translated.replace(/ไม่พบข้อมูลยาในระบบ \(ไม่สามารถระบุการใช้งาน\)/g, 'Medication not found in system (Unable to identify usage)');
+    translated = translated.replace(/ไม่มีในฐานข้อมูลของระบบ/g, 'Not in system database');
+
+    translated = translated.replace(/ตรวจพบคู่ยาที่ระบบจัดเป็นกลุ่มห้ามทานร่วมกันค่ะ/g, 'Detected a high-risk prohibited medication or drug clash.');
+    translated = translated.replace(/คำแนะนำ: ห้ามกินร่วมกันเด็ดขาด หยุดก่อน และให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ/g, 'Caution: Do not take together. Stop and consult a doctor, pharmacist, or caregiver.');
+    
+    translated = translated.replace(/✅ ปลอดภัย ทานร่วมกันได้!/g, '✅ Safe to take together!');
+    
+    translated = translated.replace(/⚠️ ควรระวังและเว้นระยะห่าง!/g, '⚠️ Caution: Spacing Required!');
+    translated = translated.replace(/ควรระวัง! ยา 2 ชนิดนี้ควรทานห่างกันอย่างน้อย 2 ชั่วโมง และควรจิบน้ำสะอาดบ่อย ๆ ระหว่างวัน เพื่อป้องกันความดันโลหิตและถนอมการทำงานของไตค่ะ/g, 'Caution! These two medications must be taken at least 2 hours apart, and you should drink clean water frequently during the day to prevent blood pressure fluctuations and protect your kidneys.');
+    
+    translated = translated.replace(/ตรวจพบข้อห้ามใช้กับข้อมูลสุขภาพที่บันทึกไว้ค่ะ/g, 'Detected contraindication with your medical history.');
+    translated = translated.replace(/คำแนะนำ: ห้ามรับประทานยานี้เอง หยุดก่อน และให้แพทย์ เภสัชกร หรือลูกหลานช่วยตรวจสอบก่อนนะคะ/g, 'Caution: Do not take this medication. Stop and consult a doctor, pharmacist, or caregiver.');
+
+    translated = translated.replace(/🔍 ไม่พบข้อมูลซองยา!/g, '🔍 Medication Not Found!');
+    translated = translated.replace(/ผลการวิเคราะห์: รูปภาพซองยาที่สแกนอยู่นี้ ไม่มีในฐานข้อมูลของระบบตู้นะคะ/g, 'Analysis Result: Scanned medication packet is not in the local database.');
+    translated = translated.replace(/คำแนะนำ: กรุณาติดต่อลูกหลานหรือแพทย์ผู้รักษาเพื่อเพิ่มข้อมูลยาตัวใหม่นี้ลงตู้ยาผ่านหน้าหลักค่ะ/g, 'Caution: Ask your caregiver or doctor to add this new medication to the cabinet from the home screen.');
+
     // CPM (Yellow)
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก\/แก้แพ้คัน\/ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
@@ -382,7 +405,7 @@ export default function ScannerScreen() {
     // Amoxicillin
     translated = translated.replace(/ยาฆ่าเชื้อแก้อักเสบ อะม็อกซีซิลลิน/g, 'Antibiotic (Amoxicillin)');
     // Roxithromycin (Strong antibiotics)
-    translated = translated.replace(/ยาฆ่าเชื้อแก้อักเสบตัวแรง \(สำหรับคออักเสบ\/ทางเดินหายใจติดเชื้อ\)/g, 'Strong Antibiotic (Roxithromycin)');
+    translated = translated.replace(/ยาฆ่าเชื้อแก้อักเสบตัวแรง \(for คออักเสบ\/ทางเดินหายใจติดเชื้อ\)/g, 'Strong Antibiotic (Roxithromycin)');
     // Antacid
     translated = translated.replace(/ยาลดกรดเคลือบกระเพาะอาหาร \(ชนิดน้ำขาว\/ชนิดเม็ดเคี้ยว\)/g, 'Antacid (Liquid / Chewable)');
     // Omeprazole
