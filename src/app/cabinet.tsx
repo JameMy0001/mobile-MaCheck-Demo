@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, Alert, FlatList, Modal, Image } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
-import { useNavigation } from 'expo-router';
-import { getAllMeds, syncCabinetWithBackend, checkBackendOnline, addActivityLog } from '../api';
+import { getAllMeds, syncCabinetWithBackend, checkBackendOnline, addActivityLog, getBackendUrl } from '../api';
 import { localDrugInteractions } from '../assets/local_ai_db';
 import { useSound } from '@/hooks/use-sound';
 import { useFontSize } from '@/hooks/use-font-size';
@@ -11,20 +10,18 @@ import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore, CabinetMed } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
 import { MedCard } from '../components/MedCard';
-import { useTranslation } from '../constants/translations';
+import { translateMedicationName, useTranslation } from '../constants/translations';
 import { SeniorColors } from '@/constants/senior-theme';
 
 export default function CabinetScreen() {
   const profile = useAppStore((state) => state.profile);
   const medicines = useAppStore((state) => state.cabinet) as CabinetMed[];
   const setCabinetStore = useAppStore((state) => state.setCabinet);
-  const addLog = useAppStore((state) => state.addLog);
   const { t, language } = useTranslation();
 
   const [inputText, setInputText] = useState('');
   const [dbMeds, setDbMeds] = useState<any[]>([]);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-  const [selectedMedDetails, setSelectedMedDetails] = useState<any>(null);
   
   const { isSoundMuted, handleSpeak, toggleSound } = useSound();
   const { fontOffset } = useFontSize();
@@ -36,7 +33,7 @@ export default function CabinetScreen() {
 
   const translateMedName = (n: string) => {
     if (language === 'th') return n;
-    let translated = n;
+    let translated = translateMedicationName(n, language);
     // CPM (Yellow)
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก\/แก้แพ้คัน\/ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
@@ -85,8 +82,6 @@ export default function CabinetScreen() {
     return translated;
   };
 
-  const navigation = useNavigation();
-
   useEffect(() => {
     loadCabinet();
     loadDbMeds();
@@ -102,7 +97,6 @@ export default function CabinetScreen() {
       if (profile && profile.phone) {
         const online = await checkBackendOnline();
         if (online) {
-          const { getBackendUrl } = require('../api');
           const url = await getBackendUrl();
           const res = await fetch(`${url}/cabinet/${profile.phone}`);
           if (res.ok) {
@@ -151,7 +145,6 @@ export default function CabinetScreen() {
   const selectSuggestion = (med: any) => {
     setInputText(med.formalName || med.keywords[0].toUpperCase());
     setSuggestions([]);
-    setSelectedMedDetails(med);
     handleSpeak(`เลือกยา ${med.formalName || med.keywords[0]} ค่ะ`);
   };
 
@@ -210,7 +203,6 @@ export default function CabinetScreen() {
       addActivityLog(`คุณตาเพิ่มยา "${name}" เข้าตู้ยา`);
       setInputText('');
       setSuggestions([]);
-      setSelectedMedDetails(null);
       handleSpeak(`เพิ่ม ${name} เข้าตู้ยาเรียบร้อยค่ะ`);
     };
 

@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import { CabinetMed } from '../store/useAppStore';
+import { AppLanguage, translateDynamicText, translateMedicationName } from '../constants/translations';
 
 // Configure notification behavior
 Notifications.setNotificationHandler({
@@ -32,7 +33,7 @@ export async function requestNotificationPermissions(): Promise<boolean> {
 /**
  * Parses times like "08:00, 12:00, 18:00" or "08:00" and schedules daily alerts
  */
-export async function rescheduleAllCabinetMeds(cabinet: CabinetMed[]): Promise<void> {
+export async function rescheduleAllCabinetMeds(cabinet: CabinetMed[], language: AppLanguage = 'th'): Promise<void> {
   if (Platform.OS === 'web') return;
 
   // 1. Cancel all existing notifications first to avoid duplication
@@ -53,13 +54,18 @@ export async function rescheduleAllCabinetMeds(cabinet: CabinetMed[]): Promise<v
           const minute = parseInt(timeParts[1], 10);
 
           if (!isNaN(hour) && !isNaN(minute)) {
-            const riskWarning = med.isHighRisk ? '⚠️ ยากลุ่มอันตรายสูงเฝ้าระวัง' : '💊 ยาทานทั่วไป';
-            const medDosage = med.dosage ? ` (${med.dosage})` : '';
+            const riskWarning = language === 'th'
+              ? (med.isHighRisk ? '⚠️ ยากลุ่มอันตรายสูงเฝ้าระวัง' : '💊 ยาทานทั่วไป')
+              : (med.isHighRisk ? '⚠️ High-risk medication' : '💊 Regular medication');
+            const medName = translateMedicationName(med.name, language);
+            const medDosage = med.dosage ? ` (${translateDynamicText(med.dosage, language)})` : '';
             
             await Notifications.scheduleNotificationAsync({
               content: {
-                title: `${riskWarning} ถึงเวลาทานยาแล้วค่ะคุณตา`,
-                body: `ทานยา: ${med.name}${medDosage} ตามเวลาแพทย์สั่งอย่างปลอดภัยด้วยนะคะ ❤️`,
+                title: language === 'th' ? `${riskWarning} ถึงเวลาทานยาแล้วค่ะคุณตา` : `${riskWarning} Time to take medicine`,
+                body: language === 'th'
+                  ? `ทานยา: ${med.name}${medDosage} ตามเวลาแพทย์สั่งอย่างปลอดภัยด้วยนะคะ ❤️`
+                  : `Take: ${medName}${medDosage} as prescribed.`,
                 sound: true,
               },
               trigger: {

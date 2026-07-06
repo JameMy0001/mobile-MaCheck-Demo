@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, Image, TextInput, ScrollView, Alert, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ActivityIndicator, Image, TextInput, ScrollView, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRouter, useNavigation } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { checkInteraction, saveCustomMed, getAllMeds, addActivityLog } from '../api';
 import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
@@ -12,7 +11,7 @@ import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
 import { SafetyStatusCard, SeniorButton } from '../components/senior-ui';
-import { useTranslation } from '../constants/translations';
+import { translateDynamicText, useTranslation } from '../constants/translations';
 import { SafetySeverity, SeniorColors } from '@/constants/senior-theme';
 
 const DEMO_IMAGES: Record<string, any> = {
@@ -58,9 +57,7 @@ export default function ScannerScreen() {
   const { fontOffset } = useFontSize();
   const { handleSpeak } = useSound();
   const { customAlert, setCustomAlert } = useCustomAlert();
-  const { t, language } = useTranslation();
-
-  const navigation = useNavigation();
+  const { language } = useTranslation();
 
   useEffect(() => {
     handleSpeak('เปิดกล้องแล้วค่ะ โปรดวางซองยาไว้ตรงหน้ากล้อง ถ่ายรูปเพื่อให้หลานวิเคราะห์ออฟไลน์ได้เลยนะคะ');
@@ -94,7 +91,7 @@ export default function ScannerScreen() {
         if (cameraRef.current) {
           try {
             await cameraRef.current.takePictureAsync({ quality: 0.1 });
-          } catch (e) {
+          } catch {
             console.log('Shutter audio mock bypass');
           }
         }
@@ -332,7 +329,7 @@ export default function ScannerScreen() {
 
   const translateScannerText = (text: string) => {
     if (language === 'th') return text;
-    let translated = text;
+    let translated = translateDynamicText(text, language);
     // Replace reasons
     translated = translated.replace(/ระบบพบข้อมูลที่อยู่ในกลุ่มห้ามใช้หรือห้ามทานร่วมกัน จึงไม่แสดงรายละเอียดผลกระทบเพิ่มเติมเพื่อความปลอดภัยค่ะ/g, 'The system detected a high-risk prohibited medication or drug clash, and has hidden further details for safety purposes.');
     translated = translated.replace(/ปลอดภัย ทานร่วมกันได้!/g, 'Safe to take together!');
@@ -483,7 +480,9 @@ export default function ScannerScreen() {
                   <View style={styles.noMedContainer}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                       <Feather name="x-circle" size={22} color="#D32F2F" />
-                      <Text style={styles.noMedText}>ไม่พบข้อมูลยานี้ในระบบเครื่องค่ะ</Text>
+                      <Text style={styles.noMedText}>
+                        {language === 'th' ? 'ไม่พบข้อมูลยานี้ในระบบเครื่องค่ะ' : 'This medication is not in the local system.'}
+                      </Text>
                     </View>
                     <TouchableOpacity 
                       style={styles.addNewMedBtn}
@@ -491,13 +490,17 @@ export default function ScannerScreen() {
                     >
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <Feather name="plus-circle" size={18} color="#FFF" />
-                        <Text style={styles.addNewMedBtnText}>เพิ่มข้อมูลยาตัวใหม่ลงระบบ</Text>
+                        <Text style={styles.addNewMedBtnText}>
+                          {language === 'th' ? 'เพิ่มข้อมูลยาตัวใหม่ลงระบบ' : 'Add new medication'}
+                        </Text>
                       </View>
                     </TouchableOpacity>
                   </View>
                 ) : (
                   <View style={styles.helpContainer}>
-                    <Text style={styles.helpText}>ลองเลือกยาสามัญด้านล่างเพื่อสาธิต:</Text>
+                    <Text style={styles.helpText}>
+                      {language === 'th' ? 'ลองเลือกยาสามัญด้านล่างเพื่อสาธิต:' : 'Choose a common medication below to demo:'}
+                    </Text>
                     {dbMeds.slice(0, 6).map(med => (
                       <TouchableOpacity 
                         key={med.id || med.keywords[0]} 
@@ -506,7 +509,7 @@ export default function ScannerScreen() {
                       >
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                           <Feather name="arrow-right" size={16} color="#0288D1" />
-                          <Text style={styles.demoMedText}>{med.formalName || med.keywords[0]}</Text>
+                          <Text style={styles.demoMedText}>{translateScannerText(med.formalName || med.keywords[0])}</Text>
                         </View>
                       </TouchableOpacity>
                     ))}
@@ -529,7 +532,9 @@ export default function ScannerScreen() {
               <View style={styles.modalHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <Feather name="plus-circle" size={22} color="#000" />
-                  <Text style={styles.modalTitle}>ลงทะเบียนข้อมูลยาใหม่</Text>
+                  <Text style={styles.modalTitle}>
+                    {language === 'th' ? 'ลงทะเบียนข้อมูลยาใหม่' : 'Register New Medication'}
+                  </Text>
                 </View>
                 <TouchableOpacity onPress={() => setNewMedModalVisible(false)}>
                   <Feather name="x" size={26} color="#000" />
@@ -539,11 +544,13 @@ export default function ScannerScreen() {
               <View style={styles.formGroup}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <Image source={require('../../assets/images/icons/icon_pill.png')} style={{ width: 18, height: 18, resizeMode: 'contain' }} />
-                  <Text style={styles.formLabel}>ชื่อยาภาษาอังกฤษ/ไทย (จำเป็น)</Text>
+                  <Text style={styles.formLabel}>
+                    {language === 'th' ? 'ชื่อยาภาษาอังกฤษ/ไทย (จำเป็น)' : 'Medication name in English/Thai (required)'}
+                  </Text>
                 </View>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="ตัวอย่าง: Diclofenac หรือ ไดโคลฟีแนค"
+                  placeholder={language === 'th' ? 'ตัวอย่าง: Diclofenac หรือ ไดโคลฟีแนค' : 'Example: Diclofenac'}
                   value={newMedName}
                   onChangeText={setNewMedName}
                 />
@@ -553,11 +560,11 @@ export default function ScannerScreen() {
                 <View style={[styles.formGroup, { flex: 1 }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                     <FontAwesome5 name="info-circle" size={14} color="#000" />
-                    <Text style={styles.formLabel}>ขนาดของยา</Text>
+                    <Text style={styles.formLabel}>{language === 'th' ? 'ขนาดของยา' : 'Dosage'}</Text>
                   </View>
                   <TextInput
                     style={styles.formInput}
-                    placeholder="เช่น 50 มก."
+                    placeholder={language === 'th' ? 'เช่น 50 มก.' : 'e.g., 50 mg'}
                     value={newMedDosage}
                     onChangeText={setNewMedDosage}
                   />
@@ -565,11 +572,11 @@ export default function ScannerScreen() {
                 <View style={[styles.formGroup, { flex: 1 }]}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                     <FontAwesome5 name="eye" size={14} color="#000" />
-                    <Text style={styles.formLabel}>ลักษณะเม็ดยา</Text>
+                    <Text style={styles.formLabel}>{language === 'th' ? 'ลักษณะเม็ดยา' : 'Pill appearance'}</Text>
                   </View>
                   <TextInput
                     style={styles.formInput}
-                    placeholder="เช่น เม็ดกลมสีเหลือง"
+                    placeholder={language === 'th' ? 'เช่น เม็ดกลมสีเหลือง' : 'e.g., round yellow tablet'}
                     value={newMedShape}
                     onChangeText={setNewMedShape}
                   />
@@ -579,11 +586,11 @@ export default function ScannerScreen() {
               <View style={styles.formGroup}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <FontAwesome5 name="stethoscope" size={14} color="#000" />
-                  <Text style={styles.formLabel}>คำสั่งแพทย์ / วิธีรับประทาน</Text>
+                  <Text style={styles.formLabel}>{language === 'th' ? 'คำสั่งแพทย์ / วิธีรับประทาน' : 'Physician order / instructions'}</Text>
                 </View>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="เช่น ทานหลังอาหารทันทีเช้า-เย็น"
+                  placeholder={language === 'th' ? 'เช่น ทานหลังอาหารทันทีเช้า-เย็น' : 'e.g., after meals morning-evening'}
                   value={newMedNotes}
                   onChangeText={setNewMedNotes}
                 />
@@ -592,11 +599,11 @@ export default function ScannerScreen() {
               <View style={styles.formGroup}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <FontAwesome5 name="box" size={14} color="#000" />
-                  <Text style={styles.formLabel}>วิธีการเก็บรักษายา</Text>
+                  <Text style={styles.formLabel}>{language === 'th' ? 'วิธีการเก็บรักษายา' : 'Storage instructions'}</Text>
                 </View>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="เช่น เก็บพ้นแสงแดดและห้ามแช่ตู้เย็น"
+                  placeholder={language === 'th' ? 'เช่น เก็บพ้นแสงแดดและห้ามแช่ตู้เย็น' : 'e.g., keep away from sunlight'}
                   value={newMedStorage}
                   onChangeText={setNewMedStorage}
                 />
@@ -605,11 +612,13 @@ export default function ScannerScreen() {
               <View style={styles.formGroup}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <Feather name="alert-triangle" size={16} color="#000" />
-                  <Text style={styles.formLabel}>ตีกับยาตัวไหนบ้าง (ระบุคำสำคัญคั่นด้วยเครื่องหมายจุลภาค ,)</Text>
+                  <Text style={styles.formLabel}>
+                    {language === 'th' ? 'ตีกับยาตัวไหนบ้าง (ระบุคำสำคัญคั่นด้วยเครื่องหมายจุลภาค ,)' : 'Clashes with which medications? (comma-separated keywords)'}
+                  </Text>
                 </View>
                 <TextInput
                   style={styles.formInput}
-                  placeholder="เช่น warfarin, aspirin"
+                  placeholder={language === 'th' ? 'เช่น warfarin, aspirin' : 'e.g., warfarin, aspirin'}
                   value={newMedClashInput}
                   onChangeText={setNewMedClashInput}
                 />
@@ -618,17 +627,19 @@ export default function ScannerScreen() {
               <View style={styles.formGroup}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <Feather name="slash" size={16} color="#000" />
-                  <Text style={styles.formLabel}>ห้ามใช้ในโรคประจำตัวประเภทไหนบ้าง</Text>
+                  <Text style={styles.formLabel}>
+                    {language === 'th' ? 'ห้ามใช้ในโรคประจำตัวประเภทไหนบ้าง' : 'Contraindicated with which conditions?'}
+                  </Text>
                 </View>
                 <View style={styles.checkboxContainer}>
                   {[
-                    { id: 'hypertension', name: 'ความดันสูง' },
-                    { id: 'diabetes', name: 'เบาหวาน' },
-                    { id: 'heart', name: 'โรคหัวใจ' },
-                    { id: 'lipid', name: 'ไขมันสูง' },
-                    { id: 'kidney', name: 'โรคไต' },
-                    { id: 'stomach', name: 'โรคกระเพาะ' },
-                    { id: 'liver', name: 'โรคตับ' }
+                    { id: 'hypertension', name: language === 'th' ? 'ความดันสูง' : 'Hypertension' },
+                    { id: 'diabetes', name: language === 'th' ? 'เบาหวาน' : 'Diabetes' },
+                    { id: 'heart', name: language === 'th' ? 'โรคหัวใจ' : 'Heart Disease' },
+                    { id: 'lipid', name: language === 'th' ? 'ไขมันสูง' : 'Hyperlipidemia' },
+                    { id: 'kidney', name: language === 'th' ? 'โรคไต' : 'Kidney Disease' },
+                    { id: 'stomach', name: language === 'th' ? 'โรคกระเพาะ' : 'Stomach Disease' },
+                    { id: 'liver', name: language === 'th' ? 'โรคตับ' : 'Liver Disease' }
                   ].map(d => {
                     const isSelected = newMedDiseaseInput.includes(d.id);
                     return (
@@ -649,13 +660,17 @@ export default function ScannerScreen() {
               <View style={styles.formGroup}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                   <Image source={require('../../assets/images/icons/icon_siren.png')} style={{ width: 18, height: 18, resizeMode: 'contain' }} />
-                  <Text style={styles.formLabel}>ระดับความอันตราย</Text>
+                  <Text style={styles.formLabel}>{language === 'th' ? 'ระดับความอันตราย' : 'Safety level'}</Text>
                 </View>
                 <View style={styles.radioGroup}>
                   {(['green', 'yellow', 'red'] as const).map((level) => {
                     const isSelected = newMedSeverity === level;
                     const color = level === 'red' ? '#D32F2F' : level === 'yellow' ? '#FBC02D' : '#4CAF50';
-                    const label = level === 'red' ? 'ห้ามกินคู่เด็ดขาด' : level === 'yellow' ? 'ต้องเว้นระยะห่าง' : 'ปลอดภัยใช้ทั่วไป';
+                    const label = level === 'red'
+                      ? (language === 'th' ? 'ห้ามกินคู่เด็ดขาด' : 'Do not combine')
+                      : level === 'yellow'
+                        ? (language === 'th' ? 'ต้องเว้นระยะห่าง' : 'Space doses')
+                        : (language === 'th' ? 'ปลอดภัยใช้ทั่วไป' : 'Generally safe');
                     
                     return (
                       <TouchableOpacity
@@ -673,7 +688,9 @@ export default function ScannerScreen() {
               <TouchableOpacity style={styles.saveBtn} onPress={saveAndSelectNewMed}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <Feather name="save" size={20} color="#FFF" />
-                  <Text style={styles.saveBtnText}>บันทึกข้อมูลและตรวจวิเคราะห์ทันที</Text>
+                  <Text style={styles.saveBtnText}>
+                    {language === 'th' ? 'บันทึกข้อมูลและตรวจวิเคราะห์ทันที' : 'Save and analyze now'}
+                  </Text>
                 </View>
               </TouchableOpacity>
 

@@ -1,18 +1,21 @@
 import { useCallback } from 'react';
 import * as Speech from 'expo-speech';
 import { useAppStore } from '../store/useAppStore';
+import { translateDynamicText } from '../constants/translations';
 
 export function useSound() {
   const isSoundMuted = useAppStore((state) => state.soundMuted);
   const setSoundMuted = useAppStore((state) => state.setSoundMuted);
+  const language = useAppStore((state) => state.language);
 
   const handleSpeak = useCallback(
     (text: string) => {
       if (isSoundMuted) return;
+      const spokenText = translateDynamicText(text, language);
       Speech.stop();
-      Speech.speak(text, { language: 'th-TH', rate: 0.9 });
+      Speech.speak(spokenText, { language: language === 'th' ? 'th-TH' : 'en-US', rate: 0.9 });
     },
-    [isSoundMuted]
+    [isSoundMuted, language]
   );
 
   const toggleSound = useCallback(
@@ -20,13 +23,14 @@ export function useSound() {
       const newValue = !isSoundMuted;
       await setSoundMuted(newValue);
       if (!newValue) {
+        const spokenText = translateDynamicText(greeting, language);
         Speech.stop();
-        Speech.speak(greeting, { language: 'th-TH', rate: 0.9 });
+        Speech.speak(spokenText, { language: language === 'th' ? 'th-TH' : 'en-US', rate: 0.9 });
       } else {
         Speech.stop();
       }
     },
-    [isSoundMuted, setSoundMuted]
+    [isSoundMuted, language, setSoundMuted]
   );
 
   const loadSoundSetting = useCallback(async () => {

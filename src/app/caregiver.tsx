@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Alert, Modal, Image, TextInput } from 'react-native';
-import { useRouter, useNavigation } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image, TextInput } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
-import { getActivityLogs, clearActivityLogs, ActivityLog, getRemoteProfile, getRemoteCabinet, getRemoteLogs, sendRemoteNudge, syncCabinetWithBackend } from '../api';
+import { ActivityLog, getRemoteProfile, getRemoteCabinet, getRemoteLogs, sendRemoteNudge, syncCabinetWithBackend } from '../api';
 import { useSound } from '@/hooks/use-sound';
 import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
 import { useCustomAlert } from '@/hooks/use-custom-alert';
 import { useAppStore } from '../store/useAppStore';
 import { CustomAlertModal } from '../components/CustomAlertModal';
-import { useTranslation } from '../constants/translations';
+import { translateDynamicText, translateMedicationName, useTranslation } from '../constants/translations';
 import { SeniorColors } from '@/constants/senior-theme';
 
 export default function CaregiverScreen() {
@@ -23,9 +22,7 @@ export default function CaregiverScreen() {
   const { doctorMode } = useDoctorMode();
   const { fontOffset } = useFontSize();
   const { handleSpeak } = useSound();
-  const { t, language } = useTranslation();
-
-  const navigation = useNavigation();
+  const { language } = useTranslation();
 
   // Caregiver Remote Tracking states
   const [targetPhone, setTargetPhone] = useState('');
@@ -41,8 +38,6 @@ export default function CaregiverScreen() {
   useEffect(() => {
     handleSpeak('ยินดีต้อนรับเข้าสู่หน้าจอลูกหลานเพื่อติดตามอาการค่ะ');
   }, []);
-
-  const loadData = async () => {};
 
   const handleClearLogs = () => {
     setCustomAlert({
@@ -221,7 +216,7 @@ export default function CaregiverScreen() {
 
   const translateMedName = (name: string) => {
     if (language === 'th') return name;
-    let translated = name;
+    let translated = translateMedicationName(name, language);
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
     translated = translated.replace(/ยาแก้ปวดอักเสบไอบูโพรเฟน \(แก้ปวดกล้ามเนื้อ\/กระดูกอักเสบชนิดรุนแรง\)/g, 'Ibuprofen (NSAIDs Pain Reliever)');
     translated = translated.replace(/ยาต้านการแข็งตัวของเลือด \(Warfarin\)/g, 'Blood Thinner (Warfarin)');
@@ -512,7 +507,7 @@ export default function CaregiverScreen() {
                 <View style={{ flexDirection: 'row', gap: 10 }}>
                   <TouchableOpacity
                     style={styles.nudgeBtn}
-                    onPress={() => triggerRemoteNudge('med', 'เตือนเวลาทานยา')}
+                    onPress={() => triggerRemoteNudge('med', language === 'th' ? 'เตือนเวลาทานยา' : 'Medication reminder')}
                   >
                     <FontAwesome5 name="pills" size={18} color="#000" style={{ marginBottom: 4 }} />
                     <Text style={{ fontWeight: '900', fontSize: 13 + fontOffset }}>
@@ -521,7 +516,7 @@ export default function CaregiverScreen() {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={[styles.nudgeBtn, styles.nudgeWaterBtn]}
-                    onPress={() => triggerRemoteNudge('water', 'สะกิดจิบน้ำ')}
+                    onPress={() => triggerRemoteNudge('water', language === 'th' ? 'สะกิดจิบน้ำ' : 'Water reminder')}
                   >
                     <FontAwesome5 name="tint" size={18} color="#000" style={{ marginBottom: 4 }} />
                     <Text style={{ fontWeight: '900', fontSize: 13 + fontOffset }}>
@@ -544,7 +539,7 @@ export default function CaregiverScreen() {
                     />
                     <TouchableOpacity
                       style={styles.sendBtn}
-                      onPress={() => triggerRemoteNudge('message', 'ส่งข้อความเตือนใจ', messageInput)}
+                      onPress={() => triggerRemoteNudge('message', language === 'th' ? 'ส่งข้อความเตือนใจ' : 'Custom message', messageInput)}
                     >
                       <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 14 + fontOffset }}>
                         {language === 'th' ? 'ส่ง' : 'Send'}
@@ -623,7 +618,9 @@ export default function CaregiverScreen() {
               </View>
               {!isRemoteConnected && logs.length > 0 && (
                 <TouchableOpacity style={[styles.clearBtn, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]} onPress={handleClearLogs}>
-                  <Text style={[styles.clearBtnText, doctorMode && { color: '#000' }]}>ล้าง</Text>
+                  <Text style={[styles.clearBtnText, doctorMode && { color: '#000' }]}>
+                    {language === 'th' ? 'ล้าง' : 'Clear'}
+                  </Text>
                 </TouchableOpacity>
               )}
             </View>
@@ -636,13 +633,15 @@ export default function CaregiverScreen() {
                       <Feather name="clock" size={14} color="#757575" />
                       <Text style={styles.logTime}>{log.timestamp}</Text>
                     </View>
-                    <Text style={styles.logText}>{translateLogText(log.text)}</Text>
+                    <Text style={styles.logText}>{translateDynamicText(translateLogText(log.text), language)}</Text>
                   </View>
                 ))}
               </View>
             ) : (
               <Text style={styles.noDataText}>
-                {isRemoteConnected ? 'ยังไม่มีประวัติกิจกรรมของคุณตาบนคลาวด์ค่ะ' : 'ยังไม่มีบันทึกประวัติกิจกรรมของคุณตาค่ะ'}
+                {isRemoteConnected
+                  ? (language === 'th' ? 'ยังไม่มีประวัติกิจกรรมของคุณตาบนคลาวด์ค่ะ' : 'No cloud activity logs yet.')
+                  : (language === 'th' ? 'ยังไม่มีบันทึกประวัติกิจกรรมของคุณตาค่ะ' : 'No local activity logs yet.')}
               </Text>
             )}
           </View>

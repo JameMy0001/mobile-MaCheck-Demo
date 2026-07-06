@@ -7,7 +7,7 @@ export interface UserProfile {
   phone: string;
   birthdate: string;
   diseases: string[];
-  allergies: Array<{ medId: string; severity: 'mild' | 'severe' | 'moderate' }>;
+  allergies: { medId: string; severity: 'mild' | 'severe' | 'moderate' }[];
   otherDiseases?: string;
   otherAllergies?: string;
   syncCode?: string;
@@ -106,7 +106,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setCabinet: async (cabinet) => {
     set({ cabinet });
     await AsyncStorage.setItem('@cabinet_meds', JSON.stringify(cabinet));
-    await rescheduleAllCabinetMeds(cabinet).catch(err => console.error('Notifications reschedule error:', err));
+    await rescheduleAllCabinetMeds(cabinet, get().language).catch(err => console.error('Notifications reschedule error:', err));
   },
 
   setLogs: async (logs) => {
@@ -181,6 +181,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   setLanguage: async (language) => {
     set({ language });
     await AsyncStorage.setItem('@app_language', language);
+    await rescheduleAllCabinetMeds(get().cabinet, language).catch(err => console.error('Notifications reschedule error:', err));
   },
 
   loadAllFromStorage: async () => {

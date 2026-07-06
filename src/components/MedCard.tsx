@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { SeniorColors } from '@/constants/senior-theme';
-import { useTranslation } from '../constants/translations';
+import { translateMedicationName, useTranslation } from '../constants/translations';
 
 interface MedCardProps {
   med: any;
@@ -23,7 +23,7 @@ export function MedCard({
 
   const translateMedName = (name: string) => {
     if (language === 'th') return name;
-    let translated = name;
+    let translated = translateMedicationName(name, language);
     // CPM (Yellow)
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก \/ แก้แพ้คัน \/ ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');
     translated = translated.replace(/ยาแก้แพ้เม็ดสีเหลือง \(ลดน้ำมูก\/แก้แพ้คัน\/ช่วยให้นอนหลับง่าย\)/g, 'Yellow Allergy Pill (CPM / Anti-histamine)');

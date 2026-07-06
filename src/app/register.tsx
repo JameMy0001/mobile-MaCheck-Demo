@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, SafeAr
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
-import { addActivityLog, syncProfileWithBackend, checkBackendOnline } from '../api';
+import { addActivityLog, syncProfileWithBackend } from '../api';
 import { useSound } from '@/hooks/use-sound';
 import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
@@ -278,7 +278,12 @@ export default function RegisterScreen() {
     const isDuplicate = allUsers.some(u => u.phone === trimmedPhone);
     if (isDuplicate) {
       handleSpeak('เบอร์โทรศัพท์นี้เคยลงทะเบียนแล้วค่ะ กรุณาสลับหน้าเพื่อเข้าสู่ระบบนะคะ');
-      Alert.alert('ลงทะเบียนซ้ำ', 'เบอร์โทรศัพท์นี้ลงทะเบียนในเครื่องแล้วจ้า กรุณาสลับไปแท็บเข้าสู่ระบบ');
+      Alert.alert(
+        language === 'th' ? 'ลงทะเบียนซ้ำ' : 'Duplicate Registration',
+        language === 'th'
+          ? 'เบอร์โทรศัพท์นี้ลงทะเบียนในเครื่องแล้วจ้า กรุณาสลับไปแท็บเข้าสู่ระบบ'
+          : 'This phone number is already registered on this device. Please switch to the login tab.'
+      );
       return;
     }
 
@@ -382,7 +387,12 @@ export default function RegisterScreen() {
     const matchedUser = allUsers.find(u => u.phone === trimmedPhone && u.birthdate === trimmedBirthdate);
     if (!matchedUser) {
       handleSpeak('ไม่พบข้อมูลผู้ใช้ หรือวันเกิดรหัสผ่านไม่ถูกต้องค่ะ ลองตรวจสอบใหม่อีกครั้งนะคะ');
-      Alert.alert('เข้าสู่ระบบไม่สำเร็จ', 'ไม่พบข้อมูลผู้ป่วย หรือวันเกิด (รหัสผ่าน) ไม่ถูกต้องค่ะ');
+      Alert.alert(
+        language === 'th' ? 'เข้าสู่ระบบไม่สำเร็จ' : 'Login Failed',
+        language === 'th'
+          ? 'ไม่พบข้อมูลผู้ป่วย หรือวันเกิด (รหัสผ่าน) ไม่ถูกต้องค่ะ'
+          : 'Patient not found or birthdate passcode is incorrect.'
+      );
       return;
     }
 
@@ -441,9 +451,9 @@ export default function RegisterScreen() {
                 handleSpeak('เปลี่ยนภาษาเป็นภาษาไทยแล้วค่ะ');
               }}
             >
-              <Text style={[styles.langBtnCompactText, { fontSize: 13 + fontOffset, color: language === 'th' ? '#FFF' : '#000' }]}>
-                ไทย
-              </Text>
+                    <Text style={[styles.langBtnCompactText, { fontSize: 13 + fontOffset, color: language === 'th' ? '#FFF' : '#000' }]}>
+                      {language === 'th' ? 'ไทย' : 'TH'}
+                    </Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[
@@ -752,7 +762,7 @@ export default function RegisterScreen() {
                 <View style={{ flex: 1, paddingRight: 8 }}>
                   <Text style={[styles.doctorModeTitle, { fontSize: 17 + fontOffset }]}>🌐 {t('changeLanguage')}</Text>
                   <Text style={[styles.doctorModeDesc, { fontSize: 12 + fontOffset }]}>
-                    เลือกภาษา / Toggle app language
+                    {language === 'th' ? 'เลือกภาษาแสดงผลของแอป' : 'Toggle app display language'}
                   </Text>
                 </View>
                 <View style={{ flexDirection: 'row', gap: 6 }}>
@@ -767,7 +777,7 @@ export default function RegisterScreen() {
                     }}
                   >
                     <Text style={[styles.langBtnText, { fontSize: 14 + fontOffset, color: language === 'th' ? '#FFF' : '#000' }]}>
-                      ไทย
+                      {language === 'th' ? 'ไทย' : 'TH'}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity 

@@ -23,7 +23,7 @@ export const checkBackendOnline = async (): Promise<boolean> => {
       return data.status === 'online';
     }
     return false;
-  } catch (e) {
+  } catch {
     return false;
   }
 };

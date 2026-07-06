@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, Image } from 'react-na
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { CustomAlertState } from '../hooks/use-custom-alert';
 import { SeniorColors } from '@/constants/senior-theme';
-import { useTranslation } from '../constants/translations';
+import { translateDynamicText, useTranslation } from '../constants/translations';
 
 const IconGlassWater = require('../../assets/images/icons/icon_glass_water.png');
 const IconSiren = require('../../assets/images/icons/icon_siren.png');
@@ -23,7 +23,9 @@ export function CustomAlertModal({
   doctorMode,
   fontOffset
 }: CustomAlertModalProps) {
-  const { t, language } = useTranslation();
+  const { language } = useTranslation();
+  const displayTitle = translateDynamicText(alert.title, language);
+  const displayMessage = translateDynamicText(alert.message, language);
 
   const alertTone =
     alert.type === 'error' || alert.type === 'call'
@@ -49,8 +51,8 @@ export function CustomAlertModal({
             <View style={styles.waterWrapper}>
               <Image source={IconGlassWater} style={{ width: 56, height: 56, resizeMode: 'contain' }} />
             </View>
-            <Text style={[styles.waterAlertTitle, { fontSize: 24 + fontOffset }]}>{alert.title}</Text>
-            <Text style={[styles.waterAlertMessage, { fontSize: 16 + fontOffset }]}>{alert.message}</Text>
+            <Text style={[styles.waterAlertTitle, { fontSize: 24 + fontOffset }]}>{displayTitle}</Text>
+            <Text style={[styles.waterAlertMessage, { fontSize: 16 + fontOffset }]}>{displayMessage}</Text>
             <TouchableOpacity 
               style={[styles.waterOkBtn, doctorMode && { backgroundColor: '#555' }]} 
               onPress={onClose}
@@ -65,8 +67,8 @@ export function CustomAlertModal({
             <View style={[styles.alertHeaderBadge, { backgroundColor: doctorMode ? '#555' : SeniorColors.warning }]}>
               <FontAwesome5 name="exclamation-circle" size={32} color="#FFF" />
             </View>
-            <Text style={[styles.alertTitle, { fontSize: 22 + fontOffset }]}>{alert.title}</Text>
-            <Text style={[styles.alertMessage, { fontSize: 16 + fontOffset }]}>{alert.message}</Text>
+            <Text style={[styles.alertTitle, { fontSize: 22 + fontOffset }]}>{displayTitle}</Text>
+            <Text style={[styles.alertMessage, { fontSize: 16 + fontOffset }]}>{displayMessage}</Text>
             <View style={styles.confirmBtnRow}>
               <TouchableOpacity 
                 style={[styles.confirmBtn, styles.btnCancel, doctorMode && { backgroundColor: '#ECEFF1', borderColor: '#000' }]} 
@@ -130,8 +132,8 @@ export function CustomAlertModal({
                 color="#FFF" 
               />
             </View>
-            <Text style={[styles.alertTitle, { fontSize: 22 + fontOffset }]}>{alert.title}</Text>
-            <Text style={[styles.alertMessage, { fontSize: 16 + fontOffset }]}>{alert.message}</Text>
+            <Text style={[styles.alertTitle, { fontSize: 22 + fontOffset }]}>{displayTitle}</Text>
+            <Text style={[styles.alertMessage, { fontSize: 16 + fontOffset }]}>{displayMessage}</Text>
             <TouchableOpacity 
               style={[
                 styles.alertBtn, 

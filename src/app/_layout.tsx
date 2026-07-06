@@ -15,6 +15,7 @@ export default function Layout() {
   const loadAllFromStorage = useAppStore((state) => state.loadAllFromStorage);
   const isLoaded = useAppStore((state) => state.isLoaded);
   const cabinet = useAppStore((state) => state.cabinet);
+  const language = useAppStore((state) => state.language);
 
   useEffect(() => {
     loadAllFromStorage();
@@ -25,14 +26,12 @@ export default function Layout() {
       const initNotifications = async () => {
         const granted = await requestNotificationPermissions();
         if (granted) {
-          await rescheduleAllCabinetMeds(cabinet).catch(err => console.error(err));
+          await rescheduleAllCabinetMeds(cabinet, language).catch(err => console.error(err));
         }
       };
       initNotifications();
     }
-  }, [isLoaded]);
-
-  const language = useAppStore((state) => state.language);
+  }, [isLoaded, cabinet, language]);
 
   if (!isLoaded) {
     return null; // Don't render screens until state is loaded
