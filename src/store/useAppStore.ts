@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { rescheduleAllCabinetMeds } from '../services/notificationService';
+import { DEFAULT_BACKEND_URL, normalizeBackendUrl } from '../api/client';
 
 export interface UserProfile {
   name: string;
@@ -85,7 +86,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   soundMuted: false,
   caregiverPhone: '',
   geminiApiKey: '',
-  backendUrl: 'http://localhost:3000',
+  backendUrl: DEFAULT_BACKEND_URL,
   isLoaded: false,
   language: 'th',
 
@@ -212,7 +213,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         soundMuted: storedSoundMuted === 'true',
         caregiverPhone: storedCgPhone || '',
         geminiApiKey: storedGeminiKey || '',
-        backendUrl: storedBackendUrl || 'http://localhost:3000',
+        backendUrl: normalizeBackendUrl(storedBackendUrl),
         allUsers: storedAllUsers ? JSON.parse(storedAllUsers) : [],
         language: (storedLanguage as any) || 'th',
         isLoaded: true

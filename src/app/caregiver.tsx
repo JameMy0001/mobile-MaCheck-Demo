@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, TouchableOpacity, Image, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
@@ -39,6 +39,31 @@ export default function CaregiverScreen() {
     handleSpeak('ยินดีต้อนรับเข้าสู่หน้าจอลูกหลานเพื่อติดตามอาการค่ะ');
   }, []);
 
+  const loadRemoteSnapshot = useCallback(async (phone: string) => {
+    const [remoteProf, cabinetMeds, activityLogs] = await Promise.all([
+      getRemoteProfile(phone),
+      getRemoteCabinet(phone),
+      getRemoteLogs(phone)
+    ]);
+
+    if (!remoteProf) return null;
+    setRemoteProfile(remoteProf);
+    setRemoteCabinet(cabinetMeds);
+    setRemoteLogs(activityLogs);
+    return remoteProf;
+  }, []);
+
+  useEffect(() => {
+    if (!isRemoteConnected || !remoteProfile?.phone) return;
+    const interval = setInterval(() => {
+      loadRemoteSnapshot(remoteProfile.phone).catch((err) => {
+        console.error('Remote mirror refresh failed', err);
+      });
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [isRemoteConnected, loadRemoteSnapshot, remoteProfile?.phone]);
+
   const handleClearLogs = () => {
     setCustomAlert({
       visible: true,
@@ -68,7 +93,7 @@ export default function CaregiverScreen() {
     setIsLoadingRemote(true);
     handleSpeak('กำลังเชื่อมโยงข้อมูลกับคลาวด์ของคุณตาค่ะ');
     try {
-      const remoteProf = await getRemoteProfile(trimmed);
+      const remoteProf = await loadRemoteSnapshot(trimmed);
       if (!remoteProf) {
         setCustomAlert({
           visible: true,
@@ -81,13 +106,6 @@ export default function CaregiverScreen() {
         return;
       }
 
-      // ดึงข้อมูลอื่น ๆ
-      const cabinetMeds = await getRemoteCabinet(trimmed);
-      const activityLogs = await getRemoteLogs(trimmed);
-
-      setRemoteProfile(remoteProf);
-      setRemoteCabinet(cabinetMeds);
-      setRemoteLogs(activityLogs);
       setIsRemoteConnected(true);
 
       setCustomAlert({
@@ -158,12 +176,13 @@ export default function CaregiverScreen() {
       onConfirm: async () => {
         const updated = remoteCabinet.filter(m => m.medId !== medId && m.id !== medId);
         setRemoteCabinet(updated);
-        // แปลงฟอร์แมตเพื่อส่งขึ้น Supabase
         const payload = updated.map(m => ({
-          med_name: m.name,
-          med_id: m.medId || m.name
+          id: m.id || m.medId || m.name,
+          name: m.name,
+          medId: m.medId || m.name
         }));
         await syncCabinetWithBackend(remoteProfile.phone, payload);
+        await loadRemoteSnapshot(remoteProfile.phone);
         handleSpeak(`ลบยา ${medName} ออกจากตู้ยาคุณตาทางไกลเรียบร้อยแล้วค่ะ`);
       }
     });
@@ -192,12 +211,13 @@ export default function CaregiverScreen() {
     }];
     setRemoteCabinet(updated);
 
-    // ส่งขึ้นหลังบ้าน
     const payload = updated.map(m => ({
-      med_name: m.name,
-      med_id: m.medId || m.name
+      id: m.id || m.medId || m.name,
+      name: m.name,
+      medId: m.medId || m.name
     }));
     await syncCabinetWithBackend(remoteProfile.phone, payload);
+    await loadRemoteSnapshot(remoteProfile.phone);
     handleSpeak(`เพิ่มยา ${name} เข้าตู้ยาคุณตาทางไกลเรียบร้อยแล้วค่ะ`);
   };
 

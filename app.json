@@ -47,6 +47,7 @@
     },
     "extra": {
       "router": {},
+      "backendUrl": "http://192.168.1.46:5001/api",
       "eas": {
         "projectId": "e4e13498-eb56-46d2-8bfd-3bda94fa1e7d"
       }

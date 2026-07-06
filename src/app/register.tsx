@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Feather, FontAwesome5 } from '@expo/vector-icons';
 import { addActivityLog, syncProfileWithBackend } from '../api';
+import { DEFAULT_BACKEND_URL } from '../api/client';
 import { useSound } from '@/hooks/use-sound';
 import { useFontSize } from '@/hooks/use-font-size';
 import { useDoctorMode } from '@/hooks/use-doctor-mode';
@@ -157,7 +158,7 @@ export default function RegisterScreen() {
     try {
       await refreshAllUsers();
       if (storeCaregiverPhone) setCaregiverPhone(storeCaregiverPhone);
-      setBackendUrl(storeBackendUrl || 'http://localhost:5001/api');
+      setBackendUrl(storeBackendUrl || DEFAULT_BACKEND_URL);
       setDeveloperMode(storeDevMode);
 
       if (storeProfile) {

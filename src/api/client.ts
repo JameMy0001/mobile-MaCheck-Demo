@@ -1,16 +1,28 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+
+export const DEFAULT_BACKEND_URL =
+  (Constants.expoConfig?.extra?.backendUrl as string | undefined) || 'http://localhost:5001/api';
+
+export const normalizeBackendUrl = (url?: string | null): string => {
+  const trimmed = url?.trim();
+  const shouldUseDefault =
+    !trimmed ||
+    (!__DEV__ && /^(https?:\/\/)?(localhost|127\.0\.0\.1)(:\d+)?(\/.*)?$/i.test(trimmed));
+
+  let normalized = shouldUseDefault ? DEFAULT_BACKEND_URL : trimmed;
+  if (!normalized.endsWith('/api') && !normalized.includes('/api/')) {
+    normalized = normalized.replace(/\/$/, '') + '/api';
+  }
+  return normalized;
+};
 
 export const getBackendUrl = async (): Promise<string> => {
   try {
     const customUrl = await AsyncStorage.getItem('@backend_url');
-    // Ensure we strip trailing slash and use /api if not present
-    let url = customUrl || 'http://localhost:5001/api';
-    if (!url.endsWith('/api') && !url.includes('/api/')) {
-      url = url.replace(/\/$/, '') + '/api';
-    }
-    return url;
+    return normalizeBackendUrl(customUrl);
   } catch {
-    return 'http://localhost:5001/api';
+    return DEFAULT_BACKEND_URL;
   }
 };
 

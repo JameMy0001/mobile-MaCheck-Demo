@@ -1,6 +1,12 @@
 import { checkBackendOnline, getBackendUrl } from './client';
 import { ActivityLog } from './storage';
 
+type SyncedCabinetMed = {
+  id: string;
+  name: string;
+  medId: string;
+};
+
 export const syncProfileWithBackend = async (profile: any) => {
   try {
     const online = await checkBackendOnline();
@@ -18,7 +24,8 @@ export const syncProfileWithBackend = async (profile: any) => {
         caregiver_phone: profile.caregiver_phone || '',
         doctor_mode: profile.doctor_mode || false,
         font_size: profile.font_size || 'normal',
-        allergies: profile.allergies || []
+        allergies: profile.allergies || [],
+        syncCode: profile.syncCode
       })
     });
   } catch (e) {
@@ -34,13 +41,22 @@ export const syncCabinetWithBackend = async (phone: string, localMeds: any[]) =>
     const url = await getBackendUrl();
     const res = await fetch(`${url}/cabinet/${phone}`);
     if (res.ok) {
-      const remoteMeds = await res.json();
+      const normalizeMed = (med: any, index = 0): SyncedCabinetMed | null => {
+        const name = med.name || med.med_name;
+        const medId = med.medId || med.med_id || name;
+        const id = med.id || medId || `${Date.now()}_${index}`;
+        return name ? { id: String(id), name, medId } : null;
+      };
+      const isSyncedCabinetMed = (med: SyncedCabinetMed | null): med is SyncedCabinetMed => med !== null;
+      const remoteMeds = (await res.json()).map(normalizeMed).filter(isSyncedCabinetMed);
+      const normalizedLocal = localMeds.map(normalizeMed).filter(isSyncedCabinetMed);
+
       for (const remote of remoteMeds) {
-        if (!localMeds.some((m: any) => m.id === remote.id)) {
+        if (!normalizedLocal.some((m: any) => m.id === remote.id)) {
           await fetch(`${url}/cabinet/${phone}/${remote.id}`, { method: 'DELETE' });
         }
       }
-      for (const local of localMeds) {
+      for (const local of normalizedLocal) {
         if (!remoteMeds.some((m: any) => m.id === local.id)) {
           await fetch(`${url}/cabinet/${phone}`, {
             method: 'POST',
@@ -101,9 +117,9 @@ export const getRemoteCabinet = async (phone: string): Promise<any[]> => {
       const data = await res.json();
       return data.map((item: any) => ({
         id: item.id || Date.now().toString(),
-        name: item.med_name,
-        medId: item.med_id
-      }));
+        name: item.name || item.med_name,
+        medId: item.med_id || item.medId || item.name || item.med_name
+      })).filter((item: any) => item.name);
     }
     return [];
   } catch (e) {
@@ -121,8 +137,8 @@ export const getRemoteLogs = async (phone: string): Promise<ActivityLog[]> => {
       return data.map((item: any) => ({
         id: item.id || Date.now().toString(),
         timestamp: item.timestamp || '',
-        text: item.log_text
-      }));
+        text: item.text || item.log_text || ''
+      })).filter((item: ActivityLog) => item.text);
     }
     return [];
   } catch (e) {
