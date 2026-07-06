@@ -334,20 +334,19 @@ export default function CaregiverScreen() {
                 </View>
               </View>
             ) : (
-              <View style={{ gap: 10 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Text style={{ fontSize: 16 + fontOffset, fontWeight: '800', color: doctorMode ? '#000' : SeniorColors.success }}>
+              <View style={styles.connectedPanel}>
+                <Text style={[styles.connectedText, { fontSize: 16 + fontOffset }, doctorMode && { color: '#000' }]}>
                     {language === 'th' ? `ซิงค์กับเครื่องคุณตา "${remoteProfile.name}" สำเร็จ` : `Connected to Grandpa "${remoteProfile.name}" successfully`}
+                </Text>
+                <TouchableOpacity
+                  style={styles.disconnectBtn}
+                  onPress={disconnectRemote}
+                >
+                  <Feather name="log-out" size={18} color="#FFF" />
+                  <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 15 + fontOffset }}>
+                    {language === 'th' ? 'ตัดการเชื่อมต่อ' : 'Disconnect'}
                   </Text>
-                  <TouchableOpacity
-                    style={styles.disconnectBtn}
-                    onPress={disconnectRemote}
-                  >
-                    <Text style={{ color: '#FFF', fontWeight: '900', fontSize: 13 + fontOffset }}>
-                      {language === 'th' ? 'ตัดการเชื่อมต่อ' : 'Disconnect'}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                </TouchableOpacity>
               </View>
             )}
           </View>
@@ -812,13 +811,26 @@ const styles = StyleSheet.create({
     minHeight: 56,
     justifyContent: 'center',
   },
+  connectedPanel: {
+    gap: 12,
+    alignItems: 'stretch',
+  },
+  connectedText: {
+    fontWeight: '800',
+    color: SeniorColors.success,
+    lineHeight: 24,
+  },
   disconnectBtn: {
     backgroundColor: SeniorColors.danger,
     borderRadius: 12,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    minHeight: 48,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    minHeight: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'center',
+    gap: 8,
+    alignSelf: 'stretch',
   },
   nudgeBtn: {
     flex: 1,
